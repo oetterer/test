@@ -1,0 +1,21 @@
+/**
+ * @license GNU GPL v3+
+ * @since 1.0
+ *
+ * @author Tobias Oetterer < oetterer@uni-paderborn.de >
+ */
+.modal-backdrop {
+    /*
+     * we have to make due without the model backdrop because of the vector nav elements
+     * if anyone has a better solution, contact me :)
+     */
+    display: none;
+}
+
+.modal {
+    /*
+     * we have to make due without the model backdrop because of the vector nav elements
+     * if anyone has a better solution, contact me :)
+     */
+    top: 60px;
+}

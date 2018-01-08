@@ -1,0 +1,35 @@
+/**
+ * @license GNU GPL v3+
+ * @since 1.0
+ *
+ * @author Tobias Oetterer < oetterer@uni-paderborn.de >
+ */
+a.btn-default,
+a.btn-default:visited,
+a.btn-default:active,
+a.btn-default:hover {
+    color:#000000;
+}
+
+a.btn-primary,
+a.btn-primary:visited,
+a.btn-primary:active,
+a.btn-primary:hover,
+a.btn-success,
+a.btn-success:visited,
+a.btn-success:active,
+a.btn-success:hover,
+a.btn-info,
+a.btn-info:visited,
+a.btn-info:active,
+a.btn-info:hover,
+a.btn-warning,
+a.btn-warning:visited,
+a.btn-warning:active,
+a.btn-warning:hover,
+a.btn-danger,
+a.btn-danger:visited,
+a.btn-danger:active,
+a.btn-danger:hover {
+    color: #ffffff;
+}

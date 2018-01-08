@@ -1,0 +1,12 @@
+/**
+ * Needed for component popover
+ *
+ * @license GNU GPL v3+
+ * @since 1.0
+ *
+ * @author Tobias Oetterer < oetterer@uni-paderborn.de >
+ */
+.popover .popover-title {
+    margin: 0;
+    padding: 8px 14px;
+}

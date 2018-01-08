@@ -1,0 +1,17 @@
+/**
+ * @license GNU GPL v3+
+ * @since 1.0
+ *
+ * @author Tobias Oetterer < oetterer@uni-paderborn.de >
+ */
+.img-responsive,
+.thumbnail > img,
+.thumbnail a > img,
+.carousel-inner > .item > img,
+.carousel-inner > .item > a > img {
+    margin: auto;
+}
+
+.carousel ol.carousel-indicators {
+    margin: 0 0 10px -30%;
+}

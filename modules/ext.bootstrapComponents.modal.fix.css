@@ -4,6 +4,13 @@
  *
  * @author Tobias Oetterer < oetterer@uni-paderborn.de >
  */
+.modal-title {
+    font-size: 120%;
+    font-weight: bold;
+    line-height: 1.6;
+    color: black;
+}
+
 .modal-trigger {
     /*
      * modal trigger get a different cursor icon

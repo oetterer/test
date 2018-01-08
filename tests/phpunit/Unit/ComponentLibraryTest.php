@@ -1,6 +1,6 @@
 <?php
 
-namespace Bootstrap\Components\Tests;
+namespace BootstrapComponents\Tests\Unit;
 
 use BootstrapComponents\ComponentLibrary;
 use \MWException;
@@ -88,11 +88,11 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 	public function testGetDescriptionAndHelpFor( $componentName ) {
 		$instance = new ComponentLibrary();
 		$this->assertEquals(
-			'<bootstrap-components-' . $componentName . '-description>',
+			wfMessage( 'bootstrap-components-' . $componentName . '-description' )->parse(),
 			$instance->getDescriptionFor( $componentName )
 		);
 		$this->assertEquals(
-			'&lt;bootstrap-components-' . $componentName . '-help&gt;',
+			wfMessage( 'bootstrap-components-' . $componentName . '-help' )->parse(),
 			$instance->getHelpFor( $componentName )
 		);
 	}
@@ -184,11 +184,11 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 			$instance->getHandlerTypeFor( 'well' )
 		);
 		$this->assertEquals(
-			'<bootstrap-components-well-description>',
+			wfMessage( 'bootstrap-components-well-description' )->parse(),
 			$instance->getDescriptionFor( 'well' )
 		);
 		$this->assertEquals(
-			'&lt;bootstrap-components-well-help&gt;',
+			wfMessage( 'bootstrap-components-well-help' )->parse(),
 			$instance->getHelpFor( 'well' )
 		);
 		foreach ( $this->modulesForComponentsProvider() as $args ) {

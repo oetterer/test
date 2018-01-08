@@ -1,8 +1,9 @@
 <?php
 
-namespace Bootstrap\Components\Tests;
+namespace BootstrapComponents\Tests\Unit\Component;
 
 use BootstrapComponents\Component\Alert;
+use BootstrapComponents\Tests\Unit\ComponentsTestBase;
 use \MWException;
 
 /**

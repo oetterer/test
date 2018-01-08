@@ -1,6 +1,6 @@
 <?php
 
-namespace Bootstrap\Components\Tests;
+namespace BootstrapComponents\Tests\Unit;
 
 use BootstrapComponents\Setup as Setup;
 use \PHPUnit_Framework_TestCase;
@@ -32,7 +32,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testRegisterHooks( $configuration, $expectedRegisteredHooks, $expectedNotRegisteredHooks ) {
 		$setup = new Setup();
-		$setup->register( $configuration );
+		$setup->registerHooks( $configuration );
 		$registeredHooks = $setup->getHooksToRegister( $configuration );
 
 		foreach ( $expectedRegisteredHooks as $expectedHook ) {

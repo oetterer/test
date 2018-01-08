@@ -1,8 +1,9 @@
 <?php
 
-namespace Bootstrap\Components\Tests;
+namespace BootstrapComponents\Tests\Unit\Component;
 
 use BootstrapComponents\Component\Collapse;
+use BootstrapComponents\Tests\Unit\ComponentsTestBase;
 use \MWException;
 
 /**

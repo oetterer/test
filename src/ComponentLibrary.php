@@ -102,15 +102,14 @@ class ComponentLibrary {
 
 		if ( is_null( $componentWhiteList ) ) {
 			#@todo integration test: check if wgBootstrapComponentsWhitelist is already set
-			$componentWhiteList = isset( $GLOBALS['wgBootstrapComponentsWhitelist'] ) ? $GLOBALS['wgBootstrapComponentsWhitelist'] : true;
+			$componentWhiteList = true;
 		}
 		if ( is_array( $componentWhiteList ) ) {
 			// if the whitelist contains an individual set of components, make sure 'help' is allowed as well
 			$componentWhiteList[] = 'help';
 		}
 		$this->componentWhiteList = $componentWhiteList;
-		list ( $this->registeredComponents, $this->componentNamesByClass, $this->componentDataStore
-			)
+		list ( $this->registeredComponents, $this->componentNamesByClass, $this->componentDataStore )
 			= $this->registerComponents( $this->componentWhiteList );
 	}
 
@@ -173,7 +172,7 @@ class ComponentLibrary {
 	/**
 	 * Returns the description for a registered component
 	 *
-	 * Note: this uses the component name to compile a message name from which to retrieve the description (not parsed)
+	 * Note: this uses the component name to compile a message name from which to retrieve the description (parsed)
 	 *
 	 * @param string $component
 	 *
@@ -184,7 +183,7 @@ class ComponentLibrary {
 		if ( !isset( $this->componentDataStore[$component] ) ) {
 			throw new MWException( 'Trying to get a description for unregistered component "' . (string) $component . '"!' );
 		}
-		return wfMessage( 'bootstrap-components-' . $component . '-description' )->inContentLanguage()->text();
+		return wfMessage( 'bootstrap-components-' . $component . '-description' )->inContentLanguage()->parse();
 	}
 
 	/**
@@ -301,7 +300,7 @@ class ComponentLibrary {
 	}
 
 	/**
-	 * Generates the array for registers components containing all whitelisted components.
+	 * Generates the array for registered components containing all whitelisted components and the two supporting data arrays.
 	 *
 	 * @param bool|array $componentWhiteList
 	 *
@@ -312,7 +311,7 @@ class ComponentLibrary {
 		$componentNamesByClass = [];
 		$registeredComponents = [];
 		foreach ( $this->rawComponentsDefinition() as $componentName => $componentData ) {
-			$componentData['attributes'] = (array) $componentData['attributes'];
+			$componentData['attributes'] = (array)$componentData['attributes'];
 			// help is always a valid attribute
 			$componentData['attributes'][] = 'help';
 			if ( $componentData['attributes']['default'] ) {

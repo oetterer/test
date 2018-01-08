@@ -1,6 +1,6 @@
 <?php
 
-namespace Bootstrap\Components\Tests;
+namespace BootstrapComponents\Tests\Unit;
 
 use BootstrapComponents\AttributeManager;
 use \PHPUnit_Framework_TestCase;

@@ -1,8 +1,9 @@
 <?php
 
-namespace Bootstrap\Components\Tests;
+namespace BootstrapComponents\Tests\Unit\Component;
 
 use BootstrapComponents\Component\Modal;
+use BootstrapComponents\Tests\Unit\ComponentsTestBase;
 use \MWException;
 
 /**
@@ -84,7 +85,7 @@ class ModalTest extends ComponentsTestBase {
 					'id'      => 'firefly0', 'size' => 'lg', 'class' => 'shiny', 'style' => 'float:right;background-color:black',
 					'heading' => 'You can\'t take the sky from me!',
 				],
-				'<span class="modal-trigger" data-toggle="modal" data-target="#firefly0"><img alt="Serenity" src="/images/a/aa/Serenity.png" width="160" height="42"></span><div class="modal fade shiny" style="float:right;background-color:black" role="dialog" id="firefly0" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><h4 class="modal-title">You can\'t take the sky from me!</h4></div>
+				'<span class="modal-trigger" data-toggle="modal" data-target="#firefly0"><img alt="Serenity" src="/images/a/aa/Serenity.png" width="160" height="42"></span><div class="modal fade shiny" style="float:right;background-color:black" role="dialog" id="firefly0" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><span class="modal-title">You can\'t take the sky from me!</span></div>
 <div class="modal-body">' . $this->input . '</div>
 <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
 </div></div></div>',

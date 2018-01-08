@@ -31,7 +31,7 @@ class Setup {
 	 */
 	public static function onExtensionLoad() {
 		$setup = new self();
-		$setup->register( $GLOBALS );
+		$setup->registerHooks( $GLOBALS );
 		return true;
 	}
 
@@ -108,15 +108,14 @@ class Setup {
 	 *
 	 * @param array $configuration
 	 */
-	public function register( $configuration ) {
+	public function registerHooks( $configuration ) {
 		foreach ( $this->getHooksToRegister( $configuration ) as $hook => $callback ) {
 			Hooks::register( $hook, $callback );
 		}
 	}
 	# attend before deployment
 	#@todo adapt file headers (see chameleon and bootstrap for example)
-	#@todo there is one long running test: ImageModalTest; accelerate?
-	#@todo add english messages to i18n/en.json
+	#@todo add english messages to i18n/en.json; OR: kick online help...
 	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5)
 	#   or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
 	#@todo put on github with automatic testing and scrutinizing

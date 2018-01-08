@@ -364,6 +364,9 @@ class ModalBase {
 	 * @return string
 	 */
 	private function generateFooter( $footer = '' ) {
+		if ( is_null( $footer ) ) {
+			$footer = '';
+		}
 		$close = wfMessage( 'bootstrap-components-close-element' )->inContentLanguage()->parse();
 		return Html::rawElement(
 				'div',
@@ -389,6 +392,9 @@ class ModalBase {
 	 * @return string
 	 */
 	private function generateHeader( $header = '' ) {
+		if ( is_null( $header ) ) {
+			$header = '';
+		}
 		$button = Html::rawElement(
 			'button',
 			[
@@ -406,10 +412,9 @@ class ModalBase {
 		return Html::rawElement(
 				'div',
 				[ 'class' => 'modal-header' ],
-				$button . ($header
+				$button . ($header !== ''
 					? Html::rawElement(
-					#@fixme included in TOC?
-						'h4',
+						'span',
 						[ 'class' => 'modal-title' ],
 						$header
 					)

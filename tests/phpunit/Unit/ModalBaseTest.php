@@ -1,6 +1,6 @@
 <?php
 
-namespace Bootstrap\Components\Tests;
+namespace BootstrapComponents\Tests\Unit;
 
 use BootstrapComponents\ModalBase;
 use \PHPUnit_Framework_TestCase;
@@ -76,7 +76,7 @@ class ModalBaseTest extends PHPUnit_Framework_TestCase {
 				'innerClass0',
 				'<span class="modal-trigger" data-toggle="modal" data-target="#id0">trigger0</span><div class="modal fade outerClass0" style="outerStyle0" role="dialog" id="id0" aria-hidden="true">'
 				. '<div class="modal-dialog innerClass0"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close">'
-				. '<span aria-hidden="true">&times;</span></button><h4 class="modal-title">header0</h4></div>
+				. '<span aria-hidden="true">&times;</span></button><span class="modal-title">header0</span></div>
 <div class="modal-body">content0</div>
 <div class="modal-footer">footer0<button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
 </div></div></div>',

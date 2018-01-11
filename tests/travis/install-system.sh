@@ -9,14 +9,20 @@ mwDir=mw
 
 ## Use sha (master@5cc1f1d) to download a particular commit to avoid breakages
 ## introduced by MediaWiki core
-if [[ "${MW}" == *@* ]]
-then
+if [[ "${MW}" == *@* ]]; then
   arrMw=(${MW//@/ })
   MW=${arrMw[0]}
   SOURCE=${arrMw[1]}
 else
  MW=${MW}
  SOURCE=${MW}
+fi
+
+if [[ "${MW}" == master ]]; then
+ BRANCH=master
+else
+ BRANCH=${MW%.*}
+ BRANCH=REL${BRANCH/./_}
 fi
 
 function installMWCoreAndDB {
@@ -35,8 +41,7 @@ function installMWCoreAndDB {
 
  echo "installing database ${DB}"
 
- if [[ "${DB}" == "postgres" ]]
- then
+ if [[ "${DB}" == "postgres" ]]; then
   sudo /etc/init.d/postgresql stop
   sudo /etc/init.d/postgresql start
 
@@ -49,9 +54,9 @@ function installMWCoreAndDB {
 
  echo "installing skin vector"
  cd skins
- wget https://github.com/wikimedia/mediawiki-skins-Vector/archive/${SOURCE}.tar.gz -O vector.tar.gz
+ wget https://github.com/wikimedia/mediawiki-skins-Vector/archive/${BRANCH}.tar.gz -O vector.tar.gz
  tar -zxf vector.tar.gz
- mv mediawiki-skins-Vector-${SOURCE} Vector
+ mv mediawiki-skins-Vector-${BRANCH} Vector
 }
 
 function installSourceViaComposer {
@@ -79,8 +84,7 @@ function augmentConfiguration {
  cd ${mwDir}
 
  # Site language
- if [[ "${SITELANG}" != "" ]]
- then
+ if [[ "${SITELANG}" != "" ]]; then
   echo '$wgLanguageCode = "'${SITELANG}'";' >> LocalSettings.php
  fi
  echo 'wfLoadSkin( "Vector" );' >> LocalSettings.php

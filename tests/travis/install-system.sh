@@ -61,7 +61,7 @@ function installSourceFromPull {
 
  cd extensions
 
- cp -r ${originalDirectory} .
+ cp -r ${originalDirectory} BootstrapComponents
 
  cd ..
  echo 'wfLoadExtension( "BootstrapComponents" );' >> LocalSettings.php

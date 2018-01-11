@@ -76,7 +76,6 @@ class ComponentFunctionFactory {
 
 	/**
 	 * @return array[] each item holding parserHook, handlerType, callback function
-	 * @throws MWException
 	 */
 	public function generateParserHookList() {
 		$ParserHookList = [];

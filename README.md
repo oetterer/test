@@ -3,8 +3,7 @@
 2. add your class to the autoloader section of extension.json
 3. in ComponentLibrary, look for method `rawComponentsDefinition` and add all necessary data
     for the new component
-4. create all necessary message entries in qqq.json and en.json. At least, you have to provide
-    `bootstrap-components-<component name>-description` and `bootstrap-components-<component name>-help`
+4. create all necessary message entries in qqq.json and en.json.
 5. add tests for your new class
     
 ## Format of data array in ComponentLibrary::rawComponentsDefinition

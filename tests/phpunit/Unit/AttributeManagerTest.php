@@ -28,7 +28,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(
 			[
 				'active', 'class', 'color', 'collapsible', 'disabled', 'dismissible', 'footer',
-				'heading', 'help', 'id', 'link', 'placement', 'size', 'style', 'text', 'trigger',
+				'heading', 'id', 'link', 'placement', 'size', 'style', 'text', 'trigger',
 			],
 			$instance->getAllAttributes()
 		);
@@ -45,20 +45,6 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(
 			$allowedValues,
 			$instance->getAllowedValuesFor( $attribute )
-		);
-	}
-
-	/**
-	 * @param string $attribute
-	 * @param string $description
-	 *
-	 * @dataProvider descriptionProvider
-	 */
-	public function testGetDescriptionFor( $attribute, $description ) {
-		$instance = new AttributeManager();
-		$this->assertEquals(
-			$description,
-			$instance->getDescriptionFor( $attribute )
 		);
 	}
 
@@ -97,7 +83,6 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 			'dismissible' => [ 'dismissible', true ],
 			'footer'      => [ 'footer', true ],
 			'heading'     => [ 'heading', true ],
-			'help'        => [ 'help', false ],
 			'id'          => [ 'id', true ],
 			'link'        => [ 'link', true ],
 			'placement'   => [ 'placement', [ 'top', 'bottom', 'left', 'right' ] ],
@@ -112,37 +97,12 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @return array[]
 	 */
-	public function descriptionProvider() {
-		return [
-			'active'      => [ 'active', '&lt;bootstrap-components-attribute-active-description&gt;' ],
-			'class'       => [ 'class', '&lt;bootstrap-components-attribute-class-description&gt;' ],
-			'color'       => [ 'color', '&lt;bootstrap-components-attribute-color-description&gt;' ],
-			'collapsible' => [ 'collapsible', '&lt;bootstrap-components-attribute-collapsible-description&gt;' ],
-			'disabled'    => [ 'disabled', '&lt;bootstrap-components-attribute-disabled-description&gt;' ],
-			'dismissible' => [ 'dismissible', '&lt;bootstrap-components-attribute-dismissible-description&gt;' ],
-			'footer'      => [ 'footer', '&lt;bootstrap-components-attribute-footer-description&gt;' ],
-			'heading'     => [ 'heading', '&lt;bootstrap-components-attribute-heading-description&gt;' ],
-			'help'        => [ 'help', '&lt;bootstrap-components-attribute-help-description&gt;' ],
-			'id'          => [ 'id', '&lt;bootstrap-components-attribute-id-description&gt;' ],
-			'link'        => [ 'link', '&lt;bootstrap-components-attribute-link-description&gt;' ],
-			'placement'   => [ 'placement', '&lt;bootstrap-components-attribute-placement-description&gt;' ],
-			'size'        => [ 'size', '&lt;bootstrap-components-attribute-size-description&gt;' ],
-			'style'       => [ 'style', '&lt;bootstrap-components-attribute-style-description&gt;' ],
-			'text'        => [ 'text', '&lt;bootstrap-components-attribute-text-description&gt;' ],
-			'trigger'     => [ 'trigger', '&lt;bootstrap-components-attribute-trigger-description&gt;' ],
-		];
-	}
-
-	/**
-	 * @return array[]
-	 */
 	public function verifyValueProvider() {
 		return [
 			'active'      => [ 'active', [ md5( microtime() ), md5( microtime() . microtime() ) ], true ],
 			'active_fail' => [ 'active', [ true, false, null, [] ], false ],
 			'color'       => [ 'color', [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ], true ],
 			'color_fail'  => [ 'color', [ '!default', true, false, null, [] ], false ],
-			'help_fail'   => [ 'help', [ '1', 'true', true, false, [] ], false ],
 			'rnd_fail'    => [ md5( microtime() ), [ md5( microtime() ) ], false ],
 		];
 	}

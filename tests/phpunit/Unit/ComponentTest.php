@@ -90,10 +90,10 @@ class ComponentTest extends ComponentsTestBase {
 	 * @throws MWException
 	 * @dataProvider allComponentsProvider
 	 */
-	public function testProduceHelp( $component ) {
+	public function testSimpleOutput( $component ) {
 		$parserRequest = $this->buildParserRequest(
 			'',
-			[ 'help' => true ]
+			[ 'class' => 'test-class' ]
 		);
 		$class = $this->getComponentLibrary()->getClassFor( $component );
 		/** @var Component $instance */
@@ -108,7 +108,7 @@ class ComponentTest extends ComponentsTestBase {
 		);
 		$this->assertInternalType( 'string', $parsedString );
 		$this->assertRegExp(
-			'/id="help_for_' . $component . '"/',
+			'/class="[^"]*test-class"/',
 			$parsedString
 		);
 	}
@@ -117,10 +117,14 @@ class ComponentTest extends ComponentsTestBase {
 	 * @return array
 	 */
 	public function allComponentsProvider() {
-		$data = [];
-		foreach ( (new ComponentLibrary())->getKnownComponents() as $component ) {
-			$data[$component] = [ $component ];
-		}
-		return $data;
+		return [
+			'accordion' => [ 'accordion' ],
+			'alert'     => [ 'alert' ],
+			'collapse'  => [ 'collapse' ],
+			'jumbotron' => [ 'jumbotron' ],
+			'modal'     => [ 'modal' ],
+			'panel'     => [ 'panel' ],
+			'well'      => [ 'well' ],
+		];
 	}
 }

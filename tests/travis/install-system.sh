@@ -46,6 +46,12 @@ function installMWCoreAndDB {
   mysql -e 'create database its_a_mw;'
   php maintenance/install.php --dbtype ${DB} --dbuser root --dbname its_a_mw --dbpath $(pwd) --pass nyan --scriptpath /TravisWiki TravisWiki admin
  fi
+
+ echo "installing skin vector"
+ cd skin
+ wget https://github.com/wikimedia/mediawiki-skins-Vector/archive/${SOURCE}.tar.gz -O vector.tar.gz
+ tar -zxf vector.tar.gz
+ mv mediawiki-skins-Vector-${SOURCE} Vector
 }
 
 function installSourceViaComposer {

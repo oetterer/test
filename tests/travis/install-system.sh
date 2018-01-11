@@ -48,7 +48,7 @@ function installMWCoreAndDB {
  fi
 
  echo "installing skin vector"
- cd skin
+ cd skins
  wget https://github.com/wikimedia/mediawiki-skins-Vector/archive/${SOURCE}.tar.gz -O vector.tar.gz
  tar -zxf vector.tar.gz
  mv mediawiki-skins-Vector-${SOURCE} Vector

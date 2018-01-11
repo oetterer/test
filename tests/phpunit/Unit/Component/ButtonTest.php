@@ -34,12 +34,12 @@ class ButtonTest extends ComponentsTestBase {
 	/**
 	 * @param string $input
 	 * @param array  $arguments
-	 * @param string $expectedOutput
+	 * @param string $expectedOutputPattern
 	 *
 	 * @dataProvider placeMeArgumentsProvider
 	 * @throws MWException
 	 */
-	public function testCanRender( $input, $arguments, $expectedOutput ) {
+	public function testCanRender( $input, $arguments, $expectedOutputPattern ) {
 		$instance = new Button(
 			$this->getComponentLibrary(),
 			$this->getParserOutputHelper(),
@@ -54,7 +54,11 @@ class ButtonTest extends ComponentsTestBase {
 			$generatedOutput = $generatedOutput[0];
 		}
 
-		$this->assertEquals( $expectedOutput, $generatedOutput );
+		#$this->assertEquals( $expectedOutputPattern, $generatedOutput );
+		$this->assertRegExp(
+			$expectedOutputPattern,
+			$generatedOutput
+		);
 	}
 
 	/**
@@ -65,17 +69,17 @@ class ButtonTest extends ComponentsTestBase {
 			'simple'             => [
 				$this->input,
 				[],
-				'<a class="btn btn-default" role="button" id="bsc_button_NULL" href="/' . str_replace( ' ', '_', $this->input ) . '">' . $this->input . '</a>',
+				'~^<a class="btn btn-default" role="button" id="bsc_button_NULL" href=".*/' . str_replace( ' ', '_', $this->input ) . '">' . $this->input . '</a>$~',
 			],
 			'empty'              => [
 				'',
 				[],
-				'bootstrap-components-button-target-missing',
+				'~bootstrap-components-button-target-missing~', // because getParserOutputHelper-mock returns the message key instead of parsing it.
 			],
 			'color, text and id' => [
 				$this->input,
 				[ 'color' => 'danger', 'text' => 'BUTTON', 'id' => 'red' ],
-				'<a class="btn btn-danger" role="button" id="red" href="/' . str_replace( ' ', '_', $this->input ) . '">BUTTON</a>',
+				'~^<a class="btn btn-danger" role="button" id="red" href=".*/' . str_replace( ' ', '_', $this->input ) . '">BUTTON</a>$~',
 			],
 		];
 	}

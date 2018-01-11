@@ -233,11 +233,8 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 		return [
 			'getClassFor'       => [ 'getClassFor' ],
 			'getDescriptionFor' => [ 'getDescriptionFor' ],
-			'getHandlerTypeFor' => [ 'getHandlerTypeFor' ],
 			'getHelpFor'        => [ 'getHelpFor' ],
 			'getNameFor'        => [ 'getNameFor' ],
-			'isParserFunction'  => [ 'isParserFunction' ],
-			'isTagExtension'    => [ 'isTagExtension' ],
 		];
 	}
 

@@ -56,7 +56,9 @@ function installMWCoreAndDB {
  cd skins
  wget https://github.com/wikimedia/mediawiki-skins-Vector/archive/${BRANCH}.tar.gz -O vector.tar.gz
  tar -zxf vector.tar.gz
- @rm -r Vector # REL1_30 has an empty Vector directory sitting here (as well as CologneBlue, Modern, and MonoBook
+ if [[ -e Vector ]]; then
+  rm -r Vector # REL1_30 has an empty Vector directory sitting here (as well as CologneBlue, Modern, and MonoBook
+ fi
  mv mediawiki-skins-Vector-${BRANCH} Vector
 }
 

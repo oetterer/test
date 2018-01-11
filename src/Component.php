@@ -143,7 +143,7 @@ abstract class Component implements Nestable {
 	 * @param array  $array
 	 * @param string $glue
 	 *
-	 * @return string|bool returns false on empty array, string otherwise
+	 * @return false|string returns false on empty array, string otherwise
 	 */
 	protected function arrayToString( $array, $glue ) {
 		if ( !$array ) {
@@ -165,7 +165,7 @@ abstract class Component implements Nestable {
 	 * @param string|null $default
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor}
-	 * @return mixed
+	 * @return string|null
 	 */
 	protected function extractAttribute( $attribute, $attributes, $default = null ) {
 		if ( in_array( $attribute, $this->getComponentLibrary()->getAttributesFor( $this->getComponentName() ) )
@@ -263,7 +263,7 @@ abstract class Component implements Nestable {
 	 * @param ParserRequest $parserRequest
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
-	 * @return false|string
+	 * @return string|null
 	 */
 	private function checkForManualIdIn( ParserRequest $parserRequest ) {
 		$attributes = $parserRequest->getAttributes();

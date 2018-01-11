@@ -111,8 +111,8 @@ class CarouselGallery extends ImageGalleryBase {
 			}
 			if ( $imageLink ) {
 				# @note: this is a local link. has to be an article name :(
-				# @fixme: this solution probably broken with systems not using short url; problable there is a makeLink function or a Linker class for that
-				$carouselImage .= '|link=' . $GLOBALS['wgServer'] . $GLOBALS['wgScriptPath'] . $imageLink;
+				# @fixme: assuming, that the correct link processing is done in image processing
+				$carouselImage .= '|link=' . $imageLink;
 			}
 			if ( $imageParams ) {
 				foreach ( $imageParams as $key => $val ) {

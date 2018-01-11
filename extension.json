@@ -1,18 +1,15 @@
 {
 	"name": "BootstrapComponents",
-	"version": "0.6.0",
+	"version": "1.0.0",
 	"author": [
 		"[https://www.semantic-mediawiki.org/wiki/User:Oetterer Tobias Oetterer]"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:BootstrapComponents",
 	"descriptionmsg": "bootstrap-components-desc",
-	"license-name": "GPL-3.0+",
+	"license-name": "GPL-3.0-or-later",
 	"type": "parserhook",
 	"requires": {
-		"MediaWiki": ">= 1.27.0",
-		"extensions": {
-			"Bootstrap": ">= 1.2.1"
-		}
+		"MediaWiki": ">= 1.27.0"
 	},
 	"load_composer_autoloader": true,
 	"AutoloadClasses": {

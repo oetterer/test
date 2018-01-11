@@ -9,14 +9,20 @@ mwDir=mw
 
 ## Use sha (master@5cc1f1d) to download a particular commit to avoid breakages
 ## introduced by MediaWiki core
-if [[ "${MW}" == *@* ]]
-then
+if [[ "${MW}" == *@* ]]; then
   arrMw=(${MW//@/ })
   MW=${arrMw[0]}
   SOURCE=${arrMw[1]}
 else
  MW=${MW}
  SOURCE=${MW}
+fi
+
+if [[ "${MW}" == master ]]; then
+ BRANCH=master
+else
+ BRANCH=${MW%.*}
+ BRANCH=REL${BRANCH/./_}
 fi
 
 function installMWCoreAndDB {
@@ -35,8 +41,7 @@ function installMWCoreAndDB {
 
  echo "installing database ${DB}"
 
- if [[ "${DB}" == "postgres" ]]
- then
+ if [[ "${DB}" == "postgres" ]]; then
   sudo /etc/init.d/postgresql stop
   sudo /etc/init.d/postgresql start
 
@@ -46,6 +51,15 @@ function installMWCoreAndDB {
   mysql -e 'create database its_a_mw;'
   php maintenance/install.php --dbtype ${DB} --dbuser root --dbname its_a_mw --dbpath $(pwd) --pass nyan --scriptpath /TravisWiki TravisWiki admin
  fi
+
+ echo "installing skin vector"
+ cd skins
+ wget https://github.com/wikimedia/mediawiki-skins-Vector/archive/${BRANCH}.tar.gz -O vector.tar.gz
+ tar -zxf vector.tar.gz
+ if [[ -e Vector ]]; then
+  rm -r Vector # REL1_30 has an empty Vector directory sitting here (as well as CologneBlue, Modern, and MonoBook
+ fi
+ mv mediawiki-skins-Vector-${BRANCH} Vector
 }
 
 function installSourceViaComposer {
@@ -73,11 +87,10 @@ function augmentConfiguration {
  cd ${mwDir}
 
  # Site language
- if [[ "${SITELANG}" != "" ]]
- then
+ if [[ "${SITELANG}" != "" ]]; then
   echo '$wgLanguageCode = "'${SITELANG}'";' >> LocalSettings.php
  fi
-
+ echo 'wfLoadSkin( "Vector" );' >> LocalSettings.php
  echo 'error_reporting(E_ALL| E_STRICT);' >> LocalSettings.php
  echo 'ini_set("display_errors", 1);' >> LocalSettings.php
  echo '$wgShowExceptionDetails = true;' >> LocalSettings.php

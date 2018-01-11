@@ -15,7 +15,7 @@ tools:
     php_analyzer: true
     sensiolabs_security_checker: true
     external_code_coverage:
-        timeout: '900'
+        timeout: '600'
 
 checks:
     php:
@@ -26,3 +26,12 @@ checks:
         no_eval: true
         code_rating: true
         duplication: true
+        simplify_boolean_return: true
+        properties_in_camelcaps: true
+        parameter_doc_comments: true
+        overriding_parameter: true
+        no_goto: true
+        check_method_contracts:
+            verify_interface_like_constraints: true
+            verify_documented_constraints: true
+            verify_parent_constraints: true

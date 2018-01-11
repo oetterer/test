@@ -54,7 +54,6 @@ class ButtonTest extends ComponentsTestBase {
 			$generatedOutput = $generatedOutput[0];
 		}
 
-		#$this->assertEquals( $expectedOutputPattern, $generatedOutput );
 		$this->assertRegExp(
 			$expectedOutputPattern,
 			$generatedOutput

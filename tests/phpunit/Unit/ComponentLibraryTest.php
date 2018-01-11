@@ -33,9 +33,6 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-	/**
-	 * @throws MWException
-	 */
 	public function testCanCompileMagicWordsArray() {
 		$instance = new ComponentLibrary();
 		$this->assertEquals(
@@ -79,29 +76,11 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-	/**
-	 * @param string $componentName
-	 *
-	 * @dataProvider componentNameAndClassProvider
-	 * @throws MWException
-	 */
-	public function testGetDescriptionAndHelpFor( $componentName ) {
-		$instance = new ComponentLibrary();
-		$this->assertEquals(
-			wfMessage( 'bootstrap-components-' . $componentName . '-description' )->parse(),
-			$instance->getDescriptionFor( $componentName )
-		);
-		$this->assertEquals(
-			wfMessage( 'bootstrap-components-' . $componentName . '-help' )->parse(),
-			$instance->getHelpFor( $componentName )
-		);
-	}
 
 	/**
 	 * @param string $componentName
 	 *
 	 * @dataProvider componentNameAndClassProvider
-	 * @throws MWException
 	 */
 	public function testGetHandlerTypeFor( $componentName ) {
 		$instance = new ComponentLibrary();
@@ -176,20 +155,12 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 	public function testRegisterVsKnown() {
 		$instance = new ComponentLibrary( [ 'alert', 'modal', 'panel' ] );
 		$this->assertEquals(
-			[ 'alert', 'help', 'modal', 'panel', ],
+			[ 'alert', 'modal', 'panel', ],
 			$instance->getRegisteredComponents()
 		);
 		$this->assertEquals(
 			ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
 			$instance->getHandlerTypeFor( 'well' )
-		);
-		$this->assertEquals(
-			wfMessage( 'bootstrap-components-well-description' )->parse(),
-			$instance->getDescriptionFor( 'well' )
-		);
-		$this->assertEquals(
-			wfMessage( 'bootstrap-components-well-help' )->parse(),
-			$instance->getHelpFor( 'well' )
 		);
 		foreach ( $this->modulesForComponentsProvider() as $args ) {
 			list( $component, $skin, $expectedModules ) = $args;
@@ -214,7 +185,6 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 			'button'    => [ 'button', 'BootstrapComponents\\Component\\Button' ],
 			'carousel'  => [ 'carousel', 'BootstrapComponents\\Component\\Carousel' ],
 			'collapse'  => [ 'collapse', 'BootstrapComponents\\Component\\Collapse' ],
-			'help'      => [ 'help', 'BootstrapComponents\\Component\\Help' ],
 			'icon'      => [ 'icon', 'BootstrapComponents\\Component\\Icon' ],
 			'jumbotron' => [ 'jumbotron', 'BootstrapComponents\\Component\\Jumbotron' ],
 			'label'     => [ 'label', 'BootstrapComponents\\Component\\Label' ],
@@ -232,8 +202,6 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 	public function exceptionThrowingMethodsProvider() {
 		return [
 			'getClassFor'       => [ 'getClassFor' ],
-			'getDescriptionFor' => [ 'getDescriptionFor' ],
-			'getHelpFor'        => [ 'getHelpFor' ],
 			'getNameFor'        => [ 'getNameFor' ],
 		];
 	}
@@ -309,11 +277,11 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 			],
 			'manual 1' => [
 				[ 'alert', 'modal', 'panel' ],
-				[ 'alert', 'help', 'modal', 'panel', ],
+				[ 'alert', 'modal', 'panel', ],
 			],
 			'manual 2' => [
-				[ 'icon', 'jumbotron', 'help', 'well' ],
-				[ 'help', 'icon', 'jumbotron', 'well' ],
+				[ 'icon', 'jumbotron', 'well', 'foobar' ],
+				[ 'icon', 'jumbotron', 'well' ],
 			],
 		];
 	}

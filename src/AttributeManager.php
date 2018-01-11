@@ -49,7 +49,6 @@ class AttributeManager {
 		$this->register( 'dismissible', true );
 		$this->register( 'footer', true );
 		$this->register( 'heading', true );
-		$this->register( 'help', false );
 		$this->register( 'id', true );
 		$this->register( 'link', true );
 		$this->register( 'placement', [ 'top', 'bottom', 'left', 'right' ] );

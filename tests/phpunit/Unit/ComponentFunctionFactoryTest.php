@@ -39,9 +39,6 @@ class ComponentFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-	/**
-	 * @throws MWException
-	 */
 	public function testCanCreateHookFunctions() {
 		$instance = new ComponentFunctionFactory( $this->parser );
 		$parserHookList = $instance->generateParserHookList();
@@ -53,7 +50,7 @@ class ComponentFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 		// since we base all further tests on all the components having a representation
 		// in the $parserHookList, we test, if the list has enough entries
 		$this->assertEquals(
-			15,
+			14,
 			count( $parserHookList )
 		);
 		foreach ( $parserHookList as $parserHookData ) {

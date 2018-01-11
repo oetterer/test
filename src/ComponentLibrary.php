@@ -104,10 +104,6 @@ class ComponentLibrary {
 			#@todo integration test: check if wgBootstrapComponentsWhitelist is already set
 			$componentWhiteList = true;
 		}
-		if ( is_array( $componentWhiteList ) ) {
-			// if the whitelist contains an individual set of components, make sure 'help' is allowed as well
-			$componentWhiteList[] = 'help';
-		}
 		$this->componentWhiteList = $componentWhiteList;
 		list ( $this->registeredComponents, $this->componentNamesByClass, $this->componentDataStore )
 			= $this->registerComponents( $this->componentWhiteList );
@@ -116,7 +112,6 @@ class ComponentLibrary {
 	/**
 	 * Compiles an array for all bootstrap component parser functions to be uses in the i18n.magic file
 	 *
-	 * @throws MWException cascades {@see \BootstrapComponents\ComponentLibrary::isParserFunction}
 	 * @return array
 	 */
 	public function compileMagicWordsArray() {
@@ -170,54 +165,19 @@ class ComponentLibrary {
 	}
 
 	/**
-	 * Returns the description for a registered component
-	 *
-	 * Note: this uses the component name to compile a message name from which to retrieve the description (parsed)
-	 *
-	 * @param string $component
-	 *
-	 * @throws MWException provided component is not known
-	 * @return string
-	 */
-	public function getDescriptionFor( $component ) {
-		if ( !isset( $this->componentDataStore[$component] ) ) {
-			throw new MWException( 'Trying to get a description for unregistered component "' . (string) $component . '"!' );
-		}
-		return wfMessage( 'bootstrap-components-' . $component . '-description' )->inContentLanguage()->parse();
-	}
-
-	/**
-	 * Returns handler type for a registered component.
+	 * Returns handler type for a registered component. 'UNKNOWN' for unknown components.
 	 *
 	 * @see \BootstrapComponents\ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION, \BootstrapComponents\ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION
 	 *
 	 * @param string $component
 	 *
-	 * @throws MWException provided component is not registered
 	 * @return string
 	 */
 	public function getHandlerTypeFor( $component ) {
 		if ( !isset( $this->componentDataStore[$component] ) ) {
-			throw new MWException( 'Trying to get a handler type for unregistered component "' . (string) $component . '"!' );
+			return 'UNKNOWN';
 		}
 		return $this->componentDataStore[$component]['handlerType'];
-	}
-
-	/**
-	 * Returns the detailed help for a registered component
-	 *
-	 * Note: this uses the component name to compile a message name from which to retrieve the help (parsed).
-	 *
-	 * @param string $component
-	 *
-	 * @throws MWException provided component is not registered
-	 * @return string
-	 */
-	public function getHelpFor( $component ) {
-		if ( !isset( $this->componentDataStore[$component] ) ) {
-			throw new MWException( 'Trying to get help text for unregistered component "' . (string) $component . '"!' );
-		}
-		return wfMessage( 'bootstrap-components-' . $component . '-help' )->inContentLanguage()->parse();
 	}
 
 	/**
@@ -280,7 +240,6 @@ class ComponentLibrary {
 	 *
 	 * @param string $componentName
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getHandlerTypeFor}
 	 * @return bool
 	 */
 	public function isParserFunction( $componentName ) {
@@ -292,7 +251,6 @@ class ComponentLibrary {
 	 *
 	 * @param string $componentName
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getHandlerTypeFor}
 	 * @return bool
 	 */
 	public function isTagExtension( $componentName ) {
@@ -312,8 +270,6 @@ class ComponentLibrary {
 		$registeredComponents = [];
 		foreach ( $this->rawComponentsDefinition() as $componentName => $componentData ) {
 			$componentData['attributes'] = (array)$componentData['attributes'];
-			// help is always a valid attribute
-			$componentData['attributes'][] = 'help';
 			if ( $componentData['attributes']['default'] ) {
 				$componentData['attributes'] = array_unique( array_merge( $componentData['attributes'], self::DEFAULT_ATTRIBUTES ) );
 			}
@@ -399,13 +355,6 @@ class ComponentLibrary {
 				],
 				'modules'     => [
 					'vector' => 'ext.bootstrapComponents.button.vector-fix',
-				],
-			],
-			'help'      => [
-				'class'       => 'BootstrapComponents\\Component\\Help',
-				'handlerType' => self::HANDLER_TYPE_TAG_EXTENSION,
-				'attributes'  => [
-					'default' => false,
 				],
 			],
 			'icon'      => [

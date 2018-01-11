@@ -121,10 +121,6 @@ abstract class Component implements Nestable {
 	 * @return string|array
 	 */
 	public function parseComponent( $parserRequest ) {
-		if ( isset( $parserRequest->getAttributes()['help'] ) ) {
-			return $this->buildHelpTextFor( $this->getComponentName(), $parserRequest );
-		}
-
 		$this->setId(
 			$this->checkForManualIdIn( $parserRequest )
 		);
@@ -147,7 +143,7 @@ abstract class Component implements Nestable {
 	 * @param array  $array
 	 * @param string $glue
 	 *
-	 * @return string|bool returns false on empty array, string otherwise
+	 * @return false|string returns false on empty array, string otherwise
 	 */
 	protected function arrayToString( $array, $glue ) {
 		if ( !$array ) {
@@ -169,7 +165,7 @@ abstract class Component implements Nestable {
 	 * @param string|null $default
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor}
-	 * @return mixed
+	 * @return string|null
 	 */
 	protected function extractAttribute( $attribute, $attributes, $default = null ) {
 		if ( in_array( $attribute, $this->getComponentLibrary()->getAttributesFor( $this->getComponentName() ) )
@@ -251,40 +247,6 @@ abstract class Component implements Nestable {
 	}
 
 	/**
-	 * Produces text for the component's help output.
-	 *
-	 * @param $attribute
-	 *
-	 * @return array (string)<text to add to the component call string>, (string)<text to add to the attributes section>
-	 */
-	private function addAttributeToHelpText( $attribute ) {
-		$addToSection = '<dt>' . $attribute . '</dt>'
-			. '<dd>' . $this->getAttributeManager()->getDescriptionFor( $attribute ) . '<br />';
-		$callAttribute = $attribute;
-		$validValues = $this->getAttributeManager()->getAllowedValuesFor( $attribute );
-		if ( $validValues ) {
-			if ( is_array( $validValues ) ) {
-				$callAttribute .= '=[' . implode( '|', $validValues ) . ']';
-				$addToSection .= wfMessage(
-					'bootstrap-components-help-allowed-values',
-					implode( ', ', $validValues )
-				)->inContentLanguage()->text();
-			} else {
-				$callAttribute .= '=".."';
-				$addToSection .= wfMessage(
-					'bootstrap-components-help-allowed-value-any'
-				)->inContentLanguage()->text();
-			}
-		} else {
-			$addToSection .= wfMessage(
-				'bootstrap-components-help-allowed-value-none'
-			)->inContentLanguage()->text();
-		}
-		$addToSection .= '</dd>' . PHP_EOL;
-		return [ $callAttribute, $addToSection ];
-	}
-
-	/**
 	 * Performs all the mandatory actions on the parser output for the component class
 	 */
 	private function augmentParserOutput() {
@@ -298,72 +260,10 @@ abstract class Component implements Nestable {
 	}
 
 	/**
-	 * @param string        $component
-	 * @param ParserRequest $parserRequest
-	 *
-	 * @return array|string
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::parseComponent}
-	 */
-	private function buildHelpTextFor( $component, $parserRequest ) {
-		$attributes = [
-			'heading' => wfMessage( 'bootstrap-components-help-heading', $component )->inContentLanguage()->text(),
-			'footer'  => $this->getComponentLibrary()->getDescriptionFor(
-				$component
-			),
-			'color'   => 'info',
-			'id'      => 'help_for_' . $component,
-		];
-		$content = $this->buildHelpTextContentFor( $component );
-		$panelParserRequest = ApplicationFactory::getInstance()->getNewParserRequest(
-			[ $content, $attributes, $parserRequest->getParser(), $parserRequest->getFrame() ]
-		);
-
-		$panel = new Panel( $this->getComponentLibrary(), $this->getParserOutputHelper(), $this->getNestingController() );
-		return $panel->parseComponent( $panelParserRequest );
-	}
-
-	/**
-	 * @param string $component
-	 *
-	 * @return string
-	 * @throws MWException cascading others
-	 */
-	private function buildHelpTextContentFor( $component ) {
-		$attributesSection = '';
-		$callAttributes = [];
-
-		if ( $attributes = $this->getComponentLibrary()->getAttributesFor( $component ) ) {
-			$attributesSection = '=== '
-				. wfMessage(
-					'bootstrap-components-help-attributes',
-					$component
-				)->inContentLanguage()->text()
-				. ' ===' . PHP_EOL . '<dl>' . PHP_EOL;
-			foreach ( $attributes as $attribute ) {
-				list( $callAttribute, $addToSection ) = $this->addAttributeToHelpText( $attribute );
-				$attributesSection .= $addToSection;
-				$callAttributes[] = $callAttribute;
-			}
-			$attributesSection .= '</dl>' . PHP_EOL;
-		}
-
-		$hook = ComponentFunctionFactory::PARSER_HOOK_PREFIX . $component;
-		$call = $this->getComponentLibrary()->isParserFunction( $component )
-			? '{{#' . $hook . ':' . implode( '|', $callAttributes ) . '}}'
-			: '<' . $hook . ' ' . implode( ' ', $callAttributes ) . '>..</' . $hook . '>';
-
-		return $this->getComponentLibrary()->getHelpFor(
-				$component
-			) . PHP_EOL . PHP_EOL
-			. '<pre style="margin-top: 10px"><nowiki>' . $call . '</nowiki></pre>' . PHP_EOL
-			. $attributesSection;
-	}
-
-	/**
 	 * @param ParserRequest $parserRequest
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
-	 * @return false|string
+	 * @return string|null
 	 */
 	private function checkForManualIdIn( ParserRequest $parserRequest ) {
 		$attributes = $parserRequest->getAttributes();

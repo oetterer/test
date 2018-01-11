@@ -173,10 +173,10 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 	public function testRenderErrorMessage( $messageText, $renderedMessage ) {
 		/** @noinspection PhpParamsInspection */
 		$instance = new ParserOutputHelper(
-			$this->buildFullyEquippedParser( (bool) $renderedMessage )
+			$this->buildFullyEquippedParser( ( $renderedMessage != '~^$~' ) )
 		);
 
-		$this->assertEquals(
+		$this->assertRegExp(
 			$renderedMessage,
 			$instance->renderErrorMessage( $messageText )
 		);
@@ -208,12 +208,12 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function errorMessageProvider() {
 		return [
-			'null'       => [ null, '' ],
-			'false'      => [ false, '' ],
-			'none'       => [ '', '' ],
-			'empty'      => [ '      ', '' ],
-			'word'       => [ '__rndErrorMessageTextNotInMessageFiles', '<span class="error">&lt;__rndErrorMessageTextNotInMessageFiles&gt;</span>' ],
-			'word space' => [ '  __rndErrorMessageTextNotInMessageFiles  ', '<span class="error">&lt;__rndErrorMessageTextNotInMessageFiles&gt;</span>' ],
+			'null'       => [ null, '~^$~' ],
+			'false'      => [ false, '~^$~' ],
+			'none'       => [ '', '~^$~' ],
+			'empty'      => [ '      ', '~^$~' ],
+			'word'       => [ '__rndErrorMessageTextNotInMessageFiles', '~^<span class="error">[^_]+__rndErrorMessageTextNotInMessageFiles[^<]+</span>$~' ],
+			'word space' => [ '  __rndErrorMessageTextNotInMessageFiles  ', '~^<span class="error">[^_]+__rndErrorMessageTextNotInMessageFiles[^<]+</span>$~' ],
 		];
 	}
 }

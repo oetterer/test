@@ -137,7 +137,7 @@ class ComponentLibrary {
 	}
 
 	/**
-	 * @param $component
+	 * @param string $component
 	 *
 	 * @return bool|array
 	 * @throws MWException provided component is not known
@@ -229,7 +229,7 @@ class ComponentLibrary {
 	/**
 	 * Returns an array of all the registered component's names.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function getRegisteredComponents() {
 		return $this->registeredComponents;

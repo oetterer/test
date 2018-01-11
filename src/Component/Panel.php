@@ -107,7 +107,7 @@ class Panel extends Component {
 	 * @param array $attributes
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
-	 * @return array
+	 * @return string[]
 	 */
 	private function calculateOuterClassFrom( &$attributes ) {
 

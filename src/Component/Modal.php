@@ -66,10 +66,10 @@ class Modal extends Component {
 	/**
 	 * Calculates the css class string from the attributes array for the "inner" section (div around body and heading)
 	 *
-	 * @param array $attributes
+	 * @param string[] $attributes
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
-	 * @return bool|string
+	 * @return false|string
 	 */
 	private function calculateInnerClassFrom( $attributes ) {
 

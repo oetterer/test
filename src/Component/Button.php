@@ -80,7 +80,7 @@ class Button extends Component {
 	/**
 	 * Calculates the css class string from the attributes array.
 	 *
-	 * @param array $attributes
+	 * @param string[] $attributes
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
 	 * @return array

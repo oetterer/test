@@ -180,7 +180,7 @@ class ImageModal implements Nestable {
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
-	 * @return bool|string
+	 * @return false|string
 	 */
 	public function generateTrigger( $file, $sanitizedFrameParams, $handlerParams ) {
 		/** @var MediaTransformOutput $thumb */

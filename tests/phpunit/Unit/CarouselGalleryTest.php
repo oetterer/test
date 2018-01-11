@@ -82,13 +82,12 @@ class CarouselGalleryTest extends PHPUnit_Framework_TestCase {
 					'id'    => 'youcanttakethesky',
 				],
 				[
-					# @fixme localized!
-					0                                                          => '[[Datei:Mal.jpg|Malcolm Reynolds|alt=(alt) Malcolm Reynolds]]',
-					'[[Datei:Wash.jpg|Hoban Washburne|link'                    => 'https://prometheus6.uni-paderborn.de/List_of_best_Pilots_in_the_Verse]]',
-					'[[Datei:MirandaSecretFiles.pdf|(c) by Hands of Blue|page' => '13|float=none]]',
-					'class'                                                    => 'firefly',
-					'style'                                                    => 'float:space',
-					'id'                                                       => 'youcanttakethesky',
+					0                                                         => '[[File:Mal.jpg|Malcolm Reynolds|alt=(alt) Malcolm Reynolds]]',
+					'[[File:Wash.jpg|Hoban Washburne|link'                    => '/List_of_best_Pilots_in_the_Verse]]',
+					'[[File:MirandaSecretFiles.pdf|(c) by Hands of Blue|page' => '13|float=none]]',
+					'class'                                                   => 'firefly',
+					'style'                                                   => 'float:space',
+					'id'                                                      => 'youcanttakethesky',
 				],
 			],
 			# 'no images' => [] cannot be tested due to bad class design. blame @oetterer

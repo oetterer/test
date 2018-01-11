@@ -1,14 +1,17 @@
 #! /bin/bash
 set -ex
 
-BASE_PATH=$(pwd)
-MW_INSTALL_PATH=$BASE_PATH/../mw
+originalDirectory=$(pwd)
+cd ..
+baseDir=$(pwd)
+mwDir=mw
 
-cd $MW_INSTALL_PATH/extensions/SemanticScribunto
 
-if [ "$TYPE" == "coverage" ]
+cd ${baseDir}/${mwDir}/extensions/BootstrapComponents
+
+if [[ "${TYPE}" == "coverage" ]]
 then
-	composer phpunit -- --coverage-clover $BASE_PATH/build/coverage.clover
+	composer phpunit -- --coverage-clover ${originalDirectory}/build/coverage.clover
 else
 	composer phpunit
 fi

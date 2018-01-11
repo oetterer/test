@@ -30,7 +30,6 @@
 		"mediawiki/bootstrap": "~1.2"
 	},
 	"require-dev": {
-		"mediawiki/semantic-media-wiki": "@dev",
 		"squizlabs/php_codesniffer": "~2.1",
 		"phpmd/phpmd": "~2.1"
 	},

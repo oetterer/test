@@ -16,7 +16,7 @@ use \PHPUnit_Framework_TestCase;
  * @license GNU GPL v3+
  * @since   1.0
  *
- * @author  oetterer
+ * @author  Tobias Oetterer
  */
 class ComponentFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 	/**

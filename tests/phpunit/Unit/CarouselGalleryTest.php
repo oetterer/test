@@ -15,7 +15,7 @@ use \Title;
  * @license GNU GPL v3+
  * @since   1.0
  *
- * @author  oetterer
+ * @author  Tobias Oetterer
  */
 class CarouselGalleryTest extends PHPUnit_Framework_TestCase {
 

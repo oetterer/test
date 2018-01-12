@@ -12,7 +12,7 @@ use \PHPUnit_Framework_TestCase;
  * @license GNU GPL v3+
  * @since   1.0
  *
- * @author  oetterer
+ * @author  Tobias Oetterer
  */
 class SetupTest extends PHPUnit_Framework_TestCase {
 	public function testCanConstruct() {

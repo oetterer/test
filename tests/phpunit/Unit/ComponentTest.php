@@ -14,7 +14,7 @@ use \PHPUnit_Framework_MockObject_MockObject;
  * @license GNU GPL v3+
  * @since   1.0
  *
- * @author  oetterer
+ * @author  Tobias Oetterer
  */
 class ComponentTest extends ComponentsTestBase {
 	private $componentPlacing = '<component placing>';

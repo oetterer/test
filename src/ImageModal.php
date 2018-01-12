@@ -11,6 +11,7 @@ namespace BootstrapComponents;
 use \DummyLinker;
 use \File;
 use \Html;
+use JakubOnderka\PhpParallelLint\RunTimeException;
 use \Linker;
 use \MediaTransformOutput;
 use \MWException;
@@ -259,7 +260,7 @@ class ImageModal implements Nestable {
 			// let Linker.php handle these cases as well
 			return false;
 		}
-		if ( isset( $frameParams['uut'] ) ) {
+		if ( isset( $frameParams['phpunit_uut'] ) ) {
 			// this is used during unit tests, to "activate" original behaviour
 			return false;
 		}
@@ -389,24 +390,19 @@ class ImageModal implements Nestable {
 	 *
 	 * @return array [ MediaTransformOutput|false, handlerParams ]
 	 */
-	private function generateTriggerCreateThumb( $file, $sanitizedFrameParams, $handlerParams ) {
+	protected function generateTriggerCreateThumb( $file, $sanitizedFrameParams, $handlerParams ) {
 		$transform = !isset( $sanitizedFrameParams['manualthumb'] ) && !$sanitizedFrameParams['framed'];
 		$thumbFile = $file;
 		$thumbHandlerParams = $this->generateTriggerReevaluateImageDimensions( $file, $sanitizedFrameParams, $handlerParams );
 
-		if ( !$sanitizedFrameParams['thumbnail'] && !$sanitizedFrameParams['framed'] && !isset( $thumbHandlerParams['width'] ) ) {
-			return [ false, $thumbHandlerParams ];
+		if ( isset( $sanitizedFrameParams['manualthumb'] ) ) {
+			$thumbFile = $this->generateTriggerFindManualThumbFile( $sanitizedFrameParams['manualthumb'] );
 		}
 
-		if ( isset( $sanitizedFrameParams['manualthumb'] ) ) {
-			$manual_title = Title::makeTitleSafe( NS_FILE, $sanitizedFrameParams['manualthumb'] );
-			if ( $manual_title ) {
-				$thumbFile = wfFindFile( $manual_title );
-				if ( !$thumbFile ) {
-					return [ false, $thumbHandlerParams ];
-				}
-				## new width calculation ?
-			}
+		if ( !$thumbFile
+			|| ( !$sanitizedFrameParams['thumbnail'] && !$sanitizedFrameParams['framed'] && !isset( $thumbHandlerParams['width'] ) )
+		) {
+			return [ false, $thumbHandlerParams ];
 		}
 
 		if ( $transform ) {
@@ -414,6 +410,19 @@ class ImageModal implements Nestable {
 		} else {
 			return [ $thumbFile->getUnscaledThumb( $thumbHandlerParams ), $thumbHandlerParams ];
 		}
+	}
+
+	/**
+	 * @param string $fileTitle
+	 *
+	 * @return bool|File
+	 */
+	protected function generateTriggerFindManualThumbFile( $fileTitle ) {
+		$manual_title = Title::makeTitleSafe( NS_FILE, $fileTitle );
+		if ( $manual_title ) {
+			return wfFindFile( $manual_title );
+		}
+		return false;
 	}
 
 	/**
@@ -426,47 +435,9 @@ class ImageModal implements Nestable {
 	 *
 	 * @return array thumbnail handler params
 	 */
-	private function generateTriggerReevaluateImageDimensions( File $file, $sanitizedFrameParams, $handlerParams ) {
+	protected function generateTriggerReevaluateImageDimensions( File $file, $sanitizedFrameParams, $handlerParams ) {
 		if ( !isset( $handlerParams['width'] ) ) {
-			if ( isset( $handlerParams['height'] ) && $file->isVectorized() ) {
-				// If its a vector image, and user only specifies height
-				// we don't want it to be limited by its "normal" width.
-				global $wgSVGMaxSize;
-				$handlerParams['width'] = $wgSVGMaxSize;
-			} else {
-				$handlerParams['width'] = $file->getWidth( $handlerParams['page'] );
-			}
-
-			if ( $sanitizedFrameParams['thumbnail']
-				|| isset( $sanitizedFrameParams['manualthumb'] )
-				|| $sanitizedFrameParams['framed']
-				|| $sanitizedFrameParams['frameless']
-				|| !$handlerParams['width']
-			) {
-				global $wgThumbLimits, $wgThumbUpright;
-
-				// Reduce width for upright images when parameter 'upright' is used
-				if ( isset( $sanitizedFrameParams['upright'] ) && $sanitizedFrameParams['upright'] == 0 ) {
-					$sanitizedFrameParams['upright'] = $wgThumbUpright;
-				}
-
-				$widthOption = User::getDefaultOption( 'thumbsize' );
-				// For caching health: If width scaled down due to upright
-				// parameter, round to full __0 pixel to avoid the creation of a
-				// lot of odd thumbs.
-				$prefWidth = isset( $sanitizedFrameParams['upright'] )
-					?
-					round( $wgThumbLimits[$widthOption] * $sanitizedFrameParams['upright'], -1 )
-					:
-					$wgThumbLimits[$widthOption];
-
-				// Use width which is smaller: real image width or user preference width
-				// Unless image is scalable vector.
-				if ( !isset( $handlerParams['height'] ) && ($handlerParams['width'] <= 0 ||
-						$prefWidth < $handlerParams['width'] || $file->isVectorized()) ) {
-					$handlerParams['width'] = $prefWidth;
-				}
-			}
+			$handlerParams = $this->generateTriggerCalculateImageWidth( $file, $sanitizedFrameParams, $handlerParams );
 		}
 		if ( $sanitizedFrameParams['thumbnail']
 			|| isset( $sanitizedFrameParams['manualthumb'] )
@@ -492,6 +463,58 @@ class ImageModal implements Nestable {
 			}
 		}
 
+		return $handlerParams;
+	}
+
+	/**
+	 * Calculates a with from File, $sanitizedFrameParams, and $handlerParams
+	 *
+	 * @param File  $file
+	 * @param array $sanitizedFrameParams
+	 * @param array $handlerParams
+	 *
+	 * @return array thumbnail handler params
+	 */
+	protected function generateTriggerCalculateImageWidth( File $file, $sanitizedFrameParams, $handlerParams ) {
+		if ( isset( $handlerParams['height'] ) && $file->isVectorized() ) {
+			// If its a vector image, and user only specifies height
+			// we don't want it to be limited by its "normal" width.
+			global $wgSVGMaxSize;
+			$handlerParams['width'] = $wgSVGMaxSize;
+		} else {
+			$handlerParams['width'] = $file->getWidth( $handlerParams['page'] );
+		}
+
+		if ( $sanitizedFrameParams['thumbnail']
+			|| isset( $sanitizedFrameParams['manualthumb'] )
+			|| $sanitizedFrameParams['framed']
+			|| $sanitizedFrameParams['frameless']
+			|| !$handlerParams['width']
+		) {
+			global $wgThumbLimits, $wgThumbUpright;
+
+			// Reduce width for upright images when parameter 'upright' is used
+			if ( isset( $sanitizedFrameParams['upright'] ) && $sanitizedFrameParams['upright'] == 0 ) {
+				$sanitizedFrameParams['upright'] = $wgThumbUpright;
+			}
+
+			$widthOption = User::getDefaultOption( 'thumbsize' );
+			// For caching health: If width scaled down due to upright
+			// parameter, round to full __0 pixel to avoid the creation of a
+			// lot of odd thumbs.
+			$prefWidth = isset( $sanitizedFrameParams['upright'] )
+				?
+				round( $wgThumbLimits[$widthOption] * $sanitizedFrameParams['upright'], -1 )
+				:
+				$wgThumbLimits[$widthOption];
+
+			// Use width which is smaller: real image width or user preference width
+			// Unless image is scalable vector.
+			if ( !isset( $handlerParams['height'] ) && ($handlerParams['width'] <= 0 ||
+					$prefWidth < $handlerParams['width'] || $file->isVectorized()) ) {
+				$handlerParams['width'] = $prefWidth;
+			}
+		}
 		return $handlerParams;
 	}
 

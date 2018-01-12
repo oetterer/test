@@ -51,11 +51,16 @@ function installMWCoreAndDB {
   mysql -e 'create database its_a_mw;'
   php maintenance/install.php --dbtype ${DB} --dbuser root --dbname its_a_mw --dbpath $(pwd) --pass nyan --scriptpath /TravisWiki TravisWiki admin
  fi
+}
+
+function installSkin {
 
  echo "installing skin vector"
- cd skins
+ cd ${baseDir}/${mwDir}/skins
+
  wget https://github.com/wikimedia/mediawiki-skins-Vector/archive/${BRANCH}.tar.gz -O vector.tar.gz
  tar -zxf vector.tar.gz
+
  if [[ -e Vector ]]; then
   rm -r Vector # REL1_30 has an empty Vector directory sitting here (as well as CologneBlue, Modern, and MonoBook
  fi
@@ -67,9 +72,9 @@ function installSourceViaComposer {
 }
 
 function installSourceFromPull {
+
  echo "Installing Extension"
- cd ${baseDir}
- cd ${mwDir}
+ cd ${baseDir}/${mwDir}
 
  composer require 'mediawiki/bootstrap=*' --update-with-dependencies
 
@@ -90,6 +95,7 @@ function augmentConfiguration {
  if [[ "${SITELANG}" != "" ]]; then
   echo '$wgLanguageCode = "'${SITELANG}'";' >> LocalSettings.php
  fi
+ echo '$wgEnableUploads = true;' >> LocalSettings.php
  echo 'wfLoadSkin( "Vector" );' >> LocalSettings.php
  echo 'error_reporting(E_ALL| E_STRICT);' >> LocalSettings.php
  echo 'ini_set("display_errors", 1);' >> LocalSettings.php
@@ -100,6 +106,18 @@ function augmentConfiguration {
  php maintenance/update.php --quick --skip-external-dependencies
 }
 
+function injectResources {
+
+ echo "Uploading test images"
+
+ cd ${baseDir}/${mwDir}
+ php maintenance/importImages.php ${baseDir}/${mwDir}/extensions/BootstrapComponents/tests/travis/resources/ png
+ php maintenance/runJobs.php -s
+}
+
+
 installMWCoreAndDB
+installSkin
 installSourceFromPull
 augmentConfiguration
+injectResources

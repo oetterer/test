@@ -240,7 +240,7 @@ class ImageModal implements Nestable {
 	 *
 	 * @return bool true, if all assertions hold, false if one fails (see above)
 	 */
-	private function assessResponsibility( $file, $frameParams ) {
+	protected function assessResponsibility( $file, $frameParams ) {
 		if ( !$file || !$file->exists() ) {
 			wfDebugLog( 'BootstrapComponents', 'Image modal encountered an invalid file. Relegating back.' );
 			return false;
@@ -268,46 +268,13 @@ class ImageModal implements Nestable {
 	}
 
 	/**
-	 * Performs all the mandatory actions on the parser output for the component class
-	 */
-	private function augmentParserOutput() {
-		$skin = $this->getParserOutputHelper()->getNameOfActiveSkin();
-		$this->getParserOutputHelper()->loadBootstrapModules();
-		$this->getParserOutputHelper()->addModules(
-			ApplicationFactory::getInstance()->getComponentLibrary()->getModulesFor( 'modal', $skin )
-		);
-	}
-
-	/**
-	 * @param Title $title
-	 * @param array $handlerParams
-	 *
-	 * @return string
-	 */
-	private function generateButtonToSource( $title, $handlerParams ) {
-		$url = $title->getLocalURL();
-		if ( isset( $handlerParams['page'] ) ) {
-			$url = wfAppendQuery( $url, [ 'page' => $handlerParams['page'] ] );
-		}
-		return Html::rawElement(
-			'a',
-			[
-				'class' => 'btn btn-primary',
-				'role'  => 'button',
-				'href'  => $url,
-			],
-			wfMessage( 'bootstrap-components-image-modal-source-button' )->inContentLanguage()->text()
-		);
-	}
-
-	/**
 	 * @param File  $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
 	 * @return array bool|string bool (large image yes or no)
 	 */
-	private function generateContent( $file, $sanitizedFrameParams, $handlerParams ) {
+	protected function generateContent( $file, $sanitizedFrameParams, $handlerParams ) {
 
 		$img = $file->getUnscaledThumb(
 			[ 'page' => $handlerParams['page'] ]
@@ -334,7 +301,7 @@ class ImageModal implements Nestable {
 	/**
 	 * @return string
 	 */
-	private function generateTriggerBuildZoomIcon() {
+	protected function generateTriggerBuildZoomIcon() {
 		return Html::rawElement(
 			'div',
 			[
@@ -359,7 +326,7 @@ class ImageModal implements Nestable {
 	 *
 	 * @return array
 	 */
-	private function generateTriggerCalculateHtmlOptions( $file, $thumb, $sanitizedFrameParams, $thumbHandlerParams ) {
+	protected function generateTriggerCalculateHtmlOptions( $file, $thumb, $sanitizedFrameParams, $thumbHandlerParams ) {
 		if ( $sanitizedFrameParams['thumbnail'] && (!isset( $sanitizedFrameParams['manualthumb'] ) && !$sanitizedFrameParams['framed']) ) {
 			Linker::processResponsiveImages( $file, $thumb, $thumbHandlerParams );
 		}
@@ -396,7 +363,7 @@ class ImageModal implements Nestable {
 		$thumbHandlerParams = $this->generateTriggerReevaluateImageDimensions( $file, $sanitizedFrameParams, $handlerParams );
 
 		if ( isset( $sanitizedFrameParams['manualthumb'] ) ) {
-			$thumbFile = $this->generateTriggerFindManualThumbFile( $sanitizedFrameParams['manualthumb'] );
+			$thumbFile = $this->getFileFromTitle( $sanitizedFrameParams['manualthumb'] );
 		}
 
 		if ( !$thumbFile
@@ -410,19 +377,6 @@ class ImageModal implements Nestable {
 		} else {
 			return [ $thumbFile->getUnscaledThumb( $thumbHandlerParams ), $thumbHandlerParams ];
 		}
-	}
-
-	/**
-	 * @param string $fileTitle
-	 *
-	 * @return bool|File
-	 */
-	protected function generateTriggerFindManualThumbFile( $fileTitle ) {
-		$manual_title = Title::makeTitleSafe( NS_FILE, $fileTitle );
-		if ( $manual_title ) {
-			return wfFindFile( $manual_title );
-		}
-		return false;
 	}
 
 	/**
@@ -527,7 +481,7 @@ class ImageModal implements Nestable {
 	 *
 	 * @return string
 	 */
-	private function generateTriggerWrapAndFinalize( $thumbString, $sanitizedFrameParams, $thumbWidth ) {
+	protected function generateTriggerWrapAndFinalize( $thumbString, $sanitizedFrameParams, $thumbWidth ) {
 		if ( $sanitizedFrameParams['thumbnail'] || isset( $sanitizedFrameParams['manualthumb'] ) || $sanitizedFrameParams['framed'] ) {
 			if ( !strlen( $sanitizedFrameParams['align'] ) ) {
 				$sanitizedFrameParams['align'] = $this->getTitle()->getPageLanguage()->alignEnd();
@@ -578,42 +532,88 @@ class ImageModal implements Nestable {
 	/**
 	 * @return DummyLinker
 	 */
-	private function getDummyLinker() {
+	protected function getDummyLinker() {
 		return $this->dummyLinker;
 	}
 
 	/**
 	 * @return File
 	 */
-	private function getFile() {
+	protected function getFile() {
 		return $this->file;
 	}
 
 	/**
 	 * @return NestingController
 	 */
-	private function getNestingController() {
+	protected function getNestingController() {
 		return $this->nestingController;
 	}
 
 	/**
 	 * @return null|Component
 	 */
-	private function getParentComponent() {
+	protected function getParentComponent() {
 		return $this->parentComponent;
 	}
 
 	/**
 	 * @return ParserOutputHelper
 	 */
-	private function getParserOutputHelper() {
+	protected function getParserOutputHelper() {
 		return $this->parserOutputHelper;
 	}
 
 	/**
 	 * @return Title
 	 */
-	private function getTitle() {
+	protected function getTitle() {
 		return $this->title;
+	}
+
+	/**
+	 * Performs all the mandatory actions on the parser output for the component class
+	 */
+	private function augmentParserOutput() {
+		$skin = $this->getParserOutputHelper()->getNameOfActiveSkin();
+		$this->getParserOutputHelper()->loadBootstrapModules();
+		$this->getParserOutputHelper()->addModules(
+			ApplicationFactory::getInstance()->getComponentLibrary()->getModulesFor( 'modal', $skin )
+		);
+	}
+
+	/**
+	 * @param string $fileTitle
+	 *
+	 * @return bool|File
+	 */
+	private function getFileFromTitle( $fileTitle ) {
+		$manual_title = Title::makeTitleSafe( NS_FILE, $fileTitle );
+		if ( $manual_title ) {
+			return wfFindFile( $manual_title );
+		}
+		return false;
+	}
+
+	/**
+	 * @param Title $title
+	 * @param array $handlerParams
+	 *
+	 * @return string
+	 */
+	private function generateButtonToSource( $title, $handlerParams ) {
+		$url = $title->getLocalURL();
+		if ( isset( $handlerParams['page'] ) ) {
+			$url = wfAppendQuery( $url, [ 'page' => $handlerParams['page'] ] );
+		}
+		return Html::rawElement(
+			'a',
+			[
+				'class' => 'btn btn-primary',
+				'role'  => 'button',
+				'href'  => $url,
+			],
+			wfMessage( 'bootstrap-components-image-modal-source-button' )->inContentLanguage()->text()
+		);
 	}
 }

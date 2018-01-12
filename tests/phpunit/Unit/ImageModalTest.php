@@ -130,6 +130,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	public function doTestCompareTriggerWithOriginalThumb( $fp, $hp, $num = null ) {
 
 		$fp['phpunit_uut'] = true;
+		$fp['no-link'] = true;
 		$hp['page'] = isset( $hp['page'] ) ? $hp['page'] : false;
 
 		$parser = $this->getMockBuilder( 'Parser' )

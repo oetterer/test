@@ -87,41 +87,53 @@ class CarouselGallery extends ImageGalleryBase {
 		$newImageList = [];
 		foreach ( $imageList as $imageData ) {
 			/** @var Title $imageTitle */
-			list( $imageTitle, $imageCaption, $imageAlt, $imageLink, $imageParams ) = $imageData;
-			// note that imageCaption, imageAlt and imageLink are strings. the latter is a local link or empty
-			// imageParams is an associative array param => value
+			$imageTitle = $imageData[0];
 
 			if ( $imageTitle->getNamespace() !== NS_FILE ) {
-				$imageTitle = false;
 				if ( $parser instanceof Parser ) {
 					$parser->addTrackingCategory( 'broken-file-category' );
 				}
+				continue;
 			} elseif ( $hideBadImages && wfIsBadImage( $imageTitle->getDBkey(), $contextTitle ) ) {
-				$imageTitle = false;
-			}
-			if ( !$imageTitle ) {
 				continue;
 			}
-			$carouselImage = '[[' . $imageTitle->getPrefixedText();
-			if ( $imageCaption ) {
-				$carouselImage .= '|' . $imageCaption;
-			}
-			if ( $imageAlt ) {
-				$carouselImage .= '|alt=' . $imageAlt;
-			}
-			if ( $imageLink ) {
-				# @note: this is a local link. has to be an article name :(
-				# @fixme: assuming, that the correct link processing is done in image processing
-				$carouselImage .= '|link=' . $imageLink;
-			}
-			if ( $imageParams ) {
-				foreach ( $imageParams as $key => $val ) {
-					$carouselImage .= '|' . $key . '=' . $val;
-				}
-			}
-			$carouselImage .= ']]';
+
+			$carouselImage = $this->buildImageStringFromData( $imageData );
 			$newImageList[] = $carouselImage;
 		}
 		return $newImageList;
+	}
+
+	/**
+	 * @param array $imageData
+	 *
+	 * @return string
+	 */
+	private function buildImageStringFromData( $imageData ) {
+
+		/** @var Title $imageTitle */
+		list( $imageTitle, $imageCaption, $imageAlt, $imageLink, $imageParams ) = $imageData;
+		// note that imageCaption, imageAlt and imageLink are strings. the latter is a local link or empty
+		// imageParams is an associative array param => value
+		$carouselImage = '[[' . $imageTitle->getPrefixedText();
+		if ( $imageCaption ) {
+			$carouselImage .= '|' . $imageCaption;
+		}
+		if ( $imageAlt ) {
+			$carouselImage .= '|alt=' . $imageAlt;
+		}
+		if ( $imageLink ) {
+			# @note: this is a local link. has to be an article name :(
+			# @fixme: assuming, that the correct link processing is done in image processing
+			$carouselImage .= '|link=' . $imageLink;
+		}
+		if ( $imageParams ) {
+			foreach ( $imageParams as $key => $val ) {
+				$carouselImage .= '|' . $key . '=' . $val;
+			}
+		}
+		$carouselImage .= ']]';
+
+		return $carouselImage;
 	}
 }

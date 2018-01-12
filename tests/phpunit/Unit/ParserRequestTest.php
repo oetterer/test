@@ -120,22 +120,40 @@ class ParserRequestTest extends PHPUnit_Framework_TestCase {
 			->getMock();
 		$inputText = 'input';
 		return [
-			'pf'          => [ [ $parser, $inputText ], ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION, $inputText, [] ],
-			'te'          => [ [ $inputText, [], $parser, $frame ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION, $inputText, [] ],
+			'pf'          => [
+				[ $parser, $inputText ],
+				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				$inputText,
+				[]
+			],
+			'te'          => [
+				[ $inputText, [], $parser, $frame ],
+				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
+				$inputText,
+				[]
+			],
 			'pf many'     => [
-				[ $parser, $inputText, 'attr1=1', 'attr2=2', 'attr3=3', ], ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION, $inputText,
-				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ],
+				[ $parser, $inputText, 'attr1=1', 'attr2=2', 'attr3=3', 'single', ],
+				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				$inputText,
+				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', 'single' => true, ],
 			],
 			'te many'     => [
-				[ $inputText, [ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ], $parser, $frame ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION, $inputText,
-				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ],
+				[ $inputText, [ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', 'single' => true, ], $parser, $frame ],
+				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
+				$inputText,
+				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', 'single' => true, ],
 			],
 			'pf no input' => [
-				[ $parser, '', '', 'attr1=1', 'attr2=2', 'attr3=3', ], ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION, '',
+				[ $parser, '', '', 'attr1=1', 'attr2=2', 'attr3=3', ],
+				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				'',
 				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ],
 			],
 			'te no input' => [
-				[ '', [ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ], $parser, $frame ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION, '',
+				[ '', [ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ], $parser, $frame ],
+				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
+				'',
 				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ],
 			],
 		];
@@ -154,8 +172,13 @@ class ParserRequestTest extends PHPUnit_Framework_TestCase {
 		return [
 			'pf'  => [ [ null, 'input' ], ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ],
 			'pf0' => [ [ null ], ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ],
+			'pf1' => [ [ $parser, '', false ], ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ],
 			'te'  => [ [ 'input', [], null, $frame ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ],
+			'te1' => [ [ 'input', [ false ], $parser ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ],
+			'te2' => [ [ 'input', [ 13 ], $parser ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ],
 			'te3' => [ [ 'input', [], $parser ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ],
+			'uk1' => [ [ $parser, 'input', [] ], 'FooBar' ],
+			'uk2' => [ [ 'input', [], $parser, $frame ], 'FooBar' ],
 		];
 	}
 }

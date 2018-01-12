@@ -1,9 +1,42 @@
 <?php
 /**
- * @license GNU GPL v3+
- * @since 1.0
+ * An extension building on the Bootstrap Extension that provides certain components
+ * inside mediawiki markup as parser functions or parser tags.
  *
- * @author Tobias Oetterer < oetterer@uni-paderborn.de >
+ * @see      https://www.mediawiki.org/wiki/Extension:BootstrapComponents
+ * @see      https://www.mediawiki.org/wiki/Extension:Bootstrap
+ *
+ * @author   Tobias Oetterer
+ *
+ * @defgroup BootstrapComponents BootstrapComponents
+ */
+
+/**
+ * The main file of the BootstrapComponents extension, when loaded via Composer.
+ *
+ * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
+ *
+ * This file is part of the MediaWiki extension BootstrapComponents.
+ * The BootstrapComponents extension is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The BootstrapComponents extension is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * My thanks go to Stephan Gambke for creating the Bootstrap extension and to
+ * mwjames and JeroenDeDauw who both where kind enough to help me getting better
+ * in coding for mediawiki.
+ *
+ * @file
+ * @ingroup       BootstrapComponents
  */
 
 namespace BootstrapComponents;
@@ -14,11 +47,6 @@ namespace BootstrapComponents;
  * @see https://github.com/oetterer/BootstrapComponents/
  */
 
-if ( defined( 'BOOTSTRAP_COMPONENTS_VERSION' ) ) {
-	// Do not initialize more than once.
-	return 1;
-}
-
 BootstrapComponents::load();
 
 /**
@@ -28,11 +56,14 @@ class BootstrapComponents {
 
 	public static function load() {
 
-		self::doCheckRequirements();
-		define( 'BOOTSTRAP_COMPONENTS_VERSION', 0.6 );
-		wfLoadExtension( 'BootstrapComponents' );
+		if ( self::doCheckRequirements() ) {
+			wfLoadExtension( 'BootstrapComponents' );
+		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	public static function doCheckRequirements() {
 
 		if ( !defined( 'MEDIAWIKI' ) ) {
@@ -45,6 +76,12 @@ class BootstrapComponents {
 				. 'is only compatible with MediaWiki 1.27 or above. You need to upgrade MediaWiki first.' . PHP_EOL
 			);
 		}
+
+		if ( defined( 'BOOTSTRAP_COMPONENTS_VERSION' ) ) {
+			// Do not initialize more than once.
+			return false;
+		}
+		return true;
 	}
 
 	/**

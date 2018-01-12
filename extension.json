@@ -47,6 +47,9 @@
 		"BootstrapComponentsModalReplaceImageThumbnail": true,
 		"BootstrapComponentsWhitelist": true
 	},
+	"ConfigRegistry": {
+		"BootstrapComponents": "GlobalVarConfig::newInstance"
+	},
 	"callback": "BootstrapComponents\\Setup::onExtensionLoad",
 	"MessagesDirs": {
 		"BootstrapComponents": [

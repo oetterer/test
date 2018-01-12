@@ -118,7 +118,7 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
 			],
 			'simplePF' => [
-				[ $parser, 'input', 'help' ],
+				[ $parser, 'input', 'class=test' ],
 				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
 			],
 		];
@@ -150,6 +150,10 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 			'Tag Extensions no parser'          => [
 				[ '1', '2', '3' ],
 				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
+			],
+			'Unknown handler type'              => [
+				[ $parser, 'input', '3' ],
+				'FooBar',
 			],
 		];
 	}

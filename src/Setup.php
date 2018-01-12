@@ -31,6 +31,8 @@ class Setup {
 	 */
 	public static function onExtensionLoad() {
 		$setup = new self();
+		$setup->prepareEnvironment();
+		$setup->bootstrapExtensionPresent();
 		$setup->registerHooks( $GLOBALS );
 		return true;
 	}
@@ -50,8 +52,10 @@ class Setup {
 
 				if ( $handlerType == ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
 					$parser->setHook( $idTag, $callback );
-				} else {
+				} elseif ( $handlerType == ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ) {
 					$parser->setFunctionHook( $idTag, $callback );
+				} else {
+					wfDebugLog( 'BootstrapComponents', 'Unknown handler type (' . $handlerType . ') detected for component ' . $idTag );
 				}
 			}
 		};
@@ -113,6 +117,19 @@ class Setup {
 			Hooks::register( $hook, $callback );
 		}
 	}
+
+	private function bootstrapExtensionPresent() {
+		if ( !defined( 'BS_VERSION' ) ) {
+			die(
+				'This extension requires Extension Bootstrap to be installed. '
+				. 'Please check <a href="https://github.com/oetterer/BootstrapComponents/">the online help</a>' . PHP_EOL
+			);
+		}
+	}
+
+	private function prepareEnvironment() {
+		define( 'BOOTSTRAP_COMPONENTS_VERSION', '1.0.0' );
+	}
 	# attend before deployment
 	#@todo adapt file headers (see chameleon and bootstrap for example)
 	#@todo add english messages to i18n/en.json; OR: kick online help...
@@ -123,7 +140,15 @@ class Setup {
 	#@todo add more comments
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
 	#@todo complete documentation in /doc (installation, configuration, howto, expansion)
+	#@todo ComponentLibrary::isParserFunction and ::isParserTag are scarcely used. remove or see to more usage
+	#@todo check other Bootstrap requirement detector
+	#@todo in ImageModalTest.php we have long running tests. All that use origThumbAndModalTriggerCompareAllCaseProvider (even the single)
+	#@todo revamp config access:
+	# $globalConfig = \MediaWiki\MediaWikiServices::getInstance()->getMainConfig(); $globalConfig->get( 'Server' );
+	# $myConfig = \MediaWiki\MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' ); $myConfig->get( 'BootstrapComponentsWhitelist' ) );
+
 
 	# this remains
 	#@todo when switching to 1.31, replace manual class autoloading in extension.json to psr-4 autoloading
+	#@todo add extensions requirement to extension.json for "Bootstrap": "~ 1.2" as soon as Bootstrap supports new Extension loading (leaving this in breaks 1.31.x)
 }

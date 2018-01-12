@@ -8,11 +8,12 @@
 
 namespace BootstrapComponents;
 
+use \ConfigException;
 use \DummyLinker;
 use \File;
 use \Html;
-use JakubOnderka\PhpParallelLint\RunTimeException;
 use \Linker;
+use \MediaWiki\MediaWikiServices;
 use \MediaTransformOutput;
 use \MWException;
 use \Title;
@@ -45,7 +46,7 @@ class ImageModal implements Nestable {
 	private $nestingController;
 
 	/**
-	 * @var Component
+	 * @var Nestable
 	 */
 	private $parentComponent;
 
@@ -121,6 +122,8 @@ class ImageModal implements Nestable {
 	 * @param string      $res           Final HTML output, used if this returns false
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\NestingController::open}
+	 * @throws ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTrigger}
+	 *
 	 * @return bool
 	 */
 	public function parse( &$frameParams, &$handlerParams, &$time, &$res ) {
@@ -140,7 +143,7 @@ class ImageModal implements Nestable {
 			$sanitizedFrameParams,
 			$handlerParams
 		);
-		if ( !$trigger ) {
+		if ( $trigger === false ) {
 			// something wrong with the trigger. Relegating back
 			return true;
 		}
@@ -180,6 +183,8 @@ class ImageModal implements Nestable {
 	 * @param File  $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
+	 *
+	 * @throws ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerCreateThumb}
 	 *
 	 * @return false|string
 	 */
@@ -258,10 +263,6 @@ class ImageModal implements Nestable {
 		}
 		if ( !$file->allowInlineDisplay() ) {
 			// let Linker.php handle these cases as well
-			return false;
-		}
-		if ( isset( $frameParams['phpunit_uut'] ) ) {
-			// this is used during unit tests, to "activate" original behaviour
 			return false;
 		}
 		return true;
@@ -345,7 +346,6 @@ class ImageModal implements Nestable {
 		// in Linker.php, options also run through {@see \Linker::getImageLinkMTOParams} to calculate the link value.
 		// Since we abort at the beginning, if any link related frameParam is set, we can skip this.
 		// also, obviously, we don't want to have ANY link around the img present.
-		#$options = (private) Linker::getImageLinkMTOParams( $frameParams, $query ) + $options;
 
 		return $options;
 	}
@@ -354,6 +354,8 @@ class ImageModal implements Nestable {
 	 * @param File  $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
+	 *
+	 * @throws ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerReevaluateImageDimensions}
 	 *
 	 * @return array [ MediaTransformOutput|false, handlerParams ]
 	 */
@@ -387,17 +389,15 @@ class ImageModal implements Nestable {
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
+	 * @throws ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerCalculateImageWidth}
+	 *
 	 * @return array thumbnail handler params
 	 */
 	protected function generateTriggerReevaluateImageDimensions( File $file, $sanitizedFrameParams, $handlerParams ) {
 		if ( !isset( $handlerParams['width'] ) ) {
 			$handlerParams = $this->generateTriggerCalculateImageWidth( $file, $sanitizedFrameParams, $handlerParams );
 		}
-		if ( $sanitizedFrameParams['thumbnail']
-			|| isset( $sanitizedFrameParams['manualthumb'] )
-			|| $sanitizedFrameParams['framed']
-			|| $sanitizedFrameParams['frameless']
-		) {
+		if ( $this->amIThumbnailRelated( $sanitizedFrameParams ) ) {
 			if ( empty( $handlerParams['width'] ) && !$sanitizedFrameParams['frameless'] ) {
 				// Reduce width for upright images when parameter 'upright' is used
 				$handlerParams['width'] = isset( $sanitizedFrameParams['upright'] ) ? 130 : 180;
@@ -427,29 +427,26 @@ class ImageModal implements Nestable {
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
+	 * @throws ConfigException cascading {@see \Config::get}
+	 *
 	 * @return array thumbnail handler params
 	 */
 	protected function generateTriggerCalculateImageWidth( File $file, $sanitizedFrameParams, $handlerParams ) {
+		$globalConfig = MediaWikiServices::getInstance()->getMainConfig();
 		if ( isset( $handlerParams['height'] ) && $file->isVectorized() ) {
 			// If its a vector image, and user only specifies height
 			// we don't want it to be limited by its "normal" width.
-			global $wgSVGMaxSize;
-			$handlerParams['width'] = $wgSVGMaxSize;
+			$handlerParams['width'] = $globalConfig->get( 'SVGMaxSize' );
 		} else {
 			$handlerParams['width'] = $file->getWidth( $handlerParams['page'] );
 		}
 
-		if ( $sanitizedFrameParams['thumbnail']
-			|| isset( $sanitizedFrameParams['manualthumb'] )
-			|| $sanitizedFrameParams['framed']
-			|| $sanitizedFrameParams['frameless']
-			|| !$handlerParams['width']
-		) {
-			global $wgThumbLimits, $wgThumbUpright;
+		if ( $this->amIThumbnailRelated( $sanitizedFrameParams ) || !$handlerParams['width'] ) {
+			$thumbLimits = $globalConfig->get( 'ThumbLimits' );
 
 			// Reduce width for upright images when parameter 'upright' is used
 			if ( isset( $sanitizedFrameParams['upright'] ) && $sanitizedFrameParams['upright'] == 0 ) {
-				$sanitizedFrameParams['upright'] = $wgThumbUpright;
+				$sanitizedFrameParams['upright'] = $globalConfig->get( 'ThumbUpright' );
 			}
 
 			$widthOption = User::getDefaultOption( 'thumbsize' );
@@ -457,10 +454,8 @@ class ImageModal implements Nestable {
 			// parameter, round to full __0 pixel to avoid the creation of a
 			// lot of odd thumbs.
 			$prefWidth = isset( $sanitizedFrameParams['upright'] )
-				?
-				round( $wgThumbLimits[$widthOption] * $sanitizedFrameParams['upright'], -1 )
-				:
-				$wgThumbLimits[$widthOption];
+				? round( $thumbLimits[$widthOption] * $sanitizedFrameParams['upright'], -1 )
+				: $thumbLimits[$widthOption];
 
 			// Use width which is smaller: real image width or user preference width
 			// Unless image is scalable vector.
@@ -551,7 +546,7 @@ class ImageModal implements Nestable {
 	}
 
 	/**
-	 * @return null|Component
+	 * @return null|Nestable
 	 */
 	protected function getParentComponent() {
 		return $this->parentComponent;
@@ -569,6 +564,18 @@ class ImageModal implements Nestable {
 	 */
 	protected function getTitle() {
 		return $this->title;
+	}
+
+	/**
+	 * @param $sanitizedFrameParams
+	 *
+	 * @return bool
+	 */
+	private function amIThumbnailRelated( $sanitizedFrameParams ) {
+		return $sanitizedFrameParams['thumbnail']
+			|| isset( $sanitizedFrameParams['manualthumb'] )
+			|| $sanitizedFrameParams['framed']
+			|| $sanitizedFrameParams['frameless'];
 	}
 
 	/**

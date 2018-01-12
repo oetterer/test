@@ -47,29 +47,25 @@ class ComponentFunctionFactory {
 	 * Returns the singleton instance
 	 *
 	 * @param Parser $parser
-	 * @param array  $configuration
 	 *
 	 * @return ComponentFunctionFactory
 	 */
-	public static function getInstance( Parser $parser = null, $configuration = [] ) {
+	public static function getInstance( Parser $parser = null ) {
 		if ( self::$instance !== null ) {
 			return self::$instance;
 		}
 
-		return self::$instance = new self( $parser, $configuration );
+		return self::$instance = new self( $parser );
 	}
 
 	/**
 	 * ComponentFunctionFactory constructor.
 	 *
 	 * @param Parser $parser
-	 * @param array  $configuration
 	 */
-	public function __construct( Parser $parser, $configuration = [] ) {
+	public function __construct( Parser $parser ) {
 		$applicationFactory = ApplicationFactory::getInstance();
-		$this->componentLibrary = $applicationFactory->getComponentLibrary(
-			isset( $configuration['wgBootstrapComponentsWhitelist'] ) ? $configuration['wgBootstrapComponentsWhitelist'] : true
-		);
+		$this->componentLibrary = $applicationFactory->getComponentLibrary();
 		$this->parserOutputHelper = $applicationFactory->getParserOutputHelper( $parser );
 		$this->nestingController = $applicationFactory->getNestingController();
 	}
@@ -117,21 +113,21 @@ class ComponentFunctionFactory {
 	/**
 	 * @return ComponentLibrary
 	 */
-	private function getComponentLibrary() {
+	protected function getComponentLibrary() {
 		return $this->componentLibrary;
 	}
 
 	/**
 	 * @return NestingController
 	 */
-	private function getNestingController() {
+	protected function getNestingController() {
 		return $this->nestingController;
 	}
 
 	/**
 	 * @return ParserOutputHelper
 	 */
-	private function getParserOutputHelper() {
+	protected function getParserOutputHelper() {
 		return $this->parserOutputHelper;
 	}
 }

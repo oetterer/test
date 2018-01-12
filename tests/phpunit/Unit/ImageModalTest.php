@@ -3,6 +3,7 @@
 namespace BootstrapComponents\Tests\Unit;
 
 use BootstrapComponents\ImageModal;
+use Cdb\Exception;
 use \ConfigException;
 use \Linker;
 use \MediaWiki\MediaWikiServices;
@@ -68,6 +69,8 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @param int $numTests
+	 *
+	 * @throws \ConfigException
 	 */
 	public function testSomeRandomCompareTriggerWithOriginalThumb( $numTests = self::NUM_OF_RND_COMPARE_TESTS ) {
 		$testCases = $this->origThumbAndModalTriggerCompareAllCaseProvider();
@@ -80,6 +83,8 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @param int   $testCaseNum
 	 * @param array $testCaseData
+	 *
+	 * @throws \ConfigException
 	 */
 	public function testSingleCompareTriggerWithOriginalThumb( $testCaseData = null, $testCaseNum = null ) {
 		if ( !$testCaseData ) {
@@ -105,6 +110,8 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	 * @param array $hp
 	 * @param int   $num
 	 *
+	 * @throws \ConfigException
+	 *
 	 * @dataProvider origThumbAndModalTriggerCompareAllCaseProvider
 	 */
 	public function _testAllCompareTriggerWithOriginalThumbAllCases( $fp, $hp, $num = null ) {
@@ -117,6 +124,8 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	 * @param array $hp
 	 * @param int   $num
 	 *
+	 * @throws \ConfigException
+	 *
 	 * @dataProvider manualCanParseDataProvider
 	 */
 	public function _testAllCompareTriggerWithOriginalThumbManualCases( $fp, $hp, $num = null ) {
@@ -128,6 +137,8 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	 * @param array $fp
 	 * @param array $hp
 	 * @param int   $num
+	 *
+	 * @throws \ConfigException
 	 */
 	public function doTestCompareTriggerWithOriginalThumb( $fp, $hp, $num = null ) {
 
@@ -160,17 +171,17 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 			->willReturn( 52 );
 		$thumb->expects( $this->any() )
 			->method( 'toHtml' )
-			->will( $this->returnCallback( function( $params ) {
-				$ret = [];
-				foreach ( [ 'alt', 'title', 'img-class' ] as $itemToPrint ) {
-					if ( isset( $params[$itemToPrint] ) && $params[$itemToPrint] ) {
-						$ret[] = $itemToPrint . '="' . $params[$itemToPrint] . '"';
+			->will( $this->returnCallback(
+				function( $params ) {
+					$ret = [];
+					foreach ( [ 'alt', 'title', 'img-class' ] as $itemToPrint ) {
+						if ( isset( $params[$itemToPrint] ) && $params[$itemToPrint] ) {
+							$ret[] = $itemToPrint . '="' . $params[$itemToPrint] . '"';
+						}
 					}
+					return '<img src=TEST_OUTPUT ' . implode( ' ', $ret ) . '>';
 				}
-				return '<img src=TEST_OUTPUT ' . implode( ' ', $ret ) . '>';
-			}
-			)
-			);
+			) );
 		$file = $this->getMockBuilder( 'LocalFile' )
 			->disableOriginalConstructor()
 			->getMock();
@@ -209,6 +220,247 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @throws \MWException
+	 * @throws \ConfigException
+	 */
+	public function testCanParseOnFileInvalid() {
+		$dummyLinker = $this->getMockBuilder( 'DummyLinker' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$title = $this->getMockBuilder( 'Title' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		/** @noinspection PhpParamsInspection */
+		$instance = new ImageModal( $dummyLinker, $title, false, $nestingController, $parserOutputHelper );
+		$time = false;
+		$res = '';
+
+		$resultOfParseCall = $instance->parse( $fp, $hp, $time, $res );
+
+		$this->assertTrue(
+			$resultOfParseCall
+		);
+	}
+
+	/**
+	 * @throws \MWException
+	 * @throws \ConfigException
+	 */
+	public function testCanParseOnFileNonExistent() {
+		$dummyLinker = $this->getMockBuilder( 'DummyLinker' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$title = $this->getMockBuilder( 'Title' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$file = $this->getMockBuilder( 'LocalFile' )
+			->disableOriginalConstructor()
+			->getMock();
+		$file->expects( $this->any() )
+			->method( 'allowInlineDisplay' )
+			->willReturn( true );
+		$file->expects( $this->any() )
+			->method( 'exists' )
+			->willReturn( false );
+
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		/** @noinspection PhpParamsInspection */
+		$instance = new ImageModal( $dummyLinker, $title, $file, $nestingController, $parserOutputHelper );
+		$time = false;
+		$res = '';
+
+		$resultOfParseCall = $instance->parse( $fp, $hp, $time, $res );
+
+		$this->assertTrue(
+			$resultOfParseCall
+		);
+	}
+
+	/**
+	 * @throws \MWException
+	 * @throws \ConfigException
+	 */
+	public function testCanParseOnFileNoAllowInlineParse() {
+		$dummyLinker = $this->getMockBuilder( 'DummyLinker' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$title = $this->getMockBuilder( 'Title' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$file = $this->getMockBuilder( 'LocalFile' )
+			->disableOriginalConstructor()
+			->getMock();
+		$file->expects( $this->any() )
+			->method( 'allowInlineDisplay' )
+			->willReturn( false );
+		$file->expects( $this->any() )
+			->method( 'exists' )
+			->willReturn( true );
+
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		/** @noinspection PhpParamsInspection */
+		$instance = new ImageModal( $dummyLinker, $title, $file, $nestingController, $parserOutputHelper );
+		$time = false;
+		$res = '';
+
+		$resultOfParseCall = $instance->parse( $fp, $hp, $time, $res );
+
+		$this->assertTrue(
+			$resultOfParseCall
+		);
+	}
+
+	/**
+	 * @throws \MWException
+	 * @throws \ConfigException
+	 */
+	public function testCanParseOnOnInvalidManualThumb() {
+		$dummyLinker = $this->getMockBuilder( 'DummyLinker' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$title = $this->getMockBuilder( 'Title' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$file = $this->getMockBuilder( 'LocalFile' )
+			->disableOriginalConstructor()
+			->getMock();
+		$file->expects( $this->any() )
+			->method( 'allowInlineDisplay' )
+			->willReturn( true );
+		$file->expects( $this->any() )
+			->method( 'exists' )
+			->willReturn( true );
+
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		/** @noinspection PhpParamsInspection */
+		$instance = new ImageModal( $dummyLinker, $title, $file, $nestingController, $parserOutputHelper );
+		$time = false;
+		$res = '';
+		$fp =  [ 'manualthumb' => 'ImageInvalid.png' ];
+
+		$resultOfParseCall = $instance->parse( $fp, $hp, $time, $res );
+
+		$this->assertTrue(
+			$resultOfParseCall
+		);
+	}
+
+	/**
+	 * @throws \MWException
+	 * @throws \ConfigException
+	 */
+	public function testCanParseOnOnInvalidContentImage() {
+		$dummyLinker = $this->getMockBuilder( 'DummyLinker' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$title = $this->getMockBuilder( 'Title' )
+			->disableOriginalConstructor()
+			->getMock();
+		$title->expects( $this->any() )
+			->method( 'getLocalUrl' )
+			->willReturn( '/File:Serenity.png' );
+
+		$thumb = $this->getMockBuilder( 'ThumbnailImage' )
+			->disableOriginalConstructor()
+			->getMock();
+		$thumb->expects( $this->any() )
+			->method( 'getWidth' )
+			->willReturn( 52 );
+		$thumb->expects( $this->any() )
+			->method( 'toHtml' )
+			->will( $this->returnCallback(
+				function( $params ) {
+					$ret = [];
+					foreach ( [ 'alt', 'title', 'img-class' ] as $itemToPrint ) {
+						if ( isset( $params[$itemToPrint] ) && $params[$itemToPrint] ) {
+							$ret[] = ($itemToPrint != 'img-class' ? $itemToPrint : 'class') . '="' . $params[$itemToPrint] . '"';
+						}
+					}
+					return '<img src=TEST_OUTPUT ' . implode( ' ', $ret ) . '>';
+				}
+			) );
+		$file = $this->getMockBuilder( 'LocalFile' )
+			->disableOriginalConstructor()
+			->getMock();
+		$file->expects( $this->any() )
+			->method( 'allowInlineDisplay' )
+			->willReturn( true );
+		$file->expects( $this->any() )
+			->method( 'exists' )
+			->willReturn( true );
+		$file->expects( $this->any() )
+			->method( 'getWidth' )
+			->willReturn( 52 );
+		$file->expects( $this->any() )
+			->method( 'mustRender' )
+			->willReturn( false );
+		$file->expects( $this->any() )
+			->method( 'getUnscaledThumb' )
+			->willReturn( false );
+		$file->expects( $this->any() )
+			->method( 'transform' )
+			->willReturn( $thumb );
+
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		/** @noinspection PhpParamsInspection */
+		$instance = new ImageModal( $dummyLinker, $title, $file, $nestingController, $parserOutputHelper );
+		$time = false;
+		$res = '';
+		$fp = [ 'align' => 'left' ]; # otherwise, this test produces an exception while trying to call $title->getPageLanguage()->alignEnd()
+
+		$resultOfParseCall = $instance->parse( $fp, $hp, $time, $res );
+
+		$this->assertTrue(
+			$resultOfParseCall
+		);
+	}
+
+	/**
 	 * @param array  $fp
 	 * @param array  $hp
 	 * @param int    $num
@@ -216,6 +468,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @dataProvider manualCanParseDataProvider
 	 * @throws \MWException
+	 * @throws \ConfigException
 	 */
 	public function testCanParse( $fp, $hp, $num, $expectedRegExp ) {
 		$dummyLinker = $this->getMockBuilder( 'DummyLinker' )
@@ -234,7 +487,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 			->getMock();
 		$thumb->expects( $this->any() )
 			->method( 'getWidth' )
-			->willReturn( 52 );
+			->willReturn( 640 );
 		$thumb->expects( $this->any() )
 			->method( 'toHtml' )
 			->will( $this->returnCallback(
@@ -284,6 +537,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 		$res = '';
 
 		$resultOfParseCall = $instance->parse( $fp, $hp, $time, $res );
+
 		/** @noinspection PhpParamsInspection */
 		$this->assertEquals(
 			$expectedRegExp,
@@ -383,7 +637,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 				[
 				],
 				29752,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="test_class thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="test_class thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="test_class img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -402,7 +656,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'page'  => 7,
 				],
 				30243,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT alt="test_alt" class="thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT alt="test_alt" class="thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" class="img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png?page=7">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -420,7 +674,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 				[
 				],
 				33404,
-				'<div class="center"><span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tnone"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="test_class thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>test_caption</div></div></div></span></div><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<div class="center"><span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tnone"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="test_class thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>test_caption</div></div></div></span></div><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="test_class img-responsive"> <div class="modal-caption">test_caption</div></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -437,7 +691,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'width' => 100,
 				],
 				39782,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT alt="test_alt" class="thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT alt="test_alt" class="thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" class="img-responsive"> <div class="modal-caption">test_caption</div></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -460,30 +714,30 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'page'  => 7,
 				],
 				47803,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:70px;"><img alt="test_alt" src="' . $scriptPath . '/images/a/aa/Shuttle.png" title="test_title" width="68" height="18" class="test_class thumbimage" />  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:70px;"><img alt="test_alt" src="' . $scriptPath . '/images/a/aa/Shuttle.png" title="test_title" width="68" height="18" class="test_class thumbimage" />  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="test_class img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png?page=7">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
 			],
+			# this deviates from the generated test, manualthumb removed
 			'48727'  => [
 				[
-					'thumbnail'   => false,
-					'framed'      => false,
-					'frameless'   => false,
-					'border'      => false,
-#					'manualthumb' => 'Shuttle.png',    # this deviates from the generated test
-					'upright'     => 42,
-					'align'       => 'left',
-					'caption'     => 'test_caption',
-					'class'       => 'test_class',
-					'vAlign'      => 'text-top',
+					'thumbnail' => false,
+					'framed'    => false,
+					'frameless' => false,
+					'border'    => false,
+					'upright'   => 42,
+					'align'     => 'left',
+					'caption'   => 'test_caption',
+					'class'     => 'test_class',
+					'vAlign'    => 'text-top',
 				],
 				[
 					'width' => 100,
 					'page'  => 7,
 				],
 				48727,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT class="test_class thumbimage">  <div class="thumbcaption">test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT class="test_class thumbimage">  <div class="thumbcaption">test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT class="test_class img-responsive"> <div class="modal-caption">test_caption</div></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png?page=7">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -501,27 +755,27 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'width' => 100,
 				],
 				57858,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT class="img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
 			],
+			# this deviates from the generated test, manualthumb removed
 			'58668'  => [
 				[
-					'thumbnail'   => false,
-					'framed'      => false,
-#					'manualthumb' => 'Shuttle.png',    # this deviates from the generated test
-					'upright'     => 0,
-					'align'       => 'none',
-					'alt'         => 'test_alt',
-					'caption'     => 'test_caption',
-					'title'       => 'test_title',
-					'vAlign'      => 'bottom',
+					'thumbnail' => false,
+					'framed'    => false,
+					'upright'   => 0,
+					'align'     => 'none',
+					'alt'       => 'test_alt',
+					'caption'   => 'test_caption',
+					'title'     => 'test_title',
+					'vAlign'    => 'bottom',
 				],
 				[
 				],
 				58668,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tnone"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="thumbimage">  <div class="thumbcaption">test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tnone"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="thumbimage">  <div class="thumbcaption">test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="img-responsive"> <div class="modal-caption">test_caption</div></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -539,7 +793,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'width' => 100,
 				],
 				74994,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:70px;"><img alt="test_alt" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="test_class thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:70px;"><img alt="test_alt" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="test_class thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" class="test_class img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -555,26 +809,26 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 				[
 				],
 				78344,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" title="test_title" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" title="test_title" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT title="test_title" class="img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
 			],
+			# this deviates from the generated test, manualthumb removed
 			'80460'  => [
 				[
-					'thumbnail'   => false,
-					'border'      => false,
-#					'manualthumb' => 'Shuttle.png',    # this deviates from the generated test
-					'upright'     => 42,
-					'align'       => 'right',
-					'caption'     => 'test_caption',
-					'title'       => 'test_title',
-					'vAlign'      => 'middle',
+					'thumbnail' => false,
+					'border'    => false,
+					'upright'   => 42,
+					'align'     => 'right',
+					'caption'   => 'test_caption',
+					'title'     => 'test_title',
+					'vAlign'    => 'middle',
 				],
 				[
 				],
 				80460,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT title="test_title" class="thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT title="test_title" class="thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT title="test_title" class="img-responsive"> <div class="modal-caption">test_caption</div></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -595,7 +849,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'page'  => 7,
 				],
 				81595,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:70px;"><img alt="test_alt" src="' . $scriptPath . '/images/a/aa/Shuttle.png" title="test_title" width="68" height="18" class="test_class thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:70px;"><img alt="test_alt" src="' . $scriptPath . '/images/a/aa/Shuttle.png" title="test_title" width="68" height="18" class="test_class thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="test_class img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png?page=7">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -613,7 +867,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 				[
 				],
 				97100,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT title="test_title" class="thumbimage">  <div class="thumbcaption">test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT title="test_title" class="thumbimage">  <div class="thumbcaption">test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT title="test_title" class="img-responsive"> <div class="modal-caption">test_caption</div></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -633,7 +887,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'width' => 100,
 				],
 				101150,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT title="test_title" class="test_class thumbimage">  <div class="thumbcaption">test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT title="test_title" class="test_class thumbimage">  <div class="thumbcaption">test_caption</div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT title="test_title" class="test_class img-responsive"> <div class="modal-caption">test_caption</div></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -648,25 +902,25 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'page' => 7,
 				],
 				117137,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="floatnone"><img src=TEST_OUTPUT class="test_class"></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="floatnone"><img src=TEST_OUTPUT class="test_class"></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT class="test_class img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png?page=7">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
 			],
+			# this deviates from the generated test, manualthumb removed
 			'125313' => [
 				[
-					'framed'      => false,
-					'frameless'   => false,
-					'border'      => false,
-#					'manualthumb' => 'Shuttle.png',    # this deviates from the generated test
-					'align'       => 'right',
-					'vAlign'      => 'text-top',
+					'framed'    => false,
+					'frameless' => false,
+					'border'    => false,
+					'align'     => 'right',
+					'vAlign'    => 'text-top',
 				],
 				[
 					'page' => 7,
 				],
 				125313,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:54px;"><img src=TEST_OUTPUT class="thumbimage">  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tright"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT class="thumbimage">  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT class="img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png?page=7">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -682,33 +936,33 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 				[
 				],
 				150784,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tleft"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT class="img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
 			],
+			# this deviates from the generated test, manualthumb removed
 			'151538' => [
-                [
-	                'frameless' => false,
-#					'manualthumb' => 'Shuttle.png',     # this deviates from the generated test
-	                'upright'   => 0,
-	                'align'     => 'none',
-	                'alt'       => 'test_alt',
-	                'class'     => 'test_class',
-                ],
-                [
-	                'width' => 100,
-                ],
-                151538,
-                '<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="floatnone"><img src=TEST_OUTPUT alt="test_alt" class="test_class"></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
-                . '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" class="test_class img-responsive"></div>' . PHP_EOL
-                . '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
-                . '</div></div></div>',
+				[
+					'frameless' => false,
+					'upright'   => 0,
+					'align'     => 'none',
+					'alt'       => 'test_alt',
+					'class'     => 'test_class',
+				],
+				[
+					'width' => 100,
+				],
+				151538,
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="floatnone"><img src=TEST_OUTPUT alt="test_alt" class="test_class"></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" class="test_class img-responsive"></div>' . PHP_EOL
+				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
+				. '</div></div></div>',
 			],
+			# this deviates from the generated test, manualthumb removed
 			'157104' => [
 				[
 					'border'      => false,
-					'manualthumb' => 'Shuttle.png',
 					'align'       => 'none',
 					'alt'         => 'test_alt',
 					'class'       => 'test_class',
@@ -717,7 +971,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 				[
 				],
 				157104,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tnone"><div class="thumbinner" style="width:70px;"><img alt="test_alt" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="test_class thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="floatnone"><img src=TEST_OUTPUT alt="test_alt" class="test_class thumbborder"></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" class="test_class img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -735,7 +989,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'width' => 100,
 				],
 				160354,
-				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tnone"><div class="thumbinner" style="width:70px;"><img alt="test_alt" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<span class="modal-trigger" data-toggle="modal" data-target="#"><div class="thumb tnone"><div class="thumbinner" style="width:70px;"><img alt="test_alt" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT alt="test_alt" class="img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',

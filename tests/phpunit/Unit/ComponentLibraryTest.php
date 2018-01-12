@@ -152,6 +152,9 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 		call_user_func_array( [ $instance, $method ], [ null ] );
 	}
 
+	/**
+	 * @throws \MWException cascading {@see \BootstrapComponents\ComponentLibrary::getClassFor}
+	 */
 	public function testRegisterVsKnown() {
 		$instance = new ComponentLibrary( [ 'alert', 'modal', 'panel' ] );
 		$this->assertEquals(

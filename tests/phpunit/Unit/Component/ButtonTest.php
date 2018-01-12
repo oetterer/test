@@ -61,6 +61,38 @@ class ButtonTest extends ComponentsTestBase {
 	}
 
 	/**
+	 * @throws MWException
+	 */
+	public function testCanInjectRawAttributes() {
+
+		$instance = new Button(
+			$this->getComponentLibrary(),
+			$this->getParserOutputHelper(),
+			$this->getNestingController()
+		);
+
+		$parserRequest = $this->buildParserRequest(
+			$this->input,
+			[ 'class' => 'manual', 'size' => 'md' ]
+		);
+
+		$instance->injectRawAttributes(
+			[ 'data-toggle' => 'foo', 'data-target' => '#bar' ]
+		);
+
+		/** @noinspection PhpParamsInspection */
+		$generatedOutput = $instance->parseComponent( $parserRequest );
+		if ( is_array( $generatedOutput ) ) {
+			$generatedOutput = $generatedOutput[0];
+		}
+
+		$this->assertEquals(
+			'<a class="btn btn-default btn-md manual" role="button" id="bsc_button_NULL" href="/Button_test_text" data-toggle="foo" data-target="#bar">Button test text</a>',
+			$generatedOutput
+		);
+	}
+
+	/**
 	 * @return array
 	 */
 	public function placeMeArgumentsProvider() {
@@ -75,10 +107,20 @@ class ButtonTest extends ComponentsTestBase {
 				[],
 				'~bootstrap-components-button-target-missing~', // because getParserOutputHelper-mock returns the message key instead of parsing it.
 			],
-			'color, text and id' => [
+			'disabled, color, text and id' => [
 				$this->input,
-				[ 'color' => 'danger', 'text' => 'BUTTON', 'id' => 'red' ],
-				'~^<a class="btn btn-danger" role="button" id="red" href=".*/' . str_replace( ' ', '_', $this->input ) . '">BUTTON</a>$~',
+				[ 'disabled' => true, 'color' => 'danger', 'text' => 'BUTTON', 'id' => 'red' ],
+				'~^<a class="btn btn-danger disabled" role="button" id="red" href=".*/' . str_replace( ' ', '_', $this->input ) . '">BUTTON</a>$~',
+			],
+			'size and active' => [
+				$this->input,
+				[ 'size' => 'lg', 'active' => true ],
+				'~^<a class="btn btn-default btn-lg active" role="button" id="bsc_button_NULL" href=".*/' . str_replace( ' ', '_', $this->input ) . '">' . $this->input . '</a>$~',
+			],
+			'invlid size' => [
+				$this->input,
+				[ 'size' => 'nice' ],
+				'~^<a class="btn btn-default" role="button" id="bsc_button_NULL" href=".*/' . str_replace( ' ', '_', $this->input ) . '">' . $this->input . '</a>$~',
 			],
 		];
 	}

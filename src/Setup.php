@@ -10,7 +10,10 @@ namespace BootstrapComponents;
 
 use Bootstrap\BootstrapManager;
 use \Closure;
+use \Config;
+use \ConfigException;
 use \Hooks;
+use \MediaWiki\MediaWikiServices;
 use \Parser;
 
 /**
@@ -27,33 +30,39 @@ class Setup {
 	 * Note: With this we omit hook registration in extension.json and define our own here
 	 * to increase compatibility with composer loading
 	 *
+	 * @param bool $unitUnderTest
+	 *
+	 * @throws \ConfigException cascading {@see \ConfigFactory::makeConfig}
+	 *
 	 * @return bool
 	 */
-	public static function onExtensionLoad() {
+	public static function onExtensionLoad( $unitUnderTest = false ) {
 		$setup = new self();
-		$setup->prepareEnvironment();
+		if ( !$unitUnderTest ) {
+			$setup->prepareEnvironment();
+		}
 		$setup->bootstrapExtensionPresent();
-		$setup->registerHooks( $GLOBALS );
+		$setup->registerHooks(
+			MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' )
+		);
 		return true;
 	}
 
 	/**
-	 * @param array $configuration
-	 *
 	 * @return Closure
 	 */
-	public function createParserFirstCallInitCallback( $configuration ) {
-		return function( Parser $parser ) use ( $configuration ) {
+	public function createParserFirstCallInitCallback() {
+		return function( Parser $parser ) {
 			$componentFunctionFactory = ApplicationFactory::getInstance()
-				->getComponentFunctionFactory( $parser, $configuration );
+				->getComponentFunctionFactory( $parser );
 			foreach ( $componentFunctionFactory->generateParserHookList() as $register ) {
 
 				list ( $idTag, $handlerType, $callback ) = $register;
 
-				if ( $handlerType == ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
-					$parser->setHook( $idTag, $callback );
-				} elseif ( $handlerType == ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ) {
+				if ( $handlerType == ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ) {
 					$parser->setFunctionHook( $idTag, $callback );
+				} elseif ( $handlerType == ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
+					$parser->setHook( $idTag, $callback );
 				} else {
 					wfDebugLog( 'BootstrapComponents', 'Unknown handler type (' . $handlerType . ') detected for component ' . $idTag );
 				}
@@ -73,28 +82,31 @@ class Setup {
 	/**
 	 * Defines all hooks and the corresponding callbacks
 	 *
-	 * @param array $configuration
+	 * @param  Config $myConfig
+	 *
+	 * @throws \ConfigException cascading {@see \Config::get}
 	 *
 	 * @return Closure[]
 	 */
-	public function getHooksToRegister( $configuration ) {
+	public function getHooksToRegister( $myConfig ) {
 		$hooks = [
-			'ParserFirstCallInit'    => $this->createParserFirstCallInitCallback( $configuration ),
+			'ParserFirstCallInit'    => $this->createParserFirstCallInitCallback(),
 			'SetupAfterCache'        => function() {
 				BootstrapManager::getInstance()->addAllBootstrapModules();
 				return true;
 			},
 		];
 
-		if ( isset( $configuration['wgBootstrapComponentsEnableCarouselGalleryMode'] )
-			&& $configuration['wgBootstrapComponentsEnableCarouselGalleryMode']
+		if ( $myConfig->has( 'BootstrapComponentsEnableCarouselGalleryMode' )
+			&& $myConfig->get( 'BootstrapComponentsEnableCarouselGalleryMode' )
 		) {
 			$hooks['GalleryGetModes'] = function( &$modeArray ) {
 				$modeArray['carousel'] = 'BootstrapComponents\\CarouselGallery';
+				return true;
 			};
 		}
-		if ( isset( $configuration['wgBootstrapComponentsModalReplaceImageThumbnail'] )
-			&& $configuration['wgBootstrapComponentsModalReplaceImageThumbnail']
+		if ( $myConfig->has( 'BootstrapComponentsModalReplaceImageThumbnail' )
+			&& $myConfig->get( 'BootstrapComponentsModalReplaceImageThumbnail' )
 		) {
 			$hooks['ImageBeforeProduceHTML'] = function(
 				&$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
@@ -110,10 +122,12 @@ class Setup {
 	/**
 	 * Does the actual registration of hooks and components
 	 *
-	 * @param array $configuration
+	 * @param  Config $myConfig
+	 *
+	 * @throws \ConfigException cascading {@see \BootstrapComponents\Setup::getHooksToRegister}
 	 */
-	public function registerHooks( $configuration ) {
-		foreach ( $this->getHooksToRegister( $configuration ) as $hook => $callback ) {
+	public function registerHooks( $myConfig ) {
+		foreach ( $this->getHooksToRegister( $myConfig ) as $hook => $callback ) {
 			Hooks::register( $hook, $callback );
 		}
 	}
@@ -144,8 +158,8 @@ class Setup {
 	#@todo check other Bootstrap requirement detector
 	#@todo in ImageModalTest.php we have long running tests. All that use origThumbAndModalTriggerCompareAllCaseProvider (even the single)
 	#@todo revamp config access:
-	# $globalConfig = \MediaWiki\MediaWikiServices::getInstance()->getMainConfig(); $globalConfig->get( 'Server' );
-	# $myConfig = \MediaWiki\MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' ); $myConfig->get( 'BootstrapComponentsWhitelist' ) );
+	# see \BootstrapComponents\ImageModal::generateTriggerCalculateImageWidth how to access global config
+	# use $myConfig = \MediaWiki\MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' ); $myConfig->get( 'BootstrapComponentsWhitelist' ) );
 
 
 	# this remains

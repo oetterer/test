@@ -45,18 +45,11 @@ class ApplicationFactory {
 
 	/**
 	 * @param Parser $parser
-	 * @param array  $configuration
 	 *
 	 * @return ComponentFunctionFactory
 	 */
-	public function getComponentFunctionFactory( Parser $parser = null, $configuration = null ) {
-		if ( $parser === null ) {
-			$parser = $GLOBALS['wgParser'];
-		}
-		if ( $configuration === null ) {
-			$configuration = $GLOBALS;
-		}
-		return ComponentFunctionFactory::getInstance( $parser, $configuration );
+	public function getComponentFunctionFactory( Parser $parser = null ) {
+		return ComponentFunctionFactory::getInstance( $parser );
 	}
 
 	/**
@@ -81,9 +74,6 @@ class ApplicationFactory {
 	 * @return ParserOutputHelper
 	 */
 	public function getParserOutputHelper( Parser $parser = null ) {
-		if ( !$parser ) {
-			$parser = $GLOBALS['wgParser'];
-		}
 		return ParserOutputHelper::getInstance( $parser );
 	}
 

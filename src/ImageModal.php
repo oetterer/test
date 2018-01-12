@@ -154,6 +154,11 @@ class ImageModal implements Nestable {
 			$handlerParams
 		);
 
+		if ( $content === false ) {
+			// could not create content image. Relegating back
+			return true;
+		}
+
 		$modal = new ModalBase(
 			$this->getId(),
 			$trigger,
@@ -527,6 +532,7 @@ class ImageModal implements Nestable {
 	/**
 	 * @return DummyLinker
 	 */
+	/** @scrutinizer ignore-unused */
 	protected function getDummyLinker() {
 		return $this->dummyLinker;
 	}

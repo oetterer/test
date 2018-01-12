@@ -46,7 +46,7 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 			->getMock();
 		$this->assertInstanceOf(
 			'BootstrapComponents\\ComponentFunctionFactory',
-			$instance->getComponentFunctionFactory( $parser, [] )
+			$instance->getComponentFunctionFactory( $parser )
 		);
 	}
 

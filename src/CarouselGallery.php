@@ -9,6 +9,7 @@
 namespace BootstrapComponents;
 
 use BootstrapComponents\Component\Carousel;
+use BootstrapComponents\ParserOutputHelper;
 use \ImageGalleryBase;
 use \MWException;
 use \Parser;
@@ -22,20 +23,23 @@ use \Title;
 class CarouselGallery extends ImageGalleryBase {
 
 	/**
-	 * @param Carousel $carousel used for unit tests
+	 * @param Carousel           $carousel used for unit tests
+	 * @param ParserOutputHelper $parserOutputHelper used for unit tests
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\Component::parseComponent}
 	 * @return string
 	 */
-	public function toHTML( $carousel = null ) {
+	public function toHTML( $carousel = null, $parserOutputHelper = null ) {
+		$parserOutputHelper = $parserOutputHelper === null
+			? ApplicationFactory::getInstance()->getParserOutputHelper( $this->mParser )
+			: $parserOutputHelper;
 		if ( $this->isEmpty() ) {
-			return ApplicationFactory::getInstance()->getParserOutputHelper( $this->mParser )
-				->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
+			return $parserOutputHelper->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
 		}
 		if ( !$carousel || !$carousel instanceof Carousel ) {
 			$carousel = new Carousel(
 				ApplicationFactory::getInstance()->getComponentLibrary(),
-				ApplicationFactory::getInstance()->getParserOutputHelper( $this->mParser ),
+				$parserOutputHelper,
 				ApplicationFactory::getInstance()->getNestingController()
 			);
 		}
@@ -46,8 +50,7 @@ class CarouselGallery extends ImageGalleryBase {
 			$this->getContextTitle()
 		);
 		if ( !count( $carouselAttributes ) ) {
-			return ApplicationFactory::getInstance()->getParserOutputHelper( $this->mParser )
-				->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
+			return $parserOutputHelper->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
 		}
 		$carouselAttributes = $this->addAttributes( $carouselAttributes, $this->mAttribs );
 		array_unshift( $carouselAttributes, $this->mParser );

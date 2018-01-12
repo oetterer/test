@@ -50,6 +50,13 @@ class CarouselGalleryTest extends PHPUnit_Framework_TestCase {
 					}
 				)
 			);
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parserOutputHelper->expects( $this->any() )
+			->method( 'renderErrorMessage' )
+			->will( $this->returnArgument( 0 ) );
+
 		$instance = new CarouselGallery( 'carousel' );
 		$instance->mParser = $this->getMockBuilder( 'Parser' )
 			->disableOriginalConstructor()
@@ -61,7 +68,7 @@ class CarouselGalleryTest extends PHPUnit_Framework_TestCase {
 		$instance->setAttributes( $additionalAttributes );
 		$this->assertEquals(
 			$expectedOutput,
-			$instance->toHTML( $carousel )
+			$instance->toHTML( $carousel, $parserOutputHelper )
 		);
 	}
 
@@ -90,7 +97,19 @@ class CarouselGalleryTest extends PHPUnit_Framework_TestCase {
 					'id'                                                      => 'youcanttakethesky',
 				],
 			],
-			# 'no images' => [] cannot be tested due to bad class design. blame @oetterer
+			'only invalid images' => [
+				[
+					[ 'Londinium', 'Londinium', '', '', [] ],
+					[ 'Template:Planets', 'Planets', '', '', [] ],
+				],
+				[],
+				'bootstrap-components-carousel-images-missing'
+			],
+			'no images' => [
+				[],
+				[],
+				'bootstrap-components-carousel-images-missing'
+			]
 		];
 	}
 }

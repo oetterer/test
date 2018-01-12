@@ -30,7 +30,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testOnExtensionLoad() {
 		$this->assertTrue(
-			Setup::onExtensionLoad( false )
+			Setup::onExtensionLoad( [] )
 		);
 	}
 

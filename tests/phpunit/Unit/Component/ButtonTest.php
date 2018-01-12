@@ -86,8 +86,8 @@ class ButtonTest extends ComponentsTestBase {
 			$generatedOutput = $generatedOutput[0];
 		}
 
-		$this->assertEquals(
-			'<a class="btn btn-default btn-md manual" role="button" id="bsc_button_NULL" href="/Button_test_text" data-toggle="foo" data-target="#bar">Button test text</a>',
+		$this->assertRegExp(
+			'~^<a class="btn btn-default btn-md manual" role="button" id="bsc_button_NULL" href=".*/' . str_replace( ' ', '_', $this->input ) . '" data-toggle="foo" data-target="#bar">' . $this->input . '</a>$~',
 			$generatedOutput
 		);
 	}

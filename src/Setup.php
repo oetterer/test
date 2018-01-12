@@ -30,18 +30,20 @@ class Setup {
 	 * Note: With this we omit hook registration in extension.json and define our own here
 	 * to increase compatibility with composer loading
 	 *
-	 * @param bool $unitUnderTest
+	 * @param array $info
 	 *
 	 * @throws \ConfigException cascading {@see \ConfigFactory::makeConfig}
 	 *
 	 * @return bool
 	 */
-	public static function onExtensionLoad( $unitUnderTest = false ) {
+	public static function onExtensionLoad( $info ) {
 		$setup = new self();
-		if ( !$unitUnderTest ) {
+		if ( !empty( $info ) ) {
 			$setup->prepareEnvironment();
 		}
 		$setup->bootstrapExtensionPresent();
+		$setup->registerMyConfiguration();
+
 		$setup->registerHooks(
 			MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' )
 		);
@@ -118,7 +120,7 @@ class Setup {
 
 		return $hooks;
 	}
-
+	
 	/**
 	 * Does the actual registration of hooks and components
 	 *
@@ -129,6 +131,18 @@ class Setup {
 	public function registerHooks( $myConfig ) {
 		foreach ( $this->getHooksToRegister( $myConfig ) as $hook => $callback ) {
 			Hooks::register( $hook, $callback );
+		}
+	}
+
+	/**
+	 * Registers my own configuration, so that it is present during onLoad. See phabricator issue T184837
+	 * @link https://phabricator.wikimedia.org/T184837
+	 */
+	public function registerMyConfiguration() {
+
+		$configFactory = MediaWikiServices::getInstance()->getConfigFactory();
+		if ( method_exists( $configFactory, 'register' ) ) {
+			$configFactory->register( 'BootstrapComponents', 'GlobalVarConfig::newInstance' );
 		}
 	}
 

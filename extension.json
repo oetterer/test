@@ -11,6 +11,9 @@
 	"requires": {
 		"MediaWiki": ">= 1.27.0"
 	},
+	"ConfigRegistry": {
+		"BootstrapComponents": "GlobalVarConfig::newInstance"
+	},
 	"load_composer_autoloader": true,
 	"AutoloadClasses": {
 		"BootstrapComponents\\ApplicationFactory": "src/ApplicationFactory.php",
@@ -46,9 +49,6 @@
 		"BootstrapComponentsEnableCarouselGalleryMode": true,
 		"BootstrapComponentsModalReplaceImageThumbnail": true,
 		"BootstrapComponentsWhitelist": true
-	},
-	"ConfigRegistry": {
-		"BootstrapComponents": "GlobalVarConfig::newInstance"
 	},
 	"callback": "BootstrapComponents\\Setup::onExtensionLoad",
 	"MessagesDirs": {

@@ -14,7 +14,9 @@ if ( !ExtensionRegistry::getInstance()->isLoaded( 'BootstrapComponents' ) ) {
 
 $version = print_r( ExtensionRegistry::getInstance()->getAllThings()['BootstrapComponents']['version'], true );
 
-print sprintf( "\n%-30s%s\n", "BootstrapComponents: ", $version );
+print sprintf( "\n%-24s%s\n", "MediaWiki: ", $GLOBALS['wgVersion'] );
+print sprintf( "%-24s%s\n", "Bootstrap: ", BS_VERSION );
+print sprintf( "%-24s%s\n", "BootstrapComponents: ", $version );
 
 # @fixme obsolete with psr-4?
 require_once ( __DIR__. '/phpunit/Unit/ComponentsTestBase.php' );

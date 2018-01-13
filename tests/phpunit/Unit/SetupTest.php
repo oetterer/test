@@ -219,6 +219,12 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(
 			is_callable( $registeredHooks['ImageBeforeProduceHTML'] )
 		);
+
+		$linker = $title = $file = $frameParams = $handlerParams = $time = $res = false;
+
+		$this->assertTrue(
+			$registeredHooks['ImageBeforeProduceHTML']( $linker, $title, $file, $frameParams, $handlerParams, $time, $res )
+		);
 	}
 
 	public function testCanRegisterMyConfiguration() {

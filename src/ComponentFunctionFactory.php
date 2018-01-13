@@ -74,28 +74,13 @@ class ComponentFunctionFactory {
 	}
 
 	/**
-	 * @return array[] each item holding parserHook, handlerType, callback function
-	 */
-	public function generateParserHookList() {
-		$ParserHookList = [];
-		foreach ( $this->getComponentLibrary()->getRegisteredComponents() as $componentName ) {
-			$ParserHookList[] = [
-				self::PARSER_HOOK_PREFIX . strtolower( $componentName ),
-				$this->getComponentLibrary()->getHandlerTypeFor( $componentName ),
-				$this->createHookFunctionFor( $componentName ),
-			];
-		}
-		return $ParserHookList;
-	}
-
-	/**
 	 * Creates the function to be called by the parser when encountering the component while processing.
 	 *
 	 * @param string $componentName
 	 *
 	 * @return Closure
 	 */
-	private function createHookFunctionFor( $componentName ) {
+	public function createHookFunctionFor( $componentName ) {
 		$componentLibrary = $this->getComponentLibrary();
 		$nestingController = $this->getNestingController();
 		$parserOutputHelper = $this->getParserOutputHelper();
@@ -111,6 +96,21 @@ class ComponentFunctionFactory {
 			/** @var Component $object */
 			return $object->parseComponent( $parserRequest );
 		};
+	}
+
+	/**
+	 * @return array[] each item holding parserHook, handlerType, callback function
+	 */
+	public function generateParserHookList() {
+		$ParserHookList = [];
+		foreach ( $this->getComponentLibrary()->getRegisteredComponents() as $componentName ) {
+			$ParserHookList[] = [
+				self::PARSER_HOOK_PREFIX . strtolower( $componentName ),
+				$this->getComponentLibrary()->getHandlerTypeFor( $componentName ),
+				$this->createHookFunctionFor( $componentName ),
+			];
+		}
+		return $ParserHookList;
 	}
 
 	/**

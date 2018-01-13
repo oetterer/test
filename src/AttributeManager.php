@@ -83,20 +83,6 @@ class AttributeManager {
 	}
 
 	/**
-	 * Returns the description for a given attribute or NULL if invalid attribute
-	 *
-	 * @param string $attribute
-	 *
-	 * @return null|string
-	 */
-	public function getDescriptionFor( $attribute ) {
-		if ( !$this->registered( $attribute ) ) {
-			return null;
-		}
-		return wfMessage( 'bootstrap-components-attribute-' . $attribute . '-description' )->inContentLanguage()->parse();
-	}
-
-	/**
 	 * Checks if given `attribute` is registered with the manager
 	 *
 	 * @param string $attribute

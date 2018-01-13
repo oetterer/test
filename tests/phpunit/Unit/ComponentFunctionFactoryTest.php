@@ -59,6 +59,37 @@ class ComponentFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @param string $componentName
+	 *
+	 * @dataProvider createHookFunctionProvider
+	 */
+	public function testCanCreateHookFunctionFor( $componentName ) {
+
+		$instance = new ComponentFunctionFactory( $this->parser );
+
+		$hookFunction = $instance->createHookFunctionFor( $componentName );
+
+		$this->assertTrue(
+			is_callable( $hookFunction )
+		);
+
+		$this->setExpectedException( 'MWException' );
+		$hookFunction();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function createHookFunctionProvider() {
+		$cl = new ComponentLibrary( true );
+		$data = [];
+		foreach ( $cl->getKnownComponents() as $component ) {
+			$data[$component] = [ $component ];
+		}
+		return $data;
+	}
+
+	/**
 	 * @param array $parserHookData
 	 */
 	private function doTestCanCreateHookFunctions( $parserHookData ) {

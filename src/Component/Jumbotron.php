@@ -28,7 +28,7 @@ class Jumbotron extends Component {
 	public function placeMe( $parserRequest ) {
 		list ( $class, $style ) = $this->processCss( 'jumbotron', [], $parserRequest->getAttributes() );
 		# @hack: the outer container is a workaround, to get all the necessary css if not inside a grid container
-		# @fixme: used inside mw content, the width calculation for smaller screens is broken (as of Bootstrap 1.2.1)
+		# @fixme: used inside mw content, the width calculation for smaller screens is broken (as of Bootstrap 1.2.3)
 		return Html::rawElement(
 			'div',
 			[

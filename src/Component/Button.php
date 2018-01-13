@@ -92,10 +92,10 @@ class Button extends Component {
 		if ( $size = $this->extractAttribute( 'size', $attributes ) ) {
 			$class[] = "btn-" . $size;
 		}
-		if ( $this->extractAttribute( 'active', $attributes ) !== null ) {
+		if ( $this->extractAttribute( 'active', $attributes ) !== false ) {
 			$class[] = 'active';
 		}
-		if ( $this->extractAttribute( 'disabled', $attributes ) !== null ) {
+		if ( $this->extractAttribute( 'disabled', $attributes ) !== false ) {
 			$class[] = 'disabled';
 		}
 		return $class;

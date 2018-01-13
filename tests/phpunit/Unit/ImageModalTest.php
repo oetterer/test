@@ -861,23 +861,6 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @param int $num
-	 *
-	 * @return string
-	 *
-	 * @scrutinizer ignore-unused
-	 */
-	private function generatePhpCodeForManualProviderData( $num = 100 ) {
-		$ret = '';
-		$allTestData = $this->origThumbAndModalTriggerCompareAllCaseProvider();
-		$testCaseNums = array_rand( array_keys( $allTestData ), $num );
-		foreach ( $testCaseNums as $testCaseNum ) {
-			$ret .= $this->generatePhpCodeForManualProviderDataOneCase( $testCaseNum, $allTestData[$testCaseNum][0], $allTestData[$testCaseNum][1] );
-		}
-		return $ret;
-	}
-
-	/**
 	 * @param int   $num
 	 * @param array $fp
 	 * @param array $hp

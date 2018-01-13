@@ -271,7 +271,7 @@ abstract class Component implements Nestable {
 	}
 
 	/**
-	 * @param string|null $id
+	 * @param string|false|null $id
 	 */
 	private function setId( $id ) {
 		$this->id = $id;

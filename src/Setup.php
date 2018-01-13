@@ -158,25 +158,24 @@ class Setup {
 	private function prepareEnvironment() {
 		define( 'BOOTSTRAP_COMPONENTS_VERSION', '1.0.0' );
 	}
-	# attend before deployment
-	#@todo get code quality above 9
-	#@todo adapt file headers (see chameleon and bootstrap for example)
-	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5)
-	#   or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
+	### attend before deployment
+	# mandatory
 	#@todo put on github with automatic testing and scrutinizing
 	#@todo create composer package. see https://packagist.org/ and https://packagist.org/about#how-to-update-packages; packet name "bootstrap-components"
-	#@todo add more comments
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
 	#@todo complete documentation in /doc (installation, configuration, howto, expansion)
+
+	# code improvement
+	#@todo add more comments
+	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5)
+		# or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
+	#@todo adapt file headers (see chameleon and bootstrap for example)
+	#@todo move the complex, consisting of instance self static and the getInstance() methods from the instances into the ApplicationFactory.
 	#@todo ComponentLibrary::isParserFunction and ::isParserTag are scarcely used. remove or see to more usage
-	#@todo in ImageModalTest.php we have long running tests. All that use origThumbAndModalTriggerCompareAllCaseProvider (even the single)
-	#@todo revamp config access:
-	# see \BootstrapComponents\ImageModal::generateTriggerCalculateImageWidth how to access global config
-	# use $myConfig = \MediaWiki\MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' ); $myConfig->get( 'BootstrapComponentsWhitelist' ) );
 
 
-	# this remains
-	#@todo when switching to 1.31, replace manual class autoloading in extension.json to psr-4 autoloading
+	### this remains
+	#@todo when dropping support for mw > 1.31, replace manual class autoloading in extension.json with psr-4 autoloading
 	#@todo add extensions requirement to extension.json for "Bootstrap": "~ 1.2" as soon as Bootstrap supports new Extension loading (leaving this in breaks 1.31.x)
-	#@todo remove \BootstrapComponents\Setup::registerMyConfiguration when dropping support for 1.27
+	#@todo remove \BootstrapComponents\Setup::registerMyConfiguration when dropping support for mw > 1.31 (assuming T184837 will be fixed)
 }

@@ -34,44 +34,6 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function testCanCreateParserFirstCallInitCallback() {
-
-		$setup = new Setup();
-		$prefix = ComponentFunctionFactory::PARSER_HOOK_PREFIX;
-
-		$callBackForParserFirstCallInitHook = $setup->createParserFirstCallInitCallback();
-
-		$observerParser = $this->getMockBuilder(Parser::class )
-			->disableOriginalConstructor()
-			->setMethods( [ 'setFunctionHook', 'setHook' ] )
-			->getMock();
-		$observerParser->expects( $this->exactly( 6 ) )
-			->method( 'setFunctionHook' )
-			->withConsecutive(
-				[ $this->equalTo( $prefix . 'badge' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'button' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'carousel' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'icon' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'label' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'tooltip' ), $this->callback( 'is_callable' ) ]
-			);
-		$observerParser->expects( $this->exactly( 8 ) )
-			->method( 'setHook' )
-			->withConsecutive(
-				[ $this->equalTo( $prefix . 'accordion' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'alert' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'collapse' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'jumbotron' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'modal' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'panel' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'popover' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'well' ), $this->callback( 'is_callable' ) ]
-			);
-		$callBackForParserFirstCallInitHook( $observerParser );
-		# we have to call $callBackForParserFirstCallInitHook with an observer (of type parser)
-		# see to it, that functions setHook() and setFunctionHook() get called the right amount of times with the correct parameters
-	}
-
 	/**
 	 * @param array $configuration
 	 * @param array $expectedRegisteredHooks
@@ -110,6 +72,44 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		foreach ( $expectedNotRegisteredHooks as $notExpectedHook ) {
 			$this->doTestHookIsNotRegistered( $registeredHooks, $notExpectedHook );
 		}
+	}
+
+	public function testCanCreateParserFirstCallInitCallback() {
+
+		$setup = new Setup();
+		$prefix = ComponentFunctionFactory::PARSER_HOOK_PREFIX;
+
+		$callBackForParserFirstCallInitHook = $setup->createParserFirstCallInitCallback();
+
+		$observerParser = $this->getMockBuilder(Parser::class )
+			->disableOriginalConstructor()
+			->setMethods( [ 'setFunctionHook', 'setHook' ] )
+			->getMock();
+		$observerParser->expects( $this->exactly( 6 ) )
+			->method( 'setFunctionHook' )
+			->withConsecutive(
+				[ $this->equalTo( $prefix . 'badge' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'button' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'carousel' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'icon' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'label' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'tooltip' ), $this->callback( 'is_callable' ) ]
+			);
+		$observerParser->expects( $this->exactly( 8 ) )
+			->method( 'setHook' )
+			->withConsecutive(
+				[ $this->equalTo( $prefix . 'accordion' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'alert' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'collapse' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'jumbotron' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'modal' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'panel' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'popover' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'well' ), $this->callback( 'is_callable' ) ]
+			);
+		$callBackForParserFirstCallInitHook( $observerParser );
+		# we have to call $callBackForParserFirstCallInitHook with an observer (of type parser)
+		# see to it, that functions setHook() and setFunctionHook() get called the right amount of times with the correct parameters
 	}
 
 	/**
@@ -219,6 +219,20 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(
 			is_callable( $registeredHooks['ImageBeforeProduceHTML'] )
 		);
+	}
+
+	public function testCanRegisterMyConfiguration() {
+
+		$configFactory = $this->getMockBuilder( 'ConfigFactory' )
+			->disableOriginalConstructor()
+			->getMock();
+		$configFactory->expects( $this->once() )
+			->method( 'register' )
+			->will( $this->returnArgument( true ) );
+
+		$setup = new Setup();
+		/** @noinspection PhpParamsInspection */
+		$setup->registerMyConfiguration( $configFactory );
 	}
 
 	/**

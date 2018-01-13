@@ -27,12 +27,12 @@ class ModalBase {
 	private $content;
 
 	/**
-	 * @var string
+	 * @var string|false
 	 */
 	private $footer;
 
 	/**
-	 * @var string
+	 * @var string|false
 	 */
 	private $header;
 
@@ -42,32 +42,32 @@ class ModalBase {
 	private $id;
 
 	/**
-	 * @var string
+	 * @var string|false
 	 */
 	private $bodyClass;
 
 	/**
-	 * @var string
+	 * @var string|false
 	 */
 	private $bodyStyle;
 
 	/**
-	 * @var string
+	 * @var string|false
 	 */
 	private $dialogClass;
 
 	/**
-	 * @var string
+	 * @var string|false
 	 */
 	private $dialogStyle;
 
 	/**
-	 * @var string
+	 * @var string|false
 	 */
 	private $outerClass;
 
 	/**
-	 * @var string
+	 * @var string|false
 	 */
 	private $outerStyle;
 

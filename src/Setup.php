@@ -12,6 +12,7 @@ use Bootstrap\BootstrapManager;
 use \Closure;
 use \Config;
 use \ConfigException;
+use \ConfigFactory;
 use \Hooks;
 use \MediaWiki\MediaWikiServices;
 use \Parser;
@@ -32,7 +33,7 @@ class Setup {
 	 *
 	 * @param array $info
 	 *
-	 * @throws \ConfigException cascading {@see \ConfigFactory::makeConfig}
+	 * @throws ConfigException cascading {@see \ConfigFactory::makeConfig}
 	 *
 	 * @return bool
 	 */
@@ -42,7 +43,9 @@ class Setup {
 			$setup->prepareEnvironment();
 		}
 		$setup->bootstrapExtensionPresent();
-		$setup->registerMyConfiguration();
+		$setup->registerMyConfiguration(
+			MediaWikiServices::getInstance()->getConfigFactory()
+		);
 
 		$setup->registerHooks(
 			MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' )
@@ -135,15 +138,12 @@ class Setup {
 	}
 
 	/**
+	 * @param ConfigFactory $configFactory
 	 * Registers my own configuration, so that it is present during onLoad. See phabricator issue T184837
 	 * @link https://phabricator.wikimedia.org/T184837
 	 */
-	public function registerMyConfiguration() {
-
-		$configFactory = MediaWikiServices::getInstance()->getConfigFactory();
-		if ( method_exists( $configFactory, 'register' ) ) {
-			$configFactory->register( 'BootstrapComponents', 'GlobalVarConfig::newInstance' );
-		}
+	public function registerMyConfiguration( $configFactory ) {
+		$configFactory->register( 'BootstrapComponents', 'GlobalVarConfig::newInstance' );
 	}
 
 	private function bootstrapExtensionPresent() {

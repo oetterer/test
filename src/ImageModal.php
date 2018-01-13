@@ -46,7 +46,7 @@ class ImageModal implements Nestable {
 	private $nestingController;
 
 	/**
-	 * @var Nestable
+	 * @var Nestable|false
 	 */
 	private $parentComponent;
 

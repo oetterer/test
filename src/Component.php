@@ -124,7 +124,7 @@ abstract class Component implements Nestable {
 		$this->setId(
 			$this->checkForManualIdIn( $parserRequest )
 		);
-		if ( $this->getId() === false ) {
+		if ( $this->getId() === null ) {
 			$this->setId(
 				$this->getNestingController()->generateUniqueId( $this->getComponentName() )
 			);
@@ -165,9 +165,9 @@ abstract class Component implements Nestable {
 	 * @param mixed  $default
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor}
-	 * @return string|null
+	 * @return string|false
 	 */
-	protected function extractAttribute( $attribute, $attributes, $default = null ) {
+	protected function extractAttribute( $attribute, $attributes, $default = false ) {
 		if ( in_array( $attribute, $this->getComponentLibrary()->getAttributesFor( $this->getComponentName() ) )
 			&& is_array( $attributes )
 			&& isset( $attributes[$attribute] )
@@ -263,11 +263,11 @@ abstract class Component implements Nestable {
 	 * @param ParserRequest $parserRequest
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
-	 * @return string|false
+	 * @return string|null
 	 */
 	private function checkForManualIdIn( ParserRequest $parserRequest ) {
 		$attributes = $parserRequest->getAttributes();
-		return $this->extractAttribute( 'id', $attributes, false );
+		return $this->extractAttribute( 'id', $attributes, null );
 	}
 
 	/**
@@ -278,7 +278,7 @@ abstract class Component implements Nestable {
 	}
 
 	/**
-	 * @param false|Nestable $parentComponent
+	 * @param Nestable $parentComponent
 	 */
 	private function setParentComponent( $parentComponent ) {
 		$this->parentComponent = $parentComponent;

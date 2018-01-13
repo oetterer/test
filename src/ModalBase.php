@@ -263,42 +263,42 @@ class ModalBase {
 	}
 
 	/**
-	 * @return string
+	 * @return string|false
 	 */
 	protected function getBodyClass() {
 		return $this->bodyClass;
 	}
 
 	/**
-	 * @return string
+	 * @return string|false
 	 */
 	protected function getBodyStyle() {
 		return $this->bodyStyle;
 	}
 
 	/**
-	 * @return string
+	 * @return string|false
 	 */
 	protected function getDialogClass() {
 		return $this->dialogClass;
 	}
 
 	/**
-	 * @return string
+	 * @return string|false
 	 */
 	protected function getDialogStyle() {
 		return $this->dialogStyle;
 	}
 
 	/**
-	 * @return string
+	 * @return string|false
 	 */
 	protected function getFooter() {
 		return $this->footer;
 	}
 
 	/**
-	 * @return string
+	 * @return string|false
 	 */
 	protected function getHeader() {
 		return $this->header;
@@ -312,14 +312,14 @@ class ModalBase {
 	}
 
 	/**
-	 * @return string
+	 * @return string|false
 	 */
 	protected function getOuterClass() {
 		return $this->outerClass;
 	}
 
 	/**
-	 * @return string
+	 * @return string|false
 	 */
 	protected function getOuterStyle() {
 		return $this->outerStyle;
@@ -359,12 +359,12 @@ class ModalBase {
 	/**
 	 * Generates the footer section
 	 *
-	 * @param string $footer must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param string|false $footer must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
 	 * @return string
 	 */
 	private function generateFooter( $footer = '' ) {
-		if ( is_null( $footer ) ) {
+		if ( empty( $footer ) ) {
 			$footer = '';
 		}
 		$close = wfMessage( 'bootstrap-components-close-element' )->inContentLanguage()->parse();
@@ -387,12 +387,12 @@ class ModalBase {
 	/**
 	 * Generates the header section together with the dismiss X and the heading, if provided
 	 *
-	 * @param string $header must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param string|false $header must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
 	 * @return string
 	 */
 	private function generateHeader( $header = '' ) {
-		if ( is_null( $header ) ) {
+		if ( empty( $header ) ) {
 			$header = '';
 		}
 		$button = Html::rawElement(

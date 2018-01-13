@@ -52,7 +52,7 @@ abstract class Component implements Nestable {
 	private $nestingController;
 
 	/**
-	 * @var Nestable
+	 * @var Nestable|false
 	 */
 	private $parentComponent;
 
@@ -165,7 +165,7 @@ abstract class Component implements Nestable {
 	 * @param mixed  $default
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor}
-	 * @return string|false
+	 * @return string|false|null
 	 */
 	protected function extractAttribute( $attribute, $attributes, $default = false ) {
 		if ( in_array( $attribute, $this->getComponentLibrary()->getAttributesFor( $this->getComponentName() ) )
@@ -206,7 +206,7 @@ abstract class Component implements Nestable {
 	}
 
 	/**
-	 * @return false|Nestable
+	 * @return Nestable|false
 	 */
 	protected function getParentComponent() {
 		return $this->parentComponent;
@@ -278,7 +278,7 @@ abstract class Component implements Nestable {
 	}
 
 	/**
-	 * @param Nestable $parentComponent
+	 * @param Nestable|false $parentComponent
 	 */
 	private function setParentComponent( $parentComponent ) {
 		$this->parentComponent = $parentComponent;

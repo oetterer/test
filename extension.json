@@ -15,6 +15,7 @@
 		"BootstrapComponents": "GlobalVarConfig::newInstance"
 	},
 	"load_composer_autoloader": true,
+	"@note1": "switch to PSR-4 when dropping support for < 1.31",
 	"AutoloadClasses": {
 		"BootstrapComponents\\ApplicationFactory": "src/ApplicationFactory.php",
 		"BootstrapComponents\\AttributeManager": "src/AttributeManager.php",
@@ -35,7 +36,6 @@
 		"BootstrapComponents\\Component\\Button": "src/Component/Button.php",
 		"BootstrapComponents\\Component\\Carousel": "src/Component/Carousel.php",
 		"BootstrapComponents\\Component\\Collapse": "src/Component/Collapse.php",
-		"BootstrapComponents\\Component\\Help": "src/Component/Help.php",
 		"BootstrapComponents\\Component\\Icon": "src/Component/Icon.php",
 		"BootstrapComponents\\Component\\Jumbotron": "src/Component/Jumbotron.php",
 		"BootstrapComponents\\Component\\Label": "src/Component/Label.php",
@@ -45,6 +45,8 @@
 		"BootstrapComponents\\Component\\Tooltip": "src/Component/Tooltip.php",
 		"BootstrapComponents\\Component\\Well": "src/Component/Well.php"
 	},
+	"@note2": "hooks are registered in BootstrapComponents\\Setup",
+	"Hooks": { },
 	"config": {
 		"BootstrapComponentsEnableCarouselGalleryMode": true,
 		"BootstrapComponentsModalReplaceImageThumbnail": true,

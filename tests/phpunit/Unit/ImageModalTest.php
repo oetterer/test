@@ -63,8 +63,10 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 				$file
 			)
 		);
-		#echo count( $this->origThumbAndModalTriggerCompareAllCaseProvider() ); // 165888
-		#echo $this->generatePhpCodeForManualProviderData( 20 );
+		/*
+		echo count( $this->origThumbAndModalTriggerCompareAllCaseProvider() ); // 165888
+		echo $this->generatePhpCodeForManualProviderData( 20 );
+		*/
 	}
 
 	/**
@@ -241,7 +243,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 			->getMock();
 
 		/** @noinspection PhpParamsInspection */
-		$instance = new ImageModal( $dummyLinker, $title, false, $nestingController, $parserOutputHelper );
+		$instance = new ImageModal( $dummyLinker, $title, /** @scrutinizer ignore-type */ false, $nestingController, $parserOutputHelper );
 		$time = false;
 		$res = '';
 
@@ -1002,6 +1004,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @return string
 	 *
+	 * @scrutinizer ignore-unused
 	 */
 	private function generatePhpCodeForManualProviderData( $num = 100 ) {
 		$ret = '';

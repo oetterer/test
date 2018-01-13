@@ -124,7 +124,7 @@ abstract class Component implements Nestable {
 		$this->setId(
 			$this->checkForManualIdIn( $parserRequest )
 		);
-		if ( !$this->getId() ) {
+		if ( $this->getId() === false ) {
 			$this->setId(
 				$this->getNestingController()->generateUniqueId( $this->getComponentName() )
 			);
@@ -140,17 +140,17 @@ abstract class Component implements Nestable {
 	/**
 	 * Converts the input array to a string using glue. Removes invalid (false) entries beforehand.
 	 *
-	 * @param array  $array
-	 * @param string $glue
+	 * @param array|false $array
+	 * @param string      $glue
 	 *
 	 * @return false|string returns false on empty array, string otherwise
 	 */
 	protected function arrayToString( $array, $glue ) {
-		if ( !$array ) {
+		if ( empty( $array ) ) {
 			return false;
 		}
 		foreach ( (array) $array as $key => $item ) {
-			if ( !$item ) {
+			if ( $item === false || $item === '' ) {
 				unset( $array[$key] );
 			}
 		}
@@ -160,9 +160,9 @@ abstract class Component implements Nestable {
 	/**
 	 * If $attribute is set in $attributes and is valid, it is returned. Otherwise default is returned
 	 *
-	 * @param string      $attribute
-	 * @param array       $attributes
-	 * @param string|null $default
+	 * @param string $attribute
+	 * @param array  $attributes
+	 * @param mixed  $default
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor}
 	 * @return string|null
@@ -206,7 +206,7 @@ abstract class Component implements Nestable {
 	}
 
 	/**
-	 * @return null|Nestable
+	 * @return false|Nestable
 	 */
 	protected function getParentComponent() {
 		return $this->parentComponent;
@@ -263,7 +263,7 @@ abstract class Component implements Nestable {
 	 * @param ParserRequest $parserRequest
 	 *
 	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
-	 * @return string|null
+	 * @return string|false
 	 */
 	private function checkForManualIdIn( ParserRequest $parserRequest ) {
 		$attributes = $parserRequest->getAttributes();
@@ -278,7 +278,7 @@ abstract class Component implements Nestable {
 	}
 
 	/**
-	 * @param Nestable $parentComponent
+	 * @param false|Nestable $parentComponent
 	 */
 	private function setParentComponent( $parentComponent ) {
 		$this->parentComponent = $parentComponent;

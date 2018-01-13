@@ -163,7 +163,7 @@ class ModalBase {
 	}
 
 	/**
-	 * @param string $bodyClass
+	 * @param string|false $bodyClass
 	 *
 	 * @return ModalBase
 	 */
@@ -173,7 +173,7 @@ class ModalBase {
 	}
 
 	/**
-	 * @param string $bodyStyle
+	 * @param string|false $bodyStyle
 	 *
 	 * @return ModalBase
 	 */
@@ -183,7 +183,7 @@ class ModalBase {
 	}
 
 	/**
-	 * @param string $dialogClass
+	 * @param string|false $dialogClass
 	 *
 	 * @return ModalBase
 	 */
@@ -193,7 +193,7 @@ class ModalBase {
 	}
 
 	/**
-	 * @param string $dialogStyle
+	 * @param string|false $dialogStyle
 	 *
 	 * @return ModalBase
 	 */
@@ -203,7 +203,7 @@ class ModalBase {
 	}
 
 	/**
-	 * @param string $footer must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param string|false $footer must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
 	 * @return ModalBase
 	 */
@@ -213,7 +213,7 @@ class ModalBase {
 	}
 
 	/**
-	 * @param string $header must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param string|false $header must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
 	 * @return ModalBase
 	 */
@@ -223,7 +223,7 @@ class ModalBase {
 	}
 
 	/**
-	 * @param string $outerClass
+	 * @param string|false $outerClass
 	 *
 	 * @return ModalBase
 	 */
@@ -233,7 +233,7 @@ class ModalBase {
 	}
 
 	/**
-	 * @param string $outerStyle
+	 * @param string|false $outerStyle
 	 *
 	 * @return ModalBase
 	 */
@@ -244,7 +244,7 @@ class ModalBase {
 
 	/**
 	 * @param string $baseClass
-	 * @param string $additionalClass
+	 * @param string|false $additionalClass
 	 *
 	 * @return string
 	 */

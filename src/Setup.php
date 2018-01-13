@@ -120,7 +120,7 @@ class Setup {
 
 		return $hooks;
 	}
-	
+
 	/**
 	 * Does the actual registration of hooks and components
 	 *
@@ -159,8 +159,8 @@ class Setup {
 		define( 'BOOTSTRAP_COMPONENTS_VERSION', '1.0.0' );
 	}
 	# attend before deployment
+	#@todo get code quality above 9
 	#@todo adapt file headers (see chameleon and bootstrap for example)
-	#@todo add english messages to i18n/en.json; OR: kick online help...
 	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5)
 	#   or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
 	#@todo put on github with automatic testing and scrutinizing
@@ -169,7 +169,6 @@ class Setup {
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
 	#@todo complete documentation in /doc (installation, configuration, howto, expansion)
 	#@todo ComponentLibrary::isParserFunction and ::isParserTag are scarcely used. remove or see to more usage
-	#@todo check other Bootstrap requirement detector
 	#@todo in ImageModalTest.php we have long running tests. All that use origThumbAndModalTriggerCompareAllCaseProvider (even the single)
 	#@todo revamp config access:
 	# see \BootstrapComponents\ImageModal::generateTriggerCalculateImageWidth how to access global config
@@ -179,4 +178,5 @@ class Setup {
 	# this remains
 	#@todo when switching to 1.31, replace manual class autoloading in extension.json to psr-4 autoloading
 	#@todo add extensions requirement to extension.json for "Bootstrap": "~ 1.2" as soon as Bootstrap supports new Extension loading (leaving this in breaks 1.31.x)
+	#@todo remove \BootstrapComponents\Setup::registerMyConfiguration when dropping support for 1.27
 }

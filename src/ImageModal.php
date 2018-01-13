@@ -126,7 +126,7 @@ class ImageModal implements Nestable {
 	 *
 	 * @return bool
 	 */
-	public function parse( &$frameParams, &$handlerParams, &$time, &$res ) {
+	public function parse( &$frameParams, &$handlerParams, /** @scrutinizer ignore-unused */ &$time, &$res ) {
 		if ( !$this->assessResponsibility( $this->getFile(), $frameParams ) ) {
 			return true;
 		}

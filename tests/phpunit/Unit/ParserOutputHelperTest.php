@@ -105,12 +105,12 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 		/** @noinspection PhpParamsInspection */
 		$instance = new ParserOutputHelper( $parser );
 
-		$instance->addModules( null );
+		$instance->addModules( /** @scrutinizer ignore-type */ null );
 
 		$instance->addModules( [] );
 
 		/** @noinspection PhpParamsInspection */
-		$instance->addModules( 'module0' );
+		$instance->addModules( /** @scrutinizer ignore-type */ 'module0' );
 
 		$instance->addModules( [ 'module1', 'module2' ] );
 	}

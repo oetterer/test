@@ -45,12 +45,6 @@ abstract class ComponentsTestBase extends PHPUnit_Framework_TestCase {
 
 	public function setUp() {
 		parent::setUp();
-#		$this->componentLibrary = $this->getMockBuilder( 'BootstrapComponents\\ComponentLibrary' )
-#			->disableOriginalConstructor()
-#			->getMock();
-#		$this->componentLibrary->expects( $this->any() )
-#			->method( 'getNameFor' )
-#			->will( $this->returnArgument(0) );
 		$this->componentLibrary = new ComponentLibrary();
 		$this->frame = $this->getMockBuilder( 'PPFrame' )
 			->disableOriginalConstructor()

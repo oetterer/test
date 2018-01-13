@@ -96,11 +96,10 @@ class NestingController {
 	/**
 	 * Returns a reference to the last opened component
 	 *
-	 * @return null|Nestable
+	 * @return false|Nestable
 	 */
 	public function getCurrentElement() {
-		end( $this->componentStack );
-		return current( $this->componentStack );
+		return end( $this->componentStack );
 	}
 
 	/**

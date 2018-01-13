@@ -42,14 +42,6 @@
 namespace BootstrapComponents;
 
 /**
- * This file is loaded, when using composer. Defers initialization to wfLoadExtension as if called by LocalSettings.
- *
- * @see https://github.com/oetterer/BootstrapComponents/
- */
-
-BootstrapComponents::load();
-
-/**
  * @codeCoverageIgnore
  */
 class BootstrapComponents {
@@ -92,3 +84,11 @@ class BootstrapComponents {
 		return BOOTSTRAP_COMPONENTS_VERSION;
 	}
 }
+
+
+/**
+ * This file is loaded, when using composer. Defers initialization to wfLoadExtension as if called by LocalSettings.
+ *
+ * @see https://github.com/oetterer/BootstrapComponents/
+ */
+BootstrapComponents::load();

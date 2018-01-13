@@ -30,7 +30,7 @@ class Tooltip extends Component {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-content-missing' );
 		}
 		$tooltip = $this->extractAttribute( 'text', $parserRequest->getAttributes(), false );
-		if ( !$tooltip ) {
+		if ( $tooltip === false ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-text-missing' );
 		}
 		list ( $class, $style ) = $this->processCss( [], [], $parserRequest->getAttributes() );

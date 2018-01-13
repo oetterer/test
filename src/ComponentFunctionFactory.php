@@ -54,6 +54,9 @@ class ComponentFunctionFactory {
 		if ( self::$instance !== null ) {
 			return self::$instance;
 		}
+		if ( $parser === null ) {
+			$parser = $GLOBALS['wgParser'];
+		}
 
 		return self::$instance = new self( $parser );
 	}

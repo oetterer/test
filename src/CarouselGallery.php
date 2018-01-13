@@ -9,7 +9,6 @@
 namespace BootstrapComponents;
 
 use BootstrapComponents\Component\Carousel;
-use BootstrapComponents\ParserOutputHelper;
 use \ImageGalleryBase;
 use \MWException;
 use \Parser;
@@ -68,7 +67,7 @@ class CarouselGallery extends ImageGalleryBase {
 	 * @return array
 	 */
 	private function addAttributes( $origAttributes, $localAttributes ) {
-		if ( !$localAttributes ) {
+		if ( empty( $localAttributes ) ) {
 			return $origAttributes;
 		}
 		// add $localAttributes to $origAttributes's attributes. note the difference in parameter handling
@@ -93,7 +92,7 @@ class CarouselGallery extends ImageGalleryBase {
 			$imageTitle = $imageData[0];
 
 			if ( $imageTitle->getNamespace() !== NS_FILE ) {
-				if ( $parser instanceof Parser ) {
+				if ( is_a( $parser, 'Parser' ) ) {
 					$parser->addTrackingCategory( 'broken-file-category' );
 				}
 				continue;
@@ -127,7 +126,7 @@ class CarouselGallery extends ImageGalleryBase {
 		}
 		if ( $imageLink ) {
 			# @note: this is a local link. has to be an article name :(
-			# @fixme: assuming, that the correct link processing is done in image processing
+			# @note: assuming here, that the correct link processing is done in image processing
 			$carouselImage .= '|link=' . $imageLink;
 		}
 		if ( $imageParams ) {

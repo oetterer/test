@@ -210,7 +210,7 @@ class ComponentLibrary {
 		$modules = isset( $this->componentDataStore[$componentName]['modules']['default'] )
 			? (array) $this->componentDataStore[$componentName]['modules']['default']
 			: [];
-		if ( !$skin || !isset( $this->componentDataStore[$componentName]['modules'][$skin] ) ) {
+		if ( $skin === null || !isset( $this->componentDataStore[$componentName]['modules'][$skin] ) ) {
 			return $modules;
 		}
 		return (array) array_merge(

@@ -158,7 +158,7 @@ class ParserOutputHelper {
 	 * @return bool
 	 */
 	public function vectorSkinInUse() {
-		return $this->getNameOfActiveSkin() == 'vector';
+		return strtolower( $this->getNameOfActiveSkin() ) == 'vector';
 	}
 
 	/**
@@ -166,7 +166,7 @@ class ParserOutputHelper {
 	 */
 	private function detectSkinInUse() {
 		$skin = RequestContext::getMain()->getSkin();
-		return ($skin && ($skin instanceof Skin) ? $skin->getSkinName() : 'unknown');
+		return ($skin && is_a( $skin, 'Skin' ) ? $skin->getSkinName() : 'unknown');
 	}
 
 	/**

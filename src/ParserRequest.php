@@ -47,7 +47,7 @@ class ParserRequest {
 		if ( !is_array( $this->attributes ) ) {
 			$this->attributes = [ $this->attributes ];
 		}
-		if ( !$this->parser || !$this->parser instanceof Parser ) {
+		if ( !$this->parser || !is_a( $this->parser, 'Parser' ) ) {
 			throw new MWException( 'Invalid parser object passed to component ' . $handlerType . '!' );
 		}
 	}

@@ -36,11 +36,6 @@ class ComponentLibrary {
 	const HANDLER_TYPE_TAG_EXTENSION = 'TagExtension';
 
 	/**
-	 * @var ComponentLibrary
-	 */
-	private static $instance = null;
-
-	/**
 	 * This array holds all the data for all known components, whether they are registered or not.
 	 *
 	 * Array has form
@@ -80,20 +75,6 @@ class ComponentLibrary {
 	 * @var string[]
 	 */
 	private $registeredComponents;
-
-	/**
-	 * Returns the singleton instance
-	 *
-	 * @param bool|array $componentWhiteList
-	 *
-	 * @return ComponentLibrary
-	 */
-	public static function getInstance( $componentWhiteList = null ) {
-		if ( self::$instance !== null ) {
-			return self::$instance;
-		}
-		return self::$instance = new self( $componentWhiteList );
-	}
 
 	/**
 	 * ComponentLibrary constructor.

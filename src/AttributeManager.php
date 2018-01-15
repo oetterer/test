@@ -16,25 +16,12 @@ namespace BootstrapComponents;
  * @package BootstrapComponents
  */
 class AttributeManager {
-	/**
-	 * @var AttributeManager
-	 */
-	private static $instance = null;
 
+	/**
+	 * Holds the register for allowed attributes per component
+	 * @var array[]
+	 */
 	private $allowedValuesForAttribute = [];
-
-	/**
-	 * Returns the singleton instance
-	 *
-	 * @return AttributeManager
-	 */
-	public static function getInstance() {
-		if ( self::$instance !== null ) {
-			return self::$instance;
-		}
-
-		return self::$instance = new self();
-	}
 
 	/**
 	 * AttributeManager constructor.

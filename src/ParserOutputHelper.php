@@ -11,8 +11,6 @@ namespace BootstrapComponents;
 use \Html;
 use \Parser;
 use \RequestContext;
-use \Skin;
-use Symfony\Component\Process\Exception\RuntimeException;
 use \Title;
 
 /**
@@ -23,11 +21,6 @@ use \Title;
  * @package BootstrapComponents
  */
 class ParserOutputHelper {
-	/**
-	 * @var ParserOutputHelper
-	 */
-	private static $instance = null;
-
 	/**
 	 * To make sure, we only add the tracking category once
 	 *
@@ -55,23 +48,6 @@ class ParserOutputHelper {
 	private $parser;
 
 	/**
-	 * Returns the singleton instance
-	 *
-	 * @param Parser $parser
-	 *
-	 * @return ParserOutputHelper
-	 */
-	public static function getInstance( $parser = null ) {
-		if ( self::$instance !== null ) {
-			return self::$instance;
-		}
-		if ( !$parser ) {
-			$parser = $GLOBALS['wgParser'];
-		}
-		return self::$instance = new self( $parser );
-	}
-
-	/**
 	 * ParserOutputHelper constructor.
 	 *
 	 * @param Parser $parser
@@ -82,7 +58,6 @@ class ParserOutputHelper {
 		$this->parser = $parser;
 		$this->nameOfActiveSkin = $this->detectSkinInUse();
 	}
-
 
 	/**
 	 * Adds the error tracking category to the current page if not done already.

@@ -24,11 +24,6 @@ class ComponentFunctionFactory {
 	const PARSER_HOOK_PREFIX = 'bootstrap_';
 
 	/**
-	 * @var ComponentFunctionFactory
-	 */
-	private static $instance = null;
-
-	/**
 	 * @var ComponentLibrary
 	 */
 	private $componentLibrary;
@@ -42,24 +37,6 @@ class ComponentFunctionFactory {
 	 * @var ParserOutputHelper
 	 */
 	private $parserOutputHelper;
-
-	/**
-	 * Returns the singleton instance
-	 *
-	 * @param Parser $parser
-	 *
-	 * @return ComponentFunctionFactory
-	 */
-	public static function getInstance( Parser $parser = null ) {
-		if ( self::$instance !== null ) {
-			return self::$instance;
-		}
-		if ( $parser === null ) {
-			$parser = $GLOBALS['wgParser'];
-		}
-
-		return self::$instance = new self( $parser );
-	}
 
 	/**
 	 * ComponentFunctionFactory constructor.

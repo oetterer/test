@@ -93,7 +93,7 @@
 			"scripts": "ext.bootstrapComponents.tooltip.js"
 		},
 		"ext.bootstrapComponents.vector-fix": {
-			"position": "top",
+			"position": "bottom",
 			"styles": "ext.bootstrapComponents.vector-fix.css"
 		}
 	},

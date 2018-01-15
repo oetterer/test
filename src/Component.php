@@ -35,7 +35,7 @@ abstract class Component implements Nestable {
 	/**
 	 * The (html) id of this component. Not available before the component was opened.
 	 *
-	 * @var string
+	 * @var string|false
 	 */
 	private $id;
 
@@ -122,13 +122,10 @@ abstract class Component implements Nestable {
 	 */
 	public function parseComponent( $parserRequest ) {
 		$this->setId(
-			$this->checkForManualIdIn( $parserRequest )
+			($manualId = $this->checkForManualIdIn( $parserRequest )) !== null
+				? $manualId
+				: $this->getNestingController()->generateUniqueId( $this->getComponentName() )
 		);
-		if ( $this->getId() === null ) {
-			$this->setId(
-				$this->getNestingController()->generateUniqueId( $this->getComponentName() )
-			);
-		}
 		$this->augmentParserOutput();
 
 		$this->getNestingController()->open( $this );

@@ -9,7 +9,6 @@
 namespace BootstrapComponents;
 
 use \MWException;
-use \Parser;
 use \ReflectionClass;
 
 /**
@@ -66,7 +65,7 @@ class ApplicationFactory {
 	}
 
 	/**
-	 * @param Parser            $parser
+	 * @param \Parser           $parser
 	 * @param ComponentLibrary  $componentLibrary
 	 * @param NestingController $nestingController
 	 *
@@ -74,7 +73,7 @@ class ApplicationFactory {
 	 *
 	 * @return ComponentFunctionFactory
 	 */
-	public function getComponentFunctionFactory( Parser $parser = null, $componentLibrary = null, $nestingController = null ) {
+	public function getComponentFunctionFactory( $parser = null, $componentLibrary = null, $nestingController = null ) {
 		if ( $parser === null ) {
 			$parser = $GLOBALS['wgParser'];
 		}
@@ -110,13 +109,13 @@ class ApplicationFactory {
 	}
 
 	/**
-	 * @param Parser $parser
+	 * @param \Parser $parser
 	 *
 	 * @throws MWException  cascading {@see \BootstrapComponents\ApplicationFactory::getApplication}
 	 *
 	 * @return ParserOutputHelper
 	 */
-	public function getParserOutputHelper( Parser $parser = null ) {
+	public function getParserOutputHelper( $parser = null ) {
 		if ( $parser === null ) {
 			$parser = $GLOBALS['wgParser'];
 		}
@@ -131,6 +130,31 @@ class ApplicationFactory {
 	 */
 	public function getNewParserRequest( array $argumentsPassedByParser, $handlerType = ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
 		return new ParserRequest( $argumentsPassedByParser, $handlerType );
+	}
+
+	/**
+	 * Registers an application with the ApplicationFactory.
+	 * @param string $name
+	 * @param string $class
+	 *
+	 * @throws MWException when class to register does not exist
+	 *
+	 * @return bool
+	 */
+	public function registerApplication( $name, $class ) {
+		$application = trim( $name );
+		$applicationClass = trim( $class );
+		if ( $application != '' && class_exists( $applicationClass ) ) {
+			$this->applicationClassRegister[$application] = $applicationClass;
+			return true;
+		} elseif( $application != '' ) {
+			throw new MWException( 'ApplicationFactory was requested to register non existing class "' . $applicationClass . '"!');
+		}
+		wfDebugLog(
+			'BootstrapComponents',
+			'BootstrapComponents\\ApplicationFactory: Trying to register invalid application for class ' . $applicationClass . '!'
+		);
+		return false;
 	}
 
 	/**
@@ -157,38 +181,22 @@ class ApplicationFactory {
 	}
 
 	/**
-	 * Registers an application with the ApplicationFactory.
-	 * @param string $name
-	 * @param string $class
-	 *
-	 * @throws MWException when class to register does not exist
-	 */
-	protected function registerApplication( $name, $class ) {
-		$application = trim( $name );
-		$applicationClass = trim( $class );
-		if ( $application != '' && class_exists( $applicationClass ) ) {
-			$this->applicationClassRegister[$application] = $applicationClass;
-		} elseif( $application != '' ) {
-			throw new MWException( 'ApplicationFactory was requested to register non existing class "' . $applicationClass . '"!');
-		}
-		wfDebugLog(
-			'BootstrapComponents',
-			'BootstrapComponents\\ApplicationFactory: Trying to register invalid application for class ' . $applicationClass . '!'
-		);
-	}
-
-	/**
 	 * Resets the application $application (or all, if $application is null), so that the next call to
 	 * {@see \BootstrapComponents\ApplicationFactory::getApplication} will create a new object.
 	 *
 	 * @param null|string $application
+	 *
+	 * @return bool
 	 */
-	protected function resetLookup( $application = null ) {
+	public function resetLookup( $application = null ) {
 		if ( is_null( $application ) ) {
 			$this->applicationStore = [];
+			return true;
 		} elseif( isset( $this->applicationStore[$application] ) ) {
 			unset( $this->applicationStore[$application] );
+			return true;
 		}
+		return false;
 	}
 
 	/**

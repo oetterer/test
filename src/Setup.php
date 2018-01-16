@@ -75,15 +75,6 @@ class Setup {
 	}
 
 	/**
-	 * @param string $hook
-	 *
-	 * @return boolean
-	 */
-	public function isRegistered( $hook ) {
-		return Hooks::isRegistered( $hook );
-	}
-
-	/**
 	 * Defines all hooks and the corresponding callbacks
 	 *
 	 * @param  \Config $myConfig
@@ -127,6 +118,31 @@ class Setup {
 	}
 
 	/**
+	 * @param \Config $myConfig
+	 *
+	 * @return array
+	 * @throws \MWException cascading {@see \BootstrapComponents\applicationFactory} calls
+	 * @throws \ConfigException cascading {@see \Config::get}
+	 */
+	public function initializeApplications( $myConfig ) {
+		$applicationFactory = ApplicationFactory::getInstance();
+		$componentLibrary = $applicationFactory->getComponentLibrary();
+		$nestingController = $applicationFactory->getNestingController(
+			$myConfig->get('BootstrapComponentsDisableIdsForTestsEnvironment')
+		);
+		return [ $componentLibrary, $nestingController ];
+	}
+
+	/**
+	 * @param string $hook
+	 *
+	 * @return boolean
+	 */
+	public function isRegistered( $hook ) {
+		return Hooks::isRegistered( $hook );
+	}
+
+	/**
 	 * Does the actual registration of hooks and components
 	 *
 	 * @param  \Config $myConfig
@@ -159,22 +175,6 @@ class Setup {
 	}
 
 	/**
-	 * @param \Config $myConfig
-	 *
-	 * @return array
-	 * @throws \MWException cascading {@see \BootstrapComponents\applicationFactory} calls
-	 * @throws \ConfigException cascading {@see \Config::get}
-	 */
-	private function initializeApplications( $myConfig ) {
-		$applicationFactory = ApplicationFactory::getInstance();
-		$componentLibrary = $applicationFactory->getComponentLibrary();
-		$nestingController = $applicationFactory->getNestingController(
-			$myConfig->get('BootstrapComponentsDisableIdsForTestsEnvironment')
-		);
-		return [ $componentLibrary, $nestingController ];
-	}
-
-	/**
 	 * Information array created on extension registration.
 	 * Note: this array also resides as from ExtensionRegistry::getInstance()->getAllThings()['BootstrapComponents']
 	 * @param array $info
@@ -188,7 +188,6 @@ class Setup {
 	#@todo create composer package. see https://packagist.org/ and https://packagist.org/about#how-to-update-packages; packet name "bootstrap-components"
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
 	#@todo complete documentation in /doc (installation, configuration, howto, expansion)
-	#@fixme: php ../../tests/parserTests.php --quiet throws errors/notices. Fix. (1. find out which param constellation, and suppress notice with isset)
 
 	# code improvement
 	#@todo add more comments
@@ -203,10 +202,12 @@ class Setup {
 		],
 	in composer does not work, because mw >= 1.29 has parserTests.php moved to tests/parser/parserTests.php; need test script...
 	 */
+	#@fixme tests/parser/parserTests.txt
 	#@todo adapt file headers (see chameleon and bootstrap for example)
 	#@todo move the complex, consisting of instance self static and the getInstance() methods from the instances into the ApplicationFactory.
 	#@todo ComponentLibrary::isParserFunction and ::isParserTag are scarcely used. remove or see to more usage
 	#@todo remove newlines in image modal's image caption
+	#@todo give \BootstrapComponents\ComponentFunctionFactory::__construct a parserOutputHelper directly, instead of a $parser
 
 
 	### this remains

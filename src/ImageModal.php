@@ -338,7 +338,7 @@ class ImageModal implements Nestable {
 		$options = [
 			'alt'       => $sanitizedFrameParams['alt'],
 			'title'     => $sanitizedFrameParams['title'],
-			'img-class' => $sanitizedFrameParams['class'],
+			'img-class' => $sanitizedFrameParams['class'] . ' img-responsive',
 		];
 		if ( $sanitizedFrameParams['thumbnail'] || isset( $sanitizedFrameParams['manualthumb'] ) || $sanitizedFrameParams['framed'] ) {
 			$options['img-class'] .= ' thumbimage';
@@ -514,37 +514,38 @@ class ImageModal implements Nestable {
 				[
 					'class' => 'thumb t' . ($sanitizedFrameParams['align'] == 'center' ? 'none' : $sanitizedFrameParams['align']),
 				],
-				Html::rawElement(
-					'div',
-					[
-						'class' => 'thumbinner',
-						'style' => 'width:' . $outerWidth . 'px;',
-					],
-					$thumbString . '  ' . Html::rawElement(
+				ModalBase::wrapTriggerElement(
+					Html::rawElement(
 						'div',
-						[ 'class' => 'thumbcaption' ],
-						$zoomIcon . $sanitizedFrameParams['caption']
-					)
+						[
+							'class' => 'thumbinner',
+							'style' => 'width:' . $outerWidth . 'px;',
+						],
+						$thumbString . '  ' . Html::rawElement(
+							'div',
+							[ 'class' => 'thumbcaption' ],
+							$zoomIcon . $sanitizedFrameParams['caption']
+						)
+					),
+					$this->getId()
 				)
 			);
-		} else {
-			if ( strlen( $sanitizedFrameParams['align'] ) && $sanitizedFrameParams['align'] != 'center' ) {
-				$ret = Html::rawElement(
-					'div',
-					[ 'class' => 'float' . $sanitizedFrameParams['align'], ],
-					$thumbString
-				);
-			} else {
-				$ret = $thumbString;
-			}
-		}
-		if ( $sanitizedFrameParams['align'] == 'center' ) {
+		} elseif ( strlen( $sanitizedFrameParams['align'] ) && $sanitizedFrameParams['align'] != 'center' ) {
+			$ret = Html::rawElement(
+				'div',
+				[ 'class' => 'float' . $sanitizedFrameParams['align'], ],
+				ModalBase::wrapTriggerElement( $thumbString, $this->getId() )
+			);
+		} elseif  ( $sanitizedFrameParams['align'] == 'center' ) {
 			$ret = Html::rawElement(
 				'div',
 				[ 'class' => 'center', ],
-				ModalBase::wrapTriggerElement( $ret, $this->getId() )
+				ModalBase::wrapTriggerElement( $thumbString, $this->getId() )
 			);
+		} else {
+			$ret = ModalBase::wrapTriggerElement( $thumbString, $this->getId() );
 		}
+
 		return str_replace( "\n", ' ', $ret );
 	}
 

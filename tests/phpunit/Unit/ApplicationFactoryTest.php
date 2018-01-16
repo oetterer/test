@@ -30,11 +30,14 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @dataProvider applicationNameProvider
 	 */
-	public function testGetApplication( $application ) {
+	public function testGetApplicationAndReset( $application ) {
 		$instance = new ApplicationFactory();
 		$this->assertInstanceOf(
 			'BootstrapComponents\\' . $application,
 			call_user_func( [ $instance, 'get' . $application ] )
+		);
+		$this->assertTrue(
+			$instance->resetLookup( $application )
 		);
 	}
 
@@ -103,14 +106,49 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		$instance->getNewParserRequest( $arguments, $handlerType );
 	}
 
+	public function testCanRegisterApplication() {
+		$instance = new ApplicationFactory();
+		$this->assertTrue(
+			$instance->registerApplication( 'test', 'ReflectionClass' )
+		);
+	}
+
+	public function testCanNotRegisterApplicationOnInvalidName() {
+		$instance = new ApplicationFactory();
+		$this->assertTrue(
+			!$instance->registerApplication( '', 'ReflectionClass' )
+		);
+		$this->assertTrue(
+			!$instance->registerApplication( false, 'ReflectionClass' )
+		);
+		$this->assertTrue(
+			!$instance->registerApplication( '   ', 'ReflectionClass' )
+		);
+	}
+
+	public function testCanNotRegisterApplicationOnInvalidClass() {
+		$instance = new ApplicationFactory();
+		$this->setExpectedException( 'MWException' );
+		$instance->registerApplication( 'test', 'FooBar' );
+	}
+
+	public function testCanResetLookup() {
+		$instance = new ApplicationFactory();
+		$this->assertTrue(
+			$instance->resetLookup()
+		);
+	}
+
 	/**
 	 * @return array[]
 	 */
 	public function applicationNameProvider() {
 		return [
-			'AttributeManager'  => [ 'AttributeManager' ],
-			'ComponentLibrary'  => [ 'ComponentLibrary' ],
-			'NestingController' => [ 'NestingController' ],
+			'AttributeManager'         => [ 'AttributeManager' ],
+			'ComponentFunctionFactory' => [ 'ComponentFunctionFactory' ],
+			'ComponentLibrary'         => [ 'ComponentLibrary' ],
+			'NestingController'        => [ 'NestingController' ],
+			'ParserOutputHelper'       => [ 'ParserOutputHelper' ],
 		];
 	}
 

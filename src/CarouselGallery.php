@@ -19,26 +19,23 @@ use \ImageGalleryBase;
 class CarouselGallery extends ImageGalleryBase {
 
 	/**
-	 * @param Carousel           $carousel used for unit tests
 	 * @param ParserOutputHelper $parserOutputHelper used for unit tests
 	 *
 	 * @throws \MWException cascading {@see \BootstrapComponents\Component::parseComponent}
 	 * @return string
 	 */
-	public function toHTML( $carousel = null, $parserOutputHelper = null ) {
+	public function toHTML( $parserOutputHelper = null ) {
 		$parserOutputHelper = $parserOutputHelper === null
 			? ApplicationFactory::getInstance()->getParserOutputHelper( $this->mParser )
 			: $parserOutputHelper;
 		if ( $this->isEmpty() ) {
 			return $parserOutputHelper->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
 		}
-		if ( !$carousel || !$carousel instanceof Carousel ) {
-			$carousel = new Carousel(
-				ApplicationFactory::getInstance()->getComponentLibrary(),
-				$parserOutputHelper,
-				ApplicationFactory::getInstance()->getNestingController()
-			);
-		}
+		$carousel = new Carousel(
+			ApplicationFactory::getInstance()->getComponentLibrary(),
+			$parserOutputHelper,
+			ApplicationFactory::getInstance()->getNestingController()
+		);
 		$carouselAttributes = $this->convertImages(
 			$this->getImages(),
 			$this->mParser,

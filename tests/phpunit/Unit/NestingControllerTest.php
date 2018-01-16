@@ -19,8 +19,8 @@ use \PHPUnit_Framework_TestCase;
  */
 class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	/**
-	 * @param $componentName
-	 * @param $componentClass
+	 * @param string $componentName
+	 * @param string $componentClass
 	 *
 	 * @return Component
 	 */
@@ -119,8 +119,7 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	public function testCanGenerateStaticIdForTests() {
 		$instance = new NestingController( true );
 		foreach ( $this->uniqueIdProvider() as $testParams ) {
-			/** @noinspection PhpUnusedLocalVariableInspection */
-			list( $componentName, $expectedId ) = $testParams;
+			list( $componentName,) = $testParams;
 			$this->assertEquals(
 				'bsc_' . $componentName . '_test',
 				$instance->generateUniqueId( $componentName )
@@ -130,7 +129,7 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @param NestingController $instance
-	 * @param array             $testParams
+	 * @param string[]          $testParams
 	 */
 	private function doTestCanGenerateUniqueId( $instance, $testParams ) {
 		list( $componentName, $expectedId ) = $testParams;

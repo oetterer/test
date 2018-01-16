@@ -36,20 +36,6 @@ class CarouselGalleryTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider galleryDataProvider
 	 */
 	public function testToHtml( $imageList, $additionalAttributes, $expectedOutput ) {
-		$carousel = $this->getMockBuilder( 'BootstrapComponents\\Component\\Carousel' )
-			->disableOriginalConstructor()
-			->getMock();
-		$carousel->expects( $this->any() )
-			->method( 'parseComponent' )
-			->will(
-				$this->returnCallback(
-					function( ParserRequest $parserRequest ) {
-						$attributes = $parserRequest->getAttributes();
-						array_unshift( $attributes, $parserRequest->getInput() );
-						return $attributes;
-					}
-				)
-			);
 		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
 			->disableOriginalConstructor()
 			->getMock();
@@ -68,7 +54,7 @@ class CarouselGalleryTest extends PHPUnit_Framework_TestCase {
 		$instance->setAttributes( $additionalAttributes );
 		$this->assertEquals(
 			$expectedOutput,
-			$instance->toHTML( $carousel, $parserOutputHelper )
+			$instance->toHTML( $parserOutputHelper )
 		);
 	}
 
@@ -89,12 +75,39 @@ class CarouselGalleryTest extends PHPUnit_Framework_TestCase {
 					'id'    => 'youcanttakethesky',
 				],
 				[
-					0                                                         => '[[File:Mal.jpg|Malcolm Reynolds|alt=(alt) Malcolm Reynolds]]',
-					'[[File:Wash.jpg|Hoban Washburne|link'                    => '/List_of_best_Pilots_in_the_Verse]]',
-					'[[File:MirandaSecretFiles.pdf|(c) by Hands of Blue|page' => '13|float=none]]',
-					'class'                                                   => 'firefly',
-					'style'                                                   => 'float:space',
-					'id'                                                      => 'youcanttakethesky',
+					0 => '<div class="carousel slide firefly" style="float:space" id="youcanttakethesky" data-ride="carousel">' . PHP_EOL
+						. '<ol class="carousel-indicators">' . PHP_EOL
+						. "\t". '<li data-target="#youcanttakethesky" data-slide-to="0" class="active"></li>' . PHP_EOL
+						. "\t". '<li data-target="#youcanttakethesky" data-slide-to="1"></li>' . PHP_EOL
+						. "\t". '<li data-target="#youcanttakethesky" data-slide-to="2"></li>' . PHP_EOL
+						. '</ol>' . PHP_EOL
+						. '<div class="carousel-inner">' . PHP_EOL
+						. "\t". '<div class="item active"></div>' . PHP_EOL
+						. "\t". '<div class="item"></div>' . PHP_EOL
+						. "\t". '<div class="item"></div>' . PHP_EOL
+						. '</div><a class="left carousel-control" href="#youcanttakethesky" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a><a class="right carousel-control" href="#youcanttakethesky" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a></div>',
+					'isHTML' => true,
+					'noparse' => true,
+				],
+			],
+			'no local attributes' => [
+				[
+					[ 'File:Mal.jpg', 'Malcolm Reynolds', '(alt) Malcolm Reynolds', '', [] ],
+					[ 'File:Wash.jpg', 'Hoban Washburne', '', '/List_of_best_Pilots_in_the_Verse', [] ],
+				],
+				[],
+				[
+					0 => '<div class="carousel slide" id="bsc_carousel_0" data-ride="carousel">' . PHP_EOL
+						. '<ol class="carousel-indicators">' . PHP_EOL
+						. "\t". '<li data-target="#bsc_carousel_0" data-slide-to="0" class="active"></li>' . PHP_EOL
+						. "\t". '<li data-target="#bsc_carousel_0" data-slide-to="1"></li>' . PHP_EOL
+						. '</ol>' . PHP_EOL
+						. '<div class="carousel-inner">' . PHP_EOL
+						. "\t". '<div class="item active"></div>' . PHP_EOL
+						. "\t". '<div class="item"></div>' . PHP_EOL
+						. '</div><a class="left carousel-control" href="#bsc_carousel_0" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a><a class="right carousel-control" href="#bsc_carousel_0" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a></div>',
+					'isHTML' => true,
+					'noparse' => true,
 				],
 			],
 			'only invalid images' => [

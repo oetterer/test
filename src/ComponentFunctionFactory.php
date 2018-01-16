@@ -8,7 +8,6 @@
 
 namespace BootstrapComponents;
 
-use \Parser;
 use \ReflectionClass;
 
 /**
@@ -39,13 +38,13 @@ class ComponentFunctionFactory {
 	/**
 	 * ComponentFunctionFactory constructor.
 	 *
-	 * @param Parser            $parser
+	 * @param \Parser           $parser
 	 * @param ComponentLibrary  $componentLibrary
 	 * @param NestingController $nestingController
 	 *
 	 * @throws \MWException cascading the application calls to {@see \BootstrapComponents\ApplicationFactory}
 	 */
-	public function __construct( Parser $parser, $componentLibrary, $nestingController ) {
+	public function __construct( $parser, $componentLibrary, $nestingController ) {
 		$this->parserOutputHelper = ApplicationFactory::getInstance()->getParserOutputHelper( $parser );
 		$this->componentLibrary = $componentLibrary;
 		$this->nestingController = $nestingController;

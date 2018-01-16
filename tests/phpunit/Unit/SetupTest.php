@@ -248,7 +248,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			->getMock();
 		$configFactory->expects( $this->once() )
 			->method( 'register' )
-			->will( $this->returnArgument( true ) );
+			->willReturn( true );
 
 		$setup = new Setup();
 		/** @noinspection PhpParamsInspection */
@@ -270,6 +270,27 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 		$this->assertTrue(
 			is_callable( $registeredHooks[$expectedHook] )
+		);
+	}
+
+	public function testCanInitializeApplications() {
+		$setup = new Setup();
+		$config = $this->getMockBuilder( 'Config' )
+			->disableOriginalConstructor()
+			->getMock();
+		$config->expects( $this->once() )
+			->method( 'get' )
+			->willReturn( true );
+
+		list( $cl, $nc ) = $setup->initializeApplications( $config );
+
+		$this->assertInstanceOf(
+			'BootstrapComponents\\ComponentLibrary',
+			$cl
+		);
+		$this->assertInstanceOf(
+			'BootstrapComponents\\NestingController',
+			$nc
 		);
 	}
 

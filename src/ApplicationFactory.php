@@ -8,6 +8,7 @@
 
 namespace BootstrapComponents;
 
+use \Config;
 use \MWException;
 use \Parser;
 use \ReflectionClass;
@@ -67,16 +68,17 @@ class ApplicationFactory {
 
 	/**
 	 * @param Parser $parser
+	 * @param Config $myConfig
 	 *
 	 * @throws MWException  cascading {@see \BootstrapComponents\ApplicationFactory::getApplication}
 	 *
 	 * @return ComponentFunctionFactory
 	 */
-	public function getComponentFunctionFactory( Parser $parser = null ) {
+	public function getComponentFunctionFactory( Parser $parser = null, $myConfig = null ) {
 		if ( $parser === null ) {
 			$parser = $GLOBALS['wgParser'];
 		}
-		return $this->getApplication( 'ComponentFunctionFactory', $parser );
+		return $this->getApplication( 'ComponentFunctionFactory', $parser, $myConfig );
 	}
 
 	/**
@@ -91,12 +93,14 @@ class ApplicationFactory {
 	}
 
 	/**
+	 * @param bool $disableUniqueIds    needed in parser tests
+	 *
 	 * @throws MWException  cascading {@see \BootstrapComponents\ApplicationFactory::getApplication}
 	 *
 	 * @return NestingController
 	 */
-	public function getNestingController() {
-		return $this->getApplication( 'NestingController' );
+	public function getNestingController( $disableUniqueIds = false ) {
+		return $this->getApplication( 'NestingController', $disableUniqueIds );
 	}
 
 	/**

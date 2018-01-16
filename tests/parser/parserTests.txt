@@ -1,0 +1,1359 @@
+# MediaWiki Parser test cases
+# Some taken from http://meta.wikimedia.org/wiki/Parser_testing,
+# some from https://github.com/wikimedia/mediawiki/tree/master/tests/parser
+# All (C) their respective authors and released under the GPL
+#
+# The syntax should be fairly self-explanatory.
+#
+# Currently supported test options:
+# One of the following three:
+#
+#  (default)  generate HTML output
+#  pst        apply pre-save transform
+#  msg        apply message transform
+#
+# Plus any combination of these:
+#
+# cat           add category links
+#               (ignored by Parsoid, since it emits <link>s)
+# ill           add inter-language links
+#               (ignored by Parsoid, since it emits <link>s)
+# subpage       enable subpages (disabled by default)
+# title=[[XXX]] run test using article title XXX
+# language=XXX  set content language to XXX for this test
+# variant=XXX   set the variant of language for this test (eg zh-tw)
+# disabled      do not run test
+# parsoid       parsoid-specific options (not run by PHP parser unless
+#                 the test includes an html/php section)
+# php           php-only test (not run by the parsoid parser unless
+#                 the test includes an html/parsoid section)
+# showtitle     make the first line the title
+# showindicators make the first lines the page status indicators
+# comment       run through Linker::formatComment() instead of main parser
+# local         format section links in edit comment text as local links
+# notoc         disable table of contents
+# thumbsize=NNN set the default thumb size to NNNpx for this test
+#
+# You can also set the following parser properties via test options:
+#  wgEnableUploads, wgAllowExternalImages, wgMaxTocLevel,
+#  wgLinkHolderBatchSize, wgRawHtml
+#
+# For testing purposes, temporary articles can created:
+# !!article / NAMESPACE:TITLE / !!text / ARTICLE TEXT / !!endarticle
+# where '/' denotes a newline.
+
+# This is the standard article assumed to exist.
+!! article
+Main Page
+!! text
+blah blah
+!! endarticle
+
+!!article
+MediaWiki:bad image list
+!!text
+* [[File:Bad.jpg]] except [[Nasty page]]
+!!endarticle
+
+!! article
+Template:image_attribs
+!! text
+<noinclude>
+[[File:foobar.jpg|</noinclude>right|Caption text<noinclude>]]</noinclude>
+!! endarticle
+
+!! test
+Broken image links with HTML captions (bug 39700)
+!! wikitext
+[[File:Nonexistent|<script></script>]]
+[[File:Nonexistent|100x100px|<script></script>]]
+[[File:Nonexistent|&lt;]]
+[[File:Nonexistent|a<i>b</i>c]]
+!! html/php
+<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;script&gt;&lt;/script&gt;</a>
+<a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;script&gt;&lt;/script&gt;</a>
+<a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">&lt;</a>
+<a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent">abc</a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"&amp;lt;script&amp;gt;&amp;lt;/script&amp;gt;"}'><a href="./File:Nonexistent"><img resource="./File:Nonexistent" src="./Special:FilePath/Nonexistent" height="220" width="220"/></a></span>
+<span typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"&amp;lt;script&amp;gt;&amp;lt;/script&amp;gt;"}'><a href="./File:Nonexistent"><img resource="./File:Nonexistent" src="./Special:FilePath/Nonexistent" height="100" width="100"/></a></span>
+<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"&lt;span typeof=\"mw:Entity\" data-parsoid=\"{&amp;quot;src&amp;quot;:&amp;quot;&amp;amp;lt;&amp;quot;,&amp;quot;srcContent&amp;quot;:&amp;quot;&lt;&amp;quot;,&amp;quot;dsr&amp;quot;:[107,111,null,null]}\">&amp;lt;&lt;/span>"}'><a href="./File:Nonexistent"><img resource="./File:Nonexistent" src="./Special:FilePath/Nonexistent" height="220" width="220"/></a></span>
+<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}],"caption":"a&lt;i data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;html&amp;quot;,&amp;quot;dsr&amp;quot;:[134,142,3,4]}\">b&lt;/i>c"}'><a href="./File:Nonexistent"><img resource="./File:Nonexistent" src="./Special:FilePath/Nonexistent" height="220" width="220"/></a></span></p>
+!! end
+
+!! test
+Simple image
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[Image:foobar.jpg]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+Simple image (using File: namespace, now canonical)
+!! wikitext
+[[File:Foobar.jpg]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+Right-aligned image
+!! wikitext
+[[File:Foobar.jpg|right]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
+!! end
+
+!! test
+Image with caption
+!! wikitext
+[[File:Foobar.jpg|right|Caption text]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption text" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption text" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption text" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption text" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption text</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>Caption text</figcaption></figure>
+!! end
+
+!! test
+Image with caption, bug 53312 #1
+!! wikitext
+[[File:Foobar.jpg|right|Caption page stuff]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption page stuff" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption page stuff" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption page stuff" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption page stuff" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption page stuff</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>Caption page stuff</figcaption></figure>
+!! end
+
+!! test
+Image with caption, bug 53312 #2
+!! wikitext
+[[File:Foobar.jpg|right|Caption page=]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption page=" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption page=" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption page=" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption page=" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption page=</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>Caption page=</figcaption></figure>
+!! end
+
+!! test
+Image with caption, bug 53312 #3
+!! wikitext
+[[File:Foobar.jpg|right|Caption page=stuff]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption page=stuff" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption page=stuff" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption page=stuff" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption page=stuff" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption page=stuff</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>Caption page=stuff</figcaption></figure>
+!! end
+
+!! test
+Allow empty links in image captions (Bug 60753)
+!! options
+thumbsize=220
+!! wikitext
+[[File:Foobar.jpg|thumb|Caption [[Link1]]
+[[]]
+[[Link2]]
+]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:222px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>Caption <a href="/index.php?title=Link1&amp;action=edit&amp;redlink=1" class="new" title="Link1 (page does not exist)">Link1</a> [[]] <a href="/index.php?title=Link2&amp;action=edit&amp;redlink=1" class="new" title="Link2 (page does not exist)">Link2</a></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption <a href="/index.php?title=Link1&amp;action=edit&amp;redlink=1" class="new" title="Link1 (page does not exist)">Link1</a>
+<p>[[]]
+</p>
+<a href="/index.php?title=Link2&amp;action=edit&amp;redlink=1" class="new" title="Link2 (page does not exist)">Link2</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"Caption [[Link1]]\n[[]]\n[[Link2]]\n"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>Caption <a rel="mw:WikiLink" href="./Link1" title="Link1" data-parsoid='{"stx":"simple","a":{"href":"./Link1"},"sa":{"href":"Link1"}}'>Link1</a>
+[[]]
+<a rel="mw:WikiLink" href="./Link2" title="Link2" data-parsoid='{"stx":"simple","a":{"href":"./Link2"},"sa":{"href":"Link2"}}'>Link2</a>
+</figcaption></figure>
+!! end
+
+!! test
+Titles in unlinked images (T23454)
+!! wikitext
+[[File:Foobar.jpg|link=|stuff]]
+!! html/php
+<p><img alt="stuff" src="http://example.com/images/3/3a/Foobar.jpg" title="stuff" width="1941" height="220" />
+</p>
+!! end
+
+!! test
+Image with link trail
+!! wikitext
+Linktrails should not work for images: [[File:Foobar.jpg]]s
+!! html/php
+Linktrails should not work for images: <span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>s
+
+!! html/parsoid
+<p>Linktrails should not work for images: <span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span>s</p>
+!! end
+
+!! test
+Image with empty attribute
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|right||Caption text]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption text" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption text" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption text" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption text" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption text</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>Caption text</figcaption></figure>
+!! end
+
+!! test
+1. Block image with individual attributes from templates
+!! wikitext
+[[File:Foobar.jpg|thumb|{{echo|137px}}|This is a caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>This is a caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">This is a caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" about="#mwt2" data-mw='{"attribs":[["thumbnail",{"html":"thumb"}],["width",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]],&amp;quot;dsr&amp;quot;:[24,38,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">137px&lt;/span>"}]]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/137px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
+!! end
+
+!! test
+2. Block Image with individual attributes from templates
+!! wikitext
+[[File:Foobar.jpg|{{echo|thumb}}|{{echo|137px}}|This is a caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="This is a caption" src="http://example.com/images/3/3a/Foobar.jpg" title="This is a caption" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="This is a caption" src="http://example.com/images/3/3a/Foobar.jpg" title="This is a caption" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">This is a caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure typeof="mw:Image/Thumb mw:ExpandedAttrs" about="#mwt3" data-mw='{"attribs":[["thumbnail",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]],&amp;quot;dsr&amp;quot;:[18,32,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;thumb&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">thumb&lt;/span>"}],["width",{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]],&amp;quot;dsr&amp;quot;:[33,47,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;137px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">137px&lt;/span>"}]]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/137px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="16" width="137"/></a><figcaption>This is a caption</figcaption></figure>
+!! end
+
+!! test
+3. Inline image with individual attributes from templates
+!! wikitext
+[[File:Foobar.jpg|{{echo|50px}}]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Template:Echo" src="http://example.com/images/3/3a/Foobar.jpg" title="Template:Echo" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Template:Echo" src="http://example.com/images/3/3a/Foobar.jpg" title="Template:Echo" width="1941" height="220" class="img-responsive" /> <div class="modal-caption"><a href="/index.php?title=Template:Echo&amp;action=edit&amp;redlink=1" class="new" title="Template:Echo (page does not exist)">Template:Echo</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span typeof="mw:Image mw:ExpandedAttrs" about="#mwt2" data-parsoid='{"optList":[{"ck":"width","ak":"{{echo|50px}}"}]}' data-mw='{"attribs":[["width",{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]],&amp;quot;dsr&amp;quot;:[18,31,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;50px&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">50px&lt;/span>"}]]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
+!! end
+
+## Parsoid does not provide editing support for images where templates produce multiple image attributes.
+## To signal this, we add a 'mw:Placeholder' type to such images. This could change in the future.
+!! test
+Image with multiple attributes from the same template
+!! wikitext
+[[File:Foobar.jpg|{{image_attribs}}]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption text" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption text" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption text" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption text" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption text</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image mw:Placeholder"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>Caption text</figcaption></figure>
+!! end
+
+!! test
+Image with link tails
+!! options
+thumbsize=220
+!! wikitext
+123[[File:Foobar.jpg]]456
+123[[File:Foobar.jpg|right]]456
+123[[File:Foobar.jpg|thumb]]456
+!! html/php
+123<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>456
+123<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>456
+123<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:222px;"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>456
+
+!! html/php+tidy
+123<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>456
+123<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>456
+123<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:222px;"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>456
+
+!! html/parsoid
+<p>123<span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span>456</p>
+<p>123</p><figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure><p>456</p>
+<p>123</p><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></figure><p>456</p>
+!! end
+
+!! test
+Image with multiple captions -- only last one is accepted
+!! wikitext
+[[File:Foobar.jpg|right|Caption1 - ignored|[[Caption2]] - ignored|Caption3 - accepted]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption3 - accepted" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption3 - accepted" width="1941" height="220" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption3 - accepted" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption3 - accepted" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption3 - accepted</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>Caption3 - accepted</figcaption></figure>
+!! end
+
+!! test
+Image with multiple widths -- use last
+!! wikitext
+[[File:Foobar.jpg|200px|300px|caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" title="caption" width="300" height="34" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" title="caption" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300"/></a></span></p>
+!! end
+
+!! test
+Image with multiple alignments -- use first (bug 48664)
+!! options
+thumbsize=220
+!! wikitext
+[[File:Foobar.jpg|thumb|left|right|center|caption]]
+
+[[File:Foobar.jpg|middle|text-top|caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tleft"><div class="thumbinner" style="width:222px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" title="caption" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" title="caption" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<p><span class="mw-default-size mw-valign-middle" typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+Image with width attribute at different positions
+!! wikitext
+[[File:Foobar.jpg|200px|right|Caption]]
+[[File:Foobar.jpg|right|200px|Caption]]
+[[File:Foobar.jpg|right|Caption|200px]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" title="Caption" width="200" height="23" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" title="Caption" width="200" height="23" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="floatright"><img alt="Caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" title="Caption" width="200" height="23" /></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Caption" src="http://example.com/images/3/3a/Foobar.jpg" title="Caption" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>Caption</figcaption></figure>
+<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>Caption</figcaption></figure>
+<figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="23" width="200"/></a><figcaption>Caption</figcaption></figure>
+!! end
+
+# a sad bit of backward-compatibility
+!! test
+Image with size specified with pxpx (bug 13500, 51628)
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|20pxpx]]
+[[File:Foobar.jpg|200x20pxpx]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" width="20" height="2" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/177px-Foobar.jpg" width="177" height="20" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="2" width="20"/></a></span> <span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/177px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="177"/></a></span></p>
+!! end
+
+!! test
+Image with link parameter, wiki target
+!! wikitext
+[[File:Foobar.jpg|link=Main Page]]
+!! html/php
+<p><a href="/wiki/Main_Page" title="Main Page"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image"><a href="Main_Page"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+# parsoid bug 49293 (part 1)
+!! test
+Image with link parameter, URL target
+!! wikitext
+[[File:Foobar.jpg|link=http://example.com/]]
+!! html/php
+<p><a href="http://example.com/" rel="nofollow"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image"><a href="http://example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+# parsoid bug 49293 (part 2)
+!! test
+Image with link parameter, protocol-less URL target
+!! wikitext
+[[File:Foobar.jpg|link=//example.com/]]
+!! html/php
+<p><a href="//example.com/" rel="nofollow"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image"><a href="//example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+Image with empty link parameter
+!! wikitext
+[[File:Foobar.jpg|link=]]
+!! html/php
+<p><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" />
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image"><span><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span></span></p>
+!! end
+
+!! test
+Image with link parameter (wiki target) and unnamed parameter
+!! wikitext
+[[File:Foobar.jpg|link=Main_Page|Title]]
+!! html/php
+<p><a href="/wiki/Main_Page" title="Title"><img alt="Title" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"Title"}'><a href="Main_Page"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+Image with link parameter (URL target) and unnamed parameter
+!! wikitext
+[[File:Foobar.jpg|link=http://example.com/|Title]]
+!! html/php
+<p><a href="http://example.com/" title="Title" rel="nofollow"><img alt="Title" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"Title"}'><a href="http://example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+Thumbnail image with link parameter
+!! options
+thumbsize=220
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb|link=http://example.com/|Title]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:222px;"><a href="http://example.com/"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Title</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="http://example.com/"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>Title</figcaption></figure>
+!! end
+
+!! test
+Manually-specified thumbnail image
+!! options
+thumbsize=220
+!! wikitext
+[[File:Foobar.jpg|thumb=Thumb.png|Title]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:137px;"><img alt="" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>Title</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Title</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"thumb":"Thumb.png"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption>Title</figcaption></figure>
+!! end
+
+!! test
+Manually-specified thumbnail image with explicit link to wiki page
+!! options
+thumbsize=220
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb=Thumb.png|link=Main_Page|Title]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/Main_Page" title="Main Page"><img alt="" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Title</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"thumb":"Thumb.png"}'><a href="Main_Page"><img resource="./File:Foobar.jpg" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption>Title</figcaption></figure>
+!! end
+
+!! test
+Manually-specified thumbnail image with explicit link to url
+!! options
+thumbsize=220
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb=Thumb.png|link=http://example.com|Title]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="http://example.com"><img alt="" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Title</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"thumb":"Thumb.png"}'><a href="http://example.com"><img resource="./File:Foobar.jpg" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption>Title</figcaption></figure>
+!! end
+
+!! test
+Manually-specified thumbnail image with explicit no link
+!! options
+thumbsize=220
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb=Thumb.png|link=|Title]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:137px;"><img alt="" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Title</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"thumb":"Thumb.png"}'><span><img resource="./File:Foobar.jpg" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></span><figcaption>Title</figcaption></figure>
+!! end
+
+!! test
+Manually-specified thumbnail image with explicit link and alt text
+!! options
+thumbsize=220
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb=Thumb.png|link=Main_Page|alt=alttext|Title]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/Main_Page" title="Main Page"><img alt="alttext" src="http://example.com/images/e/ea/Thumb.png" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Title</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"thumb":"Thumb.png"}'><a href="Main_Page"><img alt="alttext" resource="./File:Foobar.jpg" src="//example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption>Title</figcaption></figure>
+!! end
+
+!! test
+Image with frame and link
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|frame|left|This is a test image [[Main Page]]]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tleft"><div class="thumbinner" style="width:1943px;"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption">This is a test image <a href="/wiki/Main_Page" title="Main Page">Main Page</a></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">This is a test image <a href="/wiki/Main_Page" title="Main Page">Main Page</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>This is a test image <a rel="mw:WikiLink" href="Main_Page" title="Main Page">Main Page</a></figcaption></figure>
+!! end
+
+!! test
+Image with frame and link and explicit alt
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[Image:Foobar.jpg|frame|left|This is a test image [[Main Page]]|alt=Altitude]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tleft"><div class="thumbinner" style="width:1943px;"><img alt="Altitude" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption">This is a test image <a href="/wiki/Main_Page" title="Main Page">Main Page</a></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Altitude" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">This is a test image <a href="/wiki/Main_Page" title="Main Page">Main Page</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size mw-halign-left" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img alt="Altitude" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>This is a test image <a rel="mw:WikiLink" href="Main_Page" title="Main Page">Main Page</a></figcaption></figure>
+!! end
+
+!! test
+Image with wiki markup in implicit alt
+!! wikitext
+[[Image:Foobar.jpg|testing '''bold''' in alt]]
+
+[[Image:Foobar.jpg|alt=testing '''bold''' in alt]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="testing bold in alt" src="http://example.com/images/3/3a/Foobar.jpg" title="testing bold in alt" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="testing bold in alt" src="http://example.com/images/3/3a/Foobar.jpg" title="testing bold in alt" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">testing <b>bold</b> in alt</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="testing bold in alt" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="testing bold in alt" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"testing &lt;b data-parsoid=\"{&amp;quot;dsr&amp;quot;:[27,37,3,3]}\">bold&lt;/b> in alt"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"Image:Foobar.jpg"}}'/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img alt="testing bold in alt" resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"alt":"testing bold in alt","resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"alt":"alt=testing &#39;&#39;&#39;bold&#39;&#39;&#39; in alt","resource":"Image:Foobar.jpg"}}'/></a></span></p>
+!! end
+
+!! test
+Alt image option should handle most kinds of wikitext without barfing
+!! wikitext
+[[Image:Foobar.jpg|thumb|This is the image caption|alt=This is a [[link]] and a {{echo|''bold template''}}.]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="This is a link and a Template:Echo." src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>This is the image caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="This is a link and a Template:Echo." src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">This is the image caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb mw:ExpandedAttrs" about="#mwt2" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"This is the image caption"},{"ck":"alt","ak":"alt=This is a [[link]] and a {{echo|&#39;&#39;bold template&#39;&#39;}}."}]}' data-mw='{"attribs":[["thumbnail",{"html":"thumb"}],["alt",{"html":"alt=This is a &lt;a rel=\"mw:WikiLink\" href=\"./Link\" title=\"Link\" data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;simple&amp;quot;,&amp;quot;a&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;./Link&amp;quot;},&amp;quot;sa&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;link&amp;quot;},&amp;quot;dsr&amp;quot;:[65,73,2,2]}\">link&lt;/a> and a &lt;i about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;dsr&amp;quot;:[80,106,null,null],&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;echo&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:Echo&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;&#39;&#39;bold template&#39;&#39;&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">bold template&lt;/i>."}]]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"},"sa":{}}'><img alt="This is a link and a bold template." resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" data-parsoid='{"a":{"alt":"This is a link and a bold template.","resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"alt":"alt=This is a [[link]] and a {{echo|&#39;&#39;bold template&#39;&#39;}}.","resource":"Image:Foobar.jpg"}}'/></a><figcaption>This is the image caption</figcaption></figure>
+!! end
+
+###################
+# Conflicting image format options.
+# First option specified should 'win'.
+# All three cases in each test should be identical.
+
+!! test
+Image with 'frameless' first.
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|frameless|caption]]
+
+[[File:Foobar.jpg|frameless|frame|caption]]
+
+[[File:Foobar.jpg|frameless|thumb|caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" title="caption" width="180" height="20" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" title="caption" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" title="caption" width="180" height="20" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" title="caption" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" title="caption" width="180" height="20" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" title="caption" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image/Frameless" data-mw='{"caption":"caption"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a></span></p>
+!! end
+
+!! test
+Image with 'frame' first.
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|frame|caption]]
+[[File:Foobar.jpg|frame|frameless|caption]]
+[[File:Foobar.jpg|frame|thumb|caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:1943px;"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption">caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:1943px;"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption">caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:1943px;"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption">caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>caption</figcaption></figure>
+!! end
+
+!! test
+Image with 'thumb' first.
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb|caption]]
+[[File:Foobar.jpg|thumb|frameless|caption]]
+[[File:Foobar.jpg|thumb|frame|caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>caption</figcaption></figure>
+!! end
+
+###################
+# Image sizing.
+# See https://www.mediawiki.org/wiki/Help:Images#Size_and_frame
+# and https://phabricator.wikimedia.org/T64258
+# Foobar has actual size of 1941x220
+# 1. Thumbs & frameless always reduce, can't be enlarged unless it's
+#    a scalable format.
+# 2. Framed images always ignore size options; always render at default size.
+# 3. "Unspecified format" and border are the only types which can be
+#    enlarged.
+
+!! test
+Image: "unspecified format" and border enlarge
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|2000px]]
+
+[[File:Foobar.jpg|border|2000px]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="2000" height="227" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="2000" height="227" class="thumbborder" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
+<p><span class="mw-image-border" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="227" width="2000"/></a></span></p>
+!! end
+
+!! test
+Image: "unspecified format" and border reduce
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|1000px]]
+
+[[File:Foobar.jpg|border|1000px]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg" width="1000" height="113" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg" width="1000" height="113" class="thumbborder" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="113" width="1000"/></a></span></p>
+<p><span class="mw-image-border" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="113" width="1000"/></a></span></p>
+!! end
+
+!! test
+Image: thumbs reduce
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb|50px]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:52px;"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" width="50" height="6" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/75px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/100px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></figure>
+!! end
+
+!! test
+Image: bitmap thumbs can't be enlarged past original size, but vector can.
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb|2000px]]
+
+[[File:Foobar.svg|thumb|2000px]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:1943px;"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:2002px;"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" width="2000" height="1500" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/3000px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/4000px-Foobar.svg.png 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.svg</span></div>
+<div class="modal-body"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg.png" width="240" height="180" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.svg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></figure>
+!! end
+
+!! test
+Image: frameless can reduce in size
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|frameless|50px]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" width="50" height="6" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50"/></a></span></p>
+!! end
+
+!! test
+Image: bitmap frameless can't be enlarged past original size, but vector can
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|frameless|2000px]]
+
+[[File:Foobar.svg|frameless|2000px]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/2000px-Foobar.svg.png" width="2000" height="1500" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.svg</span></div>
+<div class="modal-body"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg.png" width="240" height="180" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.svg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/1941px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+<p><span typeof="mw:Image/Frameless"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="1500" width="2000"/></a></span></p>
+!! end
+
+!! test
+Image: framed images are always unscaled.
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|frame]]
+
+[[File:Foobar.jpg|frame|50px]]
+
+[[File:Foobar.jpg|frame|50x50px]]
+
+[[File:Foobar.jpg|frame|2000px]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:1943px;"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:1943px;"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:1943px;"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:1943px;"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="thumbimage" />  <div class="thumbcaption"></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
+<figure typeof="mw:Image/Frame"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></figure>
+!! end
+
+###################
+
+!! test
+Link to image page- image page normally doesn't exists, hence edit link
+Add test with existing image page
+#<p><a href="/wiki/File:Test" title="Image:Test">Image:test</a>
+!! wikitext
+[[:Image:test]]
+!! html
+<p><a href="/index.php?title=File:Test&amp;action=edit&amp;redlink=1" class="new" title="File:Test (page does not exist)">Image:test</a>
+</p>
+!! end
+
+!! test
+bug 18784  Link to non-existent image page with caption should use caption as link text
+!! wikitext
+[[:Image:test|caption]]
+!! html
+<p><a href="/index.php?title=File:Test&amp;action=edit&amp;redlink=1" class="new" title="File:Test (page does not exist)">caption</a>
+</p>
+!! end
+
+!! test
+Frameless image caption with a free URL
+!! wikitext
+[[File:Foobar.jpg|http://example.com]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="http://example.com" src="http://example.com/images/3/3a/Foobar.jpg" title="http://example.com" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="http://example.com" src="http://example.com/images/3/3a/Foobar.jpg" title="http://example.com" width="1941" height="220" class="img-responsive" /> <div class="modal-caption"><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"&lt;a rel=\"mw:ExtLink\" href=\"http://example.com\" data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;url&amp;quot;,&amp;quot;dsr&amp;quot;:[18,36,0,0]}\">http://example.com&lt;/a>"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+Thumbnail image caption with a free URL
+!! options
+thumbsize=220
+!! wikitext
+[[File:Foobar.jpg|thumb|http://example.com]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:222px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption"><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
+!! end
+
+!! test
+Thumbnail image caption with a free URL and explicit alt
+!! options
+thumbsize=220
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb|http://example.com|alt=Alteration]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:222px;"><img alt="Alteration" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Alteration" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption"><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img alt="Alteration" resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a rel="mw:ExtLink" href="http://example.com">http://example.com</a></figcaption></figure>
+!! end
+
+!! test
+SVG thumbnails with no language set
+!! options
+!! wikitext
+[[File:Foobar.svg|thumb|caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.svg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg.png" width="240" height="180" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.svg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/220px-Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
+!! end
+
+!! test
+SVG thumbnails with language de
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.svg|thumb|caption|lang=de]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/langde-180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langde-270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langde-360px-Foobar.svg.png 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.svg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg.png" width="240" height="180" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.svg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/thumb/f/ff/Foobar.svg/220px-Foobar.svg" lang="de" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>caption</figcaption></figure>
+!! end
+
+!! test
+SVG thumbnails with invalid language code
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.svg|thumb|caption|lang=invalid.language.code]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" width="180" height="135" class="thumbimage" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>lang=invalid.language.code</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.svg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg.png" width="240" height="180" class="img-responsive" /> <div class="modal-caption">lang=invalid.language.code</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.svg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="//example.com/images/f/ff/Foobar.svg" data-file-width="240" data-file-height="180" data-file-type="drawing" height="165" width="220"/></a><figcaption>lang=invalid.language.code</figcaption></figure>
+!! end
+
+!! test
+BUG 1887: A ISBN with a thumbnail
+!! wikitext
+[[File:Foobar.jpg|thumb|ISBN 1235467890]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div><a href="/wiki/Special:BookSources/1235467890" class="internal mw-magiclink-isbn">ISBN 1235467890</a></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption"><a href="/wiki/Special:BookSources/1235467890" class="internal mw-magiclink-isbn">ISBN 1235467890</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption><a href="./Special:BookSources/1235467890" rel="mw:WikiLink">ISBN 1235467890</a></figcaption></figure>
+!! end
+
+!! test
+BUG 1887: A RFC with a thumbnail
+!! wikitext
+[[File:Foobar.jpg|thumb|This is RFC 12354]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>This is <a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc12354">RFC 12354</a></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">This is <a class="external mw-magiclink-rfc" rel="nofollow" href="//tools.ietf.org/html/rfc12354">RFC 12354</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>This is <a href="//tools.ietf.org/html/rfc12354" rel="mw:ExtLink">RFC 12354</a></figcaption></figure>
+!! end
+
+!! test
+BUG 1887: A mailto link with a thumbnail
+!! wikitext
+[[File:Foobar.jpg|thumb|Please mailto:nobody@example.com]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>Please <a rel="nofollow" class="external free" href="mailto:nobody@example.com">mailto:nobody@example.com</a></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">Please <a rel="nofollow" class="external free" href="mailto:nobody@example.com">mailto:nobody@example.com</a></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220"/></a><figcaption>Please <a rel="mw:ExtLink" href="mailto:nobody@example.com">mailto:nobody@example.com</a></figcaption></figure>
+!! end
+
+# Pending resolution to bug 368
+!! test
+BUG 648: Frameless image caption with a link
+!! wikitext
+[[File:Foobar.jpg|text with a [[link]] in it]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="text with a link in it" src="http://example.com/images/3/3a/Foobar.jpg" title="text with a link in it" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="text with a link in it" src="http://example.com/images/3/3a/Foobar.jpg" title="text with a link in it" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">text with a <a href="/index.php?title=Link&amp;action=edit&amp;redlink=1" class="new" title="Link (page does not exist)">link</a> in it</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"text with a &lt;a rel=\"mw:WikiLink\" href=\"./Link\" title=\"Link\" data-parsoid=\"{&amp;quot;stx&amp;quot;:&amp;quot;simple&amp;quot;,&amp;quot;a&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;./Link&amp;quot;},&amp;quot;sa&amp;quot;:{&amp;quot;href&amp;quot;:&amp;quot;link&amp;quot;},&amp;quot;dsr&amp;quot;:[30,38,2,2]}\">link&lt;/a> in it"}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="//example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+!! end
+
+!! test
+BUG 648: Frameless image caption with a link (suffix)
+!! wikitext
+[[File:Foobar.jpg|text with a [[link]]foo in it]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="text with a linkfoo in it" src="http://example.com/images/3/3a/Foobar.jpg" title="text with a linkfoo in it" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="text with a linkfoo in it" src="http://example.com/images/3/3a/Foobar.jpg" title="text with a linkfoo in it" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">text with a <a href="/index.php?title=Link&amp;action=edit&amp;redlink=1" class="new" title="Link (page does not exist)">linkfoo</a> in it</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+!! end
+
+!! test
+BUG 648: Frameless image caption with an interwiki link
+!! wikitext
+[[File:Foobar.jpg|text with a [[MeatBall:Link]] in it]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="text with a MeatBall:Link in it" src="http://example.com/images/3/3a/Foobar.jpg" title="text with a MeatBall:Link in it" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="text with a MeatBall:Link in it" src="http://example.com/images/3/3a/Foobar.jpg" title="text with a MeatBall:Link in it" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">text with a <a href="http://www.usemod.com/cgi-bin/mb.pl?Link" class="extiw" title="meatball:Link">MeatBall:Link</a> in it</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+!! end
+
+!! test
+BUG 648: Frameless image caption with a piped interwiki link
+!! wikitext
+[[File:Foobar.jpg|text with a [[MeatBall:Link|link]] in it]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="text with a link in it" src="http://example.com/images/3/3a/Foobar.jpg" title="text with a link in it" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="text with a link in it" src="http://example.com/images/3/3a/Foobar.jpg" title="text with a link in it" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">text with a <a href="http://www.usemod.com/cgi-bin/mb.pl?Link" class="extiw" title="meatball:Link">link</a> in it</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! html/parsoid
+!! end
+
+!! test
+T107474: Frameless image caption with <nowiki>
+!! wikitext
+[[File:Foobar.jpg|<nowiki>text with a [[MeatBall:Link|link]] in it</nowiki>]]
+!! html/parsoid
+!! end
+
+!! test
+Escape HTML special chars in image alt text
+!! wikitext
+[[File:Foobar.jpg|& < > "]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="&amp; &lt; &gt; &quot;" src="http://example.com/images/3/3a/Foobar.jpg" title="&amp; &lt; &gt; &quot;" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="&amp; &lt; &gt; &quot;" src="http://example.com/images/3/3a/Foobar.jpg" title="&amp; &lt; &gt; &quot;" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">&amp; &lt; &gt; "</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! end
+
+!! test
+BUG 499: Alt text should have &#1234;, not &amp;1234;
+!! wikitext
+[[File:Foobar.jpg|&#9792;]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="♀" src="http://example.com/images/3/3a/Foobar.jpg" title="♀" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="♀" src="http://example.com/images/3/3a/Foobar.jpg" title="♀" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">&#9792;</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! end
+
+!! test
+Broken image caption with link
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[Image:Foobar.jpg|thumb|This is a broken caption. But [[Main Page|this]] is just an ordinary link.
+!! html/php
+<p>[[Image:Foobar.jpg|thumb|This is a broken caption. But <a href="/wiki/Main_Page" title="Main Page">this</a> is just an ordinary link.
+</p>
+!! html/parsoid
+<p>[[Image:Foobar.jpg|thumb|This is a broken caption. But <a rel="mw:WikiLink" href="Main_Page" title="Main Page">this</a> is just an ordinary link.</p>
+!! end
+
+!! test
+Image caption containing another image
+!! wikitext
+[[File:Foobar.jpg|thumb|This is a caption with another [[File:Thumb.png|inner image]] inside it!]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div><img alt="inner image" src="http://example.com/images/e/ea/Thumb.png" title="inner image" width="135" height="135" class="img-responsive" /></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption"><img alt="inner image" src="http://example.com/images/e/ea/Thumb.png" title="inner image" width="135" height="135" class="img-responsive" /></div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! end
+
+!! test
+Image: caption containing a newline
+!! wikitext
+[[File:Foobar.jpg|This
+*is some text]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="This *is some text" src="http://example.com/images/3/3a/Foobar.jpg" title="This *is some text" width="1941" height="220" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="This *is some text" src="http://example.com/images/3/3a/Foobar.jpg" title="This *is some text" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">This
+<ul><li>is some text</div></div></li></ul>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!!end
+
+!!test
+Image: caption containing leading space
+(The leading space should not trigger nowiki escaping in wt2wt mode)
+!! wikitext
+[[File:Foobar.jpg|thumb| bar]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:182px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>bar</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">bar</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!!end
+
+!! test
+Image: caption containing a table
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[Image:Foobar.jpg|thumb|200px|This is an example image thumbnail caption with a table
+{|
+! Foo !! Bar
+|-
+| Foo1 || Bar1
+|}
+and some more text.]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:202px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" width="200" height="23" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/400px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>This is an example image thumbnail caption with a table <table> <tr> <th> Foo </th> <th> Bar </th></tr> <tr> <td> Foo1 </td> <td> Bar1 </td></tr></table> and some more text.</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">This is an example image thumbnail caption with a table
+<table>
+<tr>
+<th> Foo </th>
+<th> Bar
+</th></tr>
+<tr>
+<td> Foo1 </td>
+<td> Bar1
+</td></tr></table>
+and some more text.</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! end
+
+!! test
+Custom class
+!! options
+!! wikitext
+[[Image:foobar.jpg|a|class=b]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="a" src="http://example.com/images/3/3a/Foobar.jpg" title="a" width="1941" height="220" class="b" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="a" src="http://example.com/images/3/3a/Foobar.jpg" title="a" width="1941" height="220" class="b img-responsive" /> <div class="modal-caption">a</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! end
+
+!! test
+Localized image handling (1).
+!! options
+language=es
+!! wikitext
+[[Archivo:Foobar.jpg|izquierda|enlace=foo|caption]]
+!! html/php
+<div class="floatleft"><a href="/wiki/Foo" title="caption"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" /></a></div>
+
+!! end
+
+!! test
+Localized image handling (2).
+!! options
+thumbsize=220
+language=es
+!! wikitext
+[[Archivo:Foobar.jpg|miniatura|izquierda|enlace=foo|caption]]
+!! html/php
+<div class="thumb tleft"><div class="thumbinner" style="width:222px;"><a href="/wiki/Foo" title="Foo"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/Archivo:Foobar.jpg" class="internal" title="Aumentar"></a></div>caption</div></div></div>
+
+!! end
+
+!! test
+Localized image handling (3).
+!! options
+language=fa
+!! wikitext
+[[File:Foobar.jpg|بندانگشتی]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tleft"><div class="thumbinner" style="width:182px;"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="بزرگ‌کردن"></a></div></div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/%D9%BE%D8%B1%D9%88%D9%86%D8%AF%D9%87:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! end
+
+!! test
+"border", "frameless" and "class" attributes on an image.
+!! options
+thumbsize=220
+!! wikitext
+[[File:Foobar.jpg|frameless|border|class=extra|caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img alt="caption" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" title="caption" width="220" height="25" class="extra thumbborder" /></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" title="caption" width="1941" height="220" class="extra img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! end
+
+# Note that 'right' is the default alignment, despite the misspelled 'righ' below
+!! test
+Invalid image attributes (bug 62500)
+!! options
+thumbsize=220
+!! wikitext
+[[File:Foobar.jpg|thumb|float|left|caption]]
+
+[[File:Foobar.jpg|thumb|righ|caption]]
+
+[[File:Foobar.jpg|bogus1|thumb|bogus2|left|bogus3|caption]]
+!! html/php
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tleft"><div class="thumbinner" style="width:222px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tright"><div class="thumbinner" style="width:222px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+<span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumb tleft"><div class="thumbinner" style="width:222px;"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" width="220" height="25" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div>caption</div></div></div></span><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button><span class="modal-title">Foobar.jpg</span></div>
+<div class="modal-body"><img alt="" src="http://example.com/images/3/3a/Foobar.jpg" width="1941" height="220" class="img-responsive" /> <div class="modal-caption">caption</div></div>
+<div class="modal-footer"><a class="btn btn-primary" role="button" href="/wiki/File:Foobar.jpg">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>
+
+!! end
+
+!! test
+Missing image with uploads disabled
+!! options
+wgEnableUploads=0
+!! wikitext
+[[File:Foobaz.jpg]]
+!! html/php
+<p><a href="/wiki/File:Foobaz.jpg" title="File:Foobaz.jpg">File:Foobaz.jpg</a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"missing-image","message":"This image does not exist."}]}'><a href="./File:Foobaz.jpg"><img resource="./File:Foobaz.jpg" src="./Special:FilePath/Foobaz.jpg" height="220" width="220"/></a></span></p>
+!! end

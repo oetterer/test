@@ -35,7 +35,7 @@ abstract class Component implements Nestable {
 	/**
 	 * The (html) id of this component. Not available before the component was opened.
 	 *
-	 * @var string|false
+	 * @var string
 	 */
 	private $id;
 
@@ -107,7 +107,7 @@ abstract class Component implements Nestable {
 	 * Note that id is only present, if component requested one (in constructor) and the component has been opened in
 	 * {@see \BootstrapComponents\Component::renderComponent}.
 	 *
-	 * @return null|string
+	 * @return string
 	 */
 	public function getId() {
 		return $this->id;
@@ -121,8 +121,9 @@ abstract class Component implements Nestable {
 	 * @return string|array
 	 */
 	public function parseComponent( $parserRequest ) {
+		$manualId = $this->checkForManualIdIn( $parserRequest );
 		$this->setId(
-			($manualId = $this->checkForManualIdIn( $parserRequest )) !== null
+			is_string( $manualId )
 				? $manualId
 				: $this->getNestingController()->generateUniqueId( $this->getComponentName() )
 		);
@@ -161,7 +162,8 @@ abstract class Component implements Nestable {
 	 * @param array  $attributes
 	 * @param mixed  $default
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor}
+	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor} and
+	 *                     {@see \BootstrapComponents\Component::getAttributeManager}
 	 * @return string|false|null
 	 */
 	protected function extractAttribute( $attribute, $attributes, $default = false ) {
@@ -178,6 +180,8 @@ abstract class Component implements Nestable {
 
 	/**
 	 * Returns the classes reference to the component library.
+	 *
+	 * @throws MWException cascading {@see \BootstrapComponents\ApplicationFactory::getAttributeManager}
 	 *
 	 * @return AttributeManager
 	 */
@@ -268,10 +272,12 @@ abstract class Component implements Nestable {
 	}
 
 	/**
-	 * @param string|false|null $id
+	 * @param string $id
 	 */
 	private function setId( $id ) {
-		$this->id = $id;
+		if ( is_string( $id ) ) {
+			$this->id = $id;
+		}
 	}
 
 	/**

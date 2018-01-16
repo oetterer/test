@@ -5,7 +5,8 @@
     for the new component
 4. create all necessary message entries in qqq.json and en.json.
 5. add tests for your new class
-    
+6. adjust number of expected component classes in `\BootstrapComponents\Tests\Unit\ComponentFunctionFactoryTest::testCanCreateHookFunctions
+`
 ## Format of data array in ComponentLibrary::rawComponentsDefinition
 ```php
     [

@@ -41,7 +41,9 @@
 	"scripts": {
 		"phpunit": "php ../../tests/phpunit/phpunit.php -c phpunit.xml.dist",
 		"unit": "composer phpunit -- --testsuite bootstrap-components-unit",
-		"integration": "composer phpunit -- --testsuite bootstrap-components-integration",
+		"integration": [
+			"composer phpunit -- --testsuite bootstrap-components-integration"
+		],
 		"ci": [
 			"composer validate --no-interaction",
 			"composer phpunit"

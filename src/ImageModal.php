@@ -68,6 +68,8 @@ class ImageModal implements Nestable {
 	 * @param File               $file
 	 * @param NestingController  $nestingController  DI for unit testing
 	 * @param ParserOutputHelper $parserOutputHelper DI for unit testing
+	 *
+	 * @throws MWException cascading {@see \BootstrapComponents\ApplicationFactory} methods
 	 */
 	public function __construct( $dummyLinker, $title, $file, $nestingController = null, $parserOutputHelper = null ) {
 		$this->file = $file;
@@ -234,6 +236,8 @@ class ImageModal implements Nestable {
 		foreach ( [ 'align', 'alt', 'caption', 'class', 'title' ] as $stringField ) {
 			$frameParams[$stringField] = isset( $frameParams[$stringField] ) ? $frameParams[$stringField] : '';
 		}
+		$frameParams['caption'] = $this->preventModalInception( $frameParams['caption'] );
+		$frameParams['title'] = $this->preventModalInception( $frameParams['title'] );
 		return $frameParams;
 	}
 
@@ -448,13 +452,13 @@ class ImageModal implements Nestable {
 
 		if ( $this->amIThumbnailRelated( $sanitizedFrameParams ) || !$handlerParams['width'] ) {
 			$thumbLimits = $globalConfig->get( 'ThumbLimits' );
+			$widthOption = $this->generateTriggerGetWidthOption( $thumbLimits );
 
 			// Reduce width for upright images when parameter 'upright' is used
 			if ( isset( $sanitizedFrameParams['upright'] ) && $sanitizedFrameParams['upright'] == 0 ) {
 				$sanitizedFrameParams['upright'] = $globalConfig->get( 'ThumbUpright' );
 			}
 
-			$widthOption = User::getDefaultOption( 'thumbsize' );
 			// For caching health: If width scaled down due to upright
 			// parameter, round to full __0 pixel to avoid the creation of a
 			// lot of odd thumbs.
@@ -470,6 +474,26 @@ class ImageModal implements Nestable {
 			}
 		}
 		return $handlerParams;
+	}
+
+	/**
+	 * @param array $thumbLimits
+	 *
+	 * @return int|string
+	 */
+	protected function generateTriggerGetWidthOption( $thumbLimits ) {
+
+		$widthOption = User::getDefaultOption( 'thumbsize' );
+
+		// we have a problem here: the original \Linker::makeImageLink does get a value for $widthOption,
+		// for instance in parser tests. unfortunately, this value is not passed through the hook.
+		// so there are instances, there $thumbLimits[$widthOption] is not defined.
+		// solution: we cheat and take the first one
+		if ( $widthOption !== null && isset( $wgThumbLimits[$widthOption] ) ) {
+			return $widthOption;
+		}
+		$availableOptions = array_keys( $thumbLimits );
+		return reset( $availableOptions );
 	}
 
 	/**
@@ -586,6 +610,8 @@ class ImageModal implements Nestable {
 
 	/**
 	 * Performs all the mandatory actions on the parser output for the component class
+	 *
+	 * @throws MWException cascading {@see \BootstrapComponents\ApplicationFactory::getComponentLibrary}
 	 */
 	private function augmentParserOutput() {
 		$skin = $this->getParserOutputHelper()->getNameOfActiveSkin();
@@ -628,5 +654,23 @@ class ImageModal implements Nestable {
 			],
 			wfMessage( 'bootstrap-components-image-modal-source-button' )->inContentLanguage()->text()
 		);
+	}
+
+	/**
+	 * We don't want a modal inside a modal. Unfortunately, the caption (and title) are parsed, before the modal is generated. So instead of
+	 * building the modal from the outside, it is build from the inside. This method tries to detect this construct and removes any modal from
+	 * the supplied text and replaces it with the image tag found inside the modal caption content.
+	 *
+	 * @param string $text
+	 *
+	 * @return string
+	 */
+	private function preventModalInception( $text ) {
+		if ( preg_match(
+			'~div class="modal-dialog.+div class="modal-content.+div class="modal-body.+'
+				. '(<img[^>]*/>).+ class="modal-footer.+~Ds', $text, $matches ) ) {
+			$text = $matches[1];
+		}
+		return $text;
 	}
 }

@@ -40,15 +40,14 @@ class Setup {
 	public static function onExtensionLoad( $info ) {
 		$setup = new self();
 		if ( !empty( $info ) ) {
-			$setup->prepareEnvironment();
+			$setup->prepareEnvironment( $info );
 		}
 		$setup->bootstrapExtensionPresent();
-		$setup->registerMyConfiguration(
-			MediaWikiServices::getInstance()->getConfigFactory()
-		);
+		$configFactory = MediaWikiServices::getInstance()->getConfigFactory();
+		$setup->registerMyConfiguration( $configFactory );
 
 		$setup->registerHooks(
-			MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' )
+			$configFactory->makeConfig( 'BootstrapComponents' )
 		);
 		return true;
 	}
@@ -155,8 +154,15 @@ class Setup {
 		}
 	}
 
-	private function prepareEnvironment() {
-		define( 'BOOTSTRAP_COMPONENTS_VERSION', '1.0.0' );
+	/**
+	 * Information array created on extension registration.
+	 * Note: this array also resides as from ExtensionRegistry::getInstance()->getAllThings()['BootstrapComponents']
+	 * @param array $info
+	 */
+	private function prepareEnvironment( $info ) {
+		define( 'BOOTSTRAP_COMPONENTS_VERSION', (string) $info['version'] );
+		global $wgParserTestFiles;
+		$wgParserTestFiles[] = __DIR__ . '/../tests/parser/parserTests.txt';
 	}
 	### attend before deployment
 	# mandatory
@@ -164,14 +170,25 @@ class Setup {
 	#@todo create composer package. see https://packagist.org/ and https://packagist.org/about#how-to-update-packages; packet name "bootstrap-components"
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
 	#@todo complete documentation in /doc (installation, configuration, howto, expansion)
+	#@fixme: php ../../tests/parserTests.php --quiet throws errors/notices. Fix. (1. find out which param constellation, and suppress notice with isset)
 
 	# code improvement
 	#@todo add more comments
 	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5)
 		# or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
+		# 1. adjust composer.json, integration script, create tests/parser/parserTests.txt 2. copy all image related stuff from mw/tests/parser/parserTests.txt
+		# still thinking about integration tests, using smw. increases code coverage report data
+	/*
+	 * 	"parser":[
+			"echo '$wgBootstrapComponentsDisableIdsForTestsEnvironment = true;' >> ../../LocalSettings.php",
+			"php ../../tests/parserTests.php --quiet --file tests/parser/parserTests.txt --quiet"
+		],
+	in composer does not work, because mw >= 1.29 has parserTests.php moved to tests/parser/parserTests.php; need test script...
+	 */
 	#@todo adapt file headers (see chameleon and bootstrap for example)
 	#@todo move the complex, consisting of instance self static and the getInstance() methods from the instances into the ApplicationFactory.
 	#@todo ComponentLibrary::isParserFunction and ::isParserTag are scarcely used. remove or see to more usage
+	#@todo remove newlines in image modal's image caption
 
 
 	### this remains

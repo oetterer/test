@@ -9,6 +9,7 @@
 namespace BootstrapComponents;
 
 use \Closure;
+use \ConfigFactory;
 use \MWException;
 use \Parser;
 use \ReflectionClass;
@@ -42,23 +43,28 @@ class ComponentFunctionFactory {
 	 * ComponentFunctionFactory constructor.
 	 *
 	 * @param Parser $parser
+	 * @param ConfigFactory $myConfig
+	 *
+	 * @throws MWException cascading the application calls to {@see \BootstrapComponents\ApplicationFactory}
 	 */
 	public function __construct( Parser $parser ) {
 		$applicationFactory = ApplicationFactory::getInstance();
 		$this->componentLibrary = $applicationFactory->getComponentLibrary();
 		$this->parserOutputHelper = $applicationFactory->getParserOutputHelper( $parser );
-		$this->nestingController = $applicationFactory->getNestingController();
+		$this->nestingController = $applicationFactory->getNestingController(
+#			$myConfig->get('BootstrapComponentsDisableIdsForTestsEnvironment')
+		);
 	}
 
 	/**
 	 * Creates the function to be called by the parser when encountering the component while processing.
 	 *
-	 * @param string $componentName
+	 * @param string           $componentName
+	 * @param ComponentLibrary $componentLibrary
 	 *
 	 * @return Closure
 	 */
-	public function createHookFunctionFor( $componentName ) {
-		$componentLibrary = $this->getComponentLibrary();
+	public function createHookFunctionFor( $componentName, $componentLibrary ) {
 		$nestingController = $this->getNestingController();
 		$parserOutputHelper = $this->getParserOutputHelper();
 		return function() use ( $componentName, $componentLibrary, $parserOutputHelper, $nestingController ) {
@@ -80,11 +86,12 @@ class ComponentFunctionFactory {
 	 */
 	public function generateParserHookList() {
 		$ParserHookList = [];
+		$componentLibrary = $this->getComponentLibrary();
 		foreach ( $this->getComponentLibrary()->getRegisteredComponents() as $componentName ) {
 			$ParserHookList[] = [
 				self::PARSER_HOOK_PREFIX . strtolower( $componentName ),
-				$this->getComponentLibrary()->getHandlerTypeFor( $componentName ),
-				$this->createHookFunctionFor( $componentName ),
+				$componentLibrary->getHandlerTypeFor( $componentName ),
+				$this->createHookFunctionFor( $componentName, $componentLibrary ),
 			];
 		}
 		return $ParserHookList;

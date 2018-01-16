@@ -8,6 +8,8 @@
 
 namespace BootstrapComponents;
 
+use \ConfigException;
+use \MediaWiki\MediaWikiServices;
 use \MWException;
 
 /**
@@ -18,10 +20,14 @@ use \MWException;
  * @package BootstrapComponents
  */
 class NestingController {
+
 	/**
-	 * @var NestingController
+	 * List of ids already in use in the context of the bootstrap components.
+	 * Key is of this array is the component name, value is the next usable id
+	 *
+	 * @var array
 	 */
-	private static $instance = null;
+	private $autoincrementPerComponent = [];
 
 	/**
 	 * Holds information about the bootstrap component stack,
@@ -33,25 +39,10 @@ class NestingController {
 	private $componentStack;
 
 	/**
-	 * List of ids already in use in the context of the bootstrap components.
-	 * Key is of this array is the component name, value is the next usable id
-	 *
-	 * @var array
+	 * When in testing mode, unique ids tend to make things very difficult. So this known, when not to generate them.
+	 * @var bool
 	 */
-	private $autoincrementPerComponent = [];
-
-	/**
-	 * Returns the singleton instance
-	 *
-	 * @return NestingController
-	 */
-	public static function getInstance() {
-		if ( self::$instance !== null ) {
-			return self::$instance;
-		}
-
-		return self::$instance = new self();
-	}
+	private $disableUniqueIds;
 
 	/**
 	 * NestingController constructor.
@@ -59,12 +50,21 @@ class NestingController {
 	public function __construct() {
 		$this->autoincrementPerComponent = [];
 		$this->componentStack = [];
+		$this->disableUniqueIds =  false;
+
+		try {
+			$myConfig = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' );
+			$this->disableUniqueIds = $myConfig->has( 'BootstrapComponentsDisableIdsForTestsEnvironment' )
+				&& $myConfig->get( 'BootstrapComponentsDisableIdsForTestsEnvironment' );
+		} catch ( ConfigException $c ) {
+			# nothing
+		}
 	}
 
 	/**
 	 * Signals the closing of a bootstrap component
 	 *
-	 * @param string $id if of the current object we are trying to close
+	 * @param string|false $id if of the current object we are trying to close
 	 *
 	 * @throws MWException if current and closing component is different
 	 */
@@ -73,7 +73,7 @@ class NestingController {
 		if ( !$current ) {
 			throw new MWException( 'Nesting error. Tried to close an empty stack.' );
 		}
-		if ( $current->getId() != $id ) {
+		if ( $id === false || ($current->getId() != $id) ) {
 			throw new MWException( 'Nesting error. Trying to close a component that is not the currently open one.' );
 		}
 		array_pop( $this->componentStack );
@@ -87,6 +87,9 @@ class NestingController {
 	 * @return string
 	 */
 	public function generateUniqueId( $componentName ) {
+		if ( $this->disableUniqueIds ) {
+			return 'bsc_' . $componentName . '_parserTest';
+		}
 		if ( !isset( $this->autoincrementPerComponent[$componentName] ) ) {
 			$this->autoincrementPerComponent[$componentName] = 0;
 		}

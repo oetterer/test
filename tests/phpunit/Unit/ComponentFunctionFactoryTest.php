@@ -4,8 +4,6 @@ namespace BootstrapComponents\Tests\Unit;
 
 use BootstrapComponents\ComponentFunctionFactory;
 use BootstrapComponents\ComponentLibrary;
-use BootstrapComponents\Setup as Setup;
-use \MWException;
 use \Parser;
 use \PHPUnit_Framework_TestCase;
 
@@ -65,9 +63,10 @@ class ComponentFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testCanCreateHookFunctionFor( $componentName ) {
 
+		$componentLibrary = new ComponentLibrary( true );
 		$instance = new ComponentFunctionFactory( $this->parser );
 
-		$hookFunction = $instance->createHookFunctionFor( $componentName );
+		$hookFunction = $instance->createHookFunctionFor( $componentName, $componentLibrary );
 
 		$this->assertTrue(
 			is_callable( $hookFunction )
@@ -81,9 +80,9 @@ class ComponentFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 	 * @return array
 	 */
 	public function createHookFunctionProvider() {
-		$cl = new ComponentLibrary( true );
+		$componentLibrary = new ComponentLibrary( true );
 		$data = [];
-		foreach ( $cl->getKnownComponents() as $component ) {
+		foreach ( $componentLibrary->getKnownComponents() as $component ) {
 			$data[$component] = [ $component ];
 		}
 		return $data;

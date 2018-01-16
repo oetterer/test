@@ -463,12 +463,12 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 			],
 			'manual thumbnail, framed' => [
 				[
-					'align'       => 'middle',
+					'align'       => 'center',
 					'manualthumb' => 'Shuttle.png',
 					'framed'      => false,
 				],
 				[],
-				'<div class="thumb tmiddle"><span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="img-responsive thumbimage" />  <div class="thumbcaption"></div></div></span></div><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				'<div class="thumb tnone"><span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="img-responsive thumbimage" />  <div class="thumbcaption"></div></div></span></div><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT class="img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
@@ -478,7 +478,6 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'align'       => 'left',
 					'upright'     => 2342,
 					'manualthumb' => 'Shuttle.png',
-					'frameless'   => false,
 				],
 				[],
 				'<div class="thumb tleft"><span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="img-responsive thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></span></div><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL

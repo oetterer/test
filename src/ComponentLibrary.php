@@ -8,7 +8,6 @@
 
 namespace BootstrapComponents;
 
-use \ConfigException;
 use \MediaWiki\MediaWikiServices;
 use \MWException;
 
@@ -81,14 +80,13 @@ class ComponentLibrary {
 	 *
 	 * @param bool|array $componentWhiteList (see {@see \BootstrapComponents\ComponentLibrary::$componentWhiteList})
 	 *
-	 * @throws ConfigException cascading {@see \ConfigFactory::makeConfig} and
+	 * @throws \ConfigException cascading {@see \ConfigFactory::makeConfig} and
 	 */
 	public function __construct( $componentWhiteList = null ) {
 
 		if ( is_null( $componentWhiteList ) ) {
 			$myConfig = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' );
 
-			#@todo integration test: check if wgBootstrapComponentsWhitelist is already set
 			$componentWhiteList = $myConfig->has( 'BootstrapComponentsWhitelist' )
 				? $myConfig->get( 'BootstrapComponentsWhitelist' )
 				: true;

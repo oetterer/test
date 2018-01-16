@@ -3,8 +3,6 @@
 namespace BootstrapComponents;
 
 use \MWException;
-use \Parser;
-use \PPFrame;
 
 /**
  * @license GNU GPL v3+
@@ -24,12 +22,12 @@ class ParserRequest {
 	private $input;
 
 	/**
-	 * @var PPFrame
+	 * @var \PPFrame
 	 */
 	private $frame;
 
 	/**
-	 * @var Parser
+	 * @var \Parser
 	 */
 	private $parser;
 
@@ -67,14 +65,14 @@ class ParserRequest {
 	}
 
 	/**
-	 * @return PPFrame
+	 * @return \PPFrame
 	 */
 	public function getFrame() {
 		return $this->frame;
 	}
 
 	/**
-	 * @return Parser
+	 * @return \Parser
 	 */
 	public function getParser() {
 		return $this->parser;

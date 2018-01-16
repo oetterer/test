@@ -8,8 +8,6 @@
 
 namespace BootstrapComponents;
 
-use \ConfigException;
-use \MediaWiki\MediaWikiServices;
 use \MWException;
 
 /**
@@ -46,19 +44,13 @@ class NestingController {
 
 	/**
 	 * NestingController constructor.
+	 *
+	 * @param bool $disableUniqueIds
 	 */
-	public function __construct() {
+	public function __construct( $disableUniqueIds ) {
 		$this->autoincrementPerComponent = [];
 		$this->componentStack = [];
-		$this->disableUniqueIds =  false;
-
-		try {
-			$myConfig = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'BootstrapComponents' );
-			$this->disableUniqueIds = $myConfig->has( 'BootstrapComponentsDisableIdsForTestsEnvironment' )
-				&& $myConfig->get( 'BootstrapComponentsDisableIdsForTestsEnvironment' );
-		} catch ( ConfigException $c ) {
-			# nothing
-		}
+		$this->disableUniqueIds =  $disableUniqueIds;
 	}
 
 	/**
@@ -88,7 +80,7 @@ class NestingController {
 	 */
 	public function generateUniqueId( $componentName ) {
 		if ( $this->disableUniqueIds ) {
-			return 'bsc_' . $componentName . '_parserTest';
+			return 'bsc_' . $componentName . '_test';
 		}
 		if ( !isset( $this->autoincrementPerComponent[$componentName] ) ) {
 			$this->autoincrementPerComponent[$componentName] = 0;

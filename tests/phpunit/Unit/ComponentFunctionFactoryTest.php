@@ -22,9 +22,17 @@ class ComponentFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 	 */
 	private $parser;
 
+	private $componentLibrary;
+	private $nestingController;
+
 	public function setUp() {
 		parent::setUp();
 		$this->parser = $this->getMockBuilder( 'Parser' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$this->componentLibrary = new ComponentLibrary( true );
+		$this->nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
 			->disableOriginalConstructor()
 			->getMock();
 	}
@@ -33,12 +41,12 @@ class ComponentFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertInstanceOf(
 			'BootstrapComponents\\ComponentFunctionFactory',
-			new ComponentFunctionFactory( $this->parser )
+			new ComponentFunctionFactory( $this->parser, $this->componentLibrary, $this->nestingController )
 		);
 	}
 
 	public function testCanCreateHookFunctions() {
-		$instance = new ComponentFunctionFactory( $this->parser );
+		$instance = new ComponentFunctionFactory( $this->parser, $this->componentLibrary, $this->nestingController );
 		$parserHookList = $instance->generateParserHookList();
 
 		$this->assertInternalType(
@@ -63,10 +71,14 @@ class ComponentFunctionFactoryTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testCanCreateHookFunctionFor( $componentName ) {
 
-		$componentLibrary = new ComponentLibrary( true );
-		$instance = new ComponentFunctionFactory( $this->parser );
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
 
-		$hookFunction = $instance->createHookFunctionFor( $componentName, $componentLibrary );
+		$instance = new ComponentFunctionFactory( $this->parser, $this->componentLibrary, $this->nestingController );
+
+		/** @noinspection PhpParamsInspection */
+		$hookFunction = $instance->createHookFunctionFor( $componentName, $this->componentLibrary, $parserOutputHelper, $this->nestingController );
 
 		$this->assertTrue(
 			is_callable( $hookFunction )

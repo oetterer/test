@@ -88,8 +88,7 @@ function installSourceFromPull {
 
 function augmentConfiguration {
 
- cd ${baseDir}
- cd ${mwDir}
+ cd ${baseDir}/${mwDir}
 
  # Site language
  if [[ "${SITELANG}" != "" ]]; then

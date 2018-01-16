@@ -9,7 +9,6 @@
 namespace BootstrapComponents;
 
 use \Html;
-use \Parser;
 use \RequestContext;
 use \Title;
 
@@ -43,14 +42,14 @@ class ParserOutputHelper {
 	private $nameOfActiveSkin;
 
 	/**
-	 * @var Parser
+	 * @var \Parser
 	 */
 	private $parser;
 
 	/**
 	 * ParserOutputHelper constructor.
 	 *
-	 * @param Parser $parser
+	 * @param \Parser $parser
 	 */
 	public function __construct( $parser ) {
 		$this->articleTracked = false;

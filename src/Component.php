@@ -8,9 +8,6 @@
 
 namespace BootstrapComponents;
 
-use BootstrapComponents\Component\Panel;
-use \MWException;
-
 /**
  * Class Component
  *
@@ -80,7 +77,7 @@ abstract class Component implements Nestable {
 	 * @param ParserOutputHelper $parserOutputHelper
 	 * @param NestingController  $nestingController
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getNameFor} or {@see \BootstrapComponents\Component::extractAttribute}
+	 * @throws \MWException cascading {@see \BootstrapComponents\ComponentLibrary::getNameFor} or {@see \BootstrapComponents\Component::extractAttribute}
 	 */
 	public function __construct( $componentLibrary, $parserOutputHelper, $nestingController ) {
 		$this->componentLibrary = $componentLibrary;
@@ -162,7 +159,7 @@ abstract class Component implements Nestable {
 	 * @param array  $attributes
 	 * @param mixed  $default
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor} and
+	 * @throws \MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor} and
 	 *                     {@see \BootstrapComponents\Component::getAttributeManager}
 	 * @return string|false|null
 	 */
@@ -181,7 +178,7 @@ abstract class Component implements Nestable {
 	/**
 	 * Returns the classes reference to the component library.
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\ApplicationFactory::getAttributeManager}
+	 * @throws \MWException cascading {@see \BootstrapComponents\ApplicationFactory::getAttributeManager}
 	 *
 	 * @return AttributeManager
 	 */
@@ -228,7 +225,7 @@ abstract class Component implements Nestable {
 	 * @param string|array $style
 	 * @param array        $attributes
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
+	 * @throws \MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
 	 * @return array[] containing (array)$class and (array)$style
 	 */
 	protected function processCss( $class, $style, $attributes ) {
@@ -263,7 +260,7 @@ abstract class Component implements Nestable {
 	/**
 	 * @param ParserRequest $parserRequest
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
+	 * @throws \MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
 	 * @return string|null
 	 */
 	private function checkForManualIdIn( ParserRequest $parserRequest ) {

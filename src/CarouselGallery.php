@@ -10,9 +10,6 @@ namespace BootstrapComponents;
 
 use BootstrapComponents\Component\Carousel;
 use \ImageGalleryBase;
-use \MWException;
-use \Parser;
-use \Title;
 
 /**
  * Class CarouselGallery
@@ -25,7 +22,7 @@ class CarouselGallery extends ImageGalleryBase {
 	 * @param Carousel           $carousel used for unit tests
 	 * @param ParserOutputHelper $parserOutputHelper used for unit tests
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::parseComponent}
+	 * @throws \MWException cascading {@see \BootstrapComponents\Component::parseComponent}
 	 * @return string
 	 */
 	public function toHTML( $carousel = null, $parserOutputHelper = null ) {
@@ -78,17 +75,17 @@ class CarouselGallery extends ImageGalleryBase {
 	}
 
 	/**
-	 * @param        $imageList
-	 * @param Parser $parser
-	 * @param bool   $hideBadImages
-	 * @param bool   $contextTitle
+	 * @param         $imageList
+	 * @param \Parser $parser
+	 * @param bool    $hideBadImages
+	 * @param bool    $contextTitle
 	 *
 	 * @return array
 	 */
 	private function convertImages( $imageList, $parser = null, $hideBadImages = true, $contextTitle = false ) {
 		$newImageList = [];
 		foreach ( $imageList as $imageData ) {
-			/** @var Title $imageTitle */
+			/** @var \Title $imageTitle */
 			$imageTitle = $imageData[0];
 
 			if ( $imageTitle->getNamespace() !== NS_FILE ) {
@@ -113,7 +110,7 @@ class CarouselGallery extends ImageGalleryBase {
 	 */
 	private function buildImageStringFromData( $imageData ) {
 
-		/** @var Title $imageTitle */
+		/** @var \Title $imageTitle */
 		list( $imageTitle, $imageCaption, $imageAlt, $imageLink, $imageParams ) = $imageData;
 		// note that imageCaption, imageAlt and imageLink are strings. the latter is a local link or empty
 		// imageParams is an associative array param => value

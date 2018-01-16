@@ -8,9 +8,6 @@
 
 namespace BootstrapComponents;
 
-use \Closure;
-use \ConfigFactory;
-use \MWException;
 use \Parser;
 use \ReflectionClass;
 
@@ -42,31 +39,29 @@ class ComponentFunctionFactory {
 	/**
 	 * ComponentFunctionFactory constructor.
 	 *
-	 * @param Parser $parser
-	 * @param ConfigFactory $myConfig
+	 * @param Parser            $parser
+	 * @param ComponentLibrary  $componentLibrary
+	 * @param NestingController $nestingController
 	 *
-	 * @throws MWException cascading the application calls to {@see \BootstrapComponents\ApplicationFactory}
+	 * @throws \MWException cascading the application calls to {@see \BootstrapComponents\ApplicationFactory}
 	 */
-	public function __construct( Parser $parser ) {
-		$applicationFactory = ApplicationFactory::getInstance();
-		$this->componentLibrary = $applicationFactory->getComponentLibrary();
-		$this->parserOutputHelper = $applicationFactory->getParserOutputHelper( $parser );
-		$this->nestingController = $applicationFactory->getNestingController(
-#			$myConfig->get('BootstrapComponentsDisableIdsForTestsEnvironment')
-		);
+	public function __construct( Parser $parser, $componentLibrary, $nestingController ) {
+		$this->parserOutputHelper = ApplicationFactory::getInstance()->getParserOutputHelper( $parser );
+		$this->componentLibrary = $componentLibrary;
+		$this->nestingController = $nestingController;
 	}
 
 	/**
 	 * Creates the function to be called by the parser when encountering the component while processing.
 	 *
-	 * @param string           $componentName
-	 * @param ComponentLibrary $componentLibrary
+	 * @param string             $componentName
+	 * @param ComponentLibrary   $componentLibrary
+	 * @param ParserOutputHelper $parserOutputHelper
+	 * @param NestingController  $nestingController
 	 *
-	 * @return Closure
+	 * @return \Closure
 	 */
-	public function createHookFunctionFor( $componentName, $componentLibrary ) {
-		$nestingController = $this->getNestingController();
-		$parserOutputHelper = $this->getParserOutputHelper();
+	public function createHookFunctionFor( $componentName, $componentLibrary, $parserOutputHelper, $nestingController ) {
 		return function() use ( $componentName, $componentLibrary, $parserOutputHelper, $nestingController ) {
 			$componentClass = $componentLibrary->getClassFor( $componentName );
 			$objectReflection = new ReflectionClass( $componentClass );
@@ -87,11 +82,13 @@ class ComponentFunctionFactory {
 	public function generateParserHookList() {
 		$ParserHookList = [];
 		$componentLibrary = $this->getComponentLibrary();
+		$parserOutputHelper = $this->getParserOutputHelper();
+		$nestingController = $this->getNestingController();
 		foreach ( $this->getComponentLibrary()->getRegisteredComponents() as $componentName ) {
 			$ParserHookList[] = [
 				self::PARSER_HOOK_PREFIX . strtolower( $componentName ),
 				$componentLibrary->getHandlerTypeFor( $componentName ),
-				$this->createHookFunctionFor( $componentName, $componentLibrary ),
+				$this->createHookFunctionFor( $componentName, $componentLibrary, $parserOutputHelper, $nestingController ),
 			];
 		}
 		return $ParserHookList;

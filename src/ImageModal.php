@@ -8,14 +8,9 @@
 
 namespace BootstrapComponents;
 
-use \ConfigException;
-use \DummyLinker;
-use \File;
-use \Html;
 use \Linker;
+use \Html;
 use \MediaWiki\MediaWikiServices;
-use \MediaTransformOutput;
-use \MWException;
 use \Title;
 use \User;
 
@@ -26,12 +21,12 @@ use \User;
  */
 class ImageModal implements Nestable {
 	/**
-	 * @var DummyLinker
+	 * @var \DummyLinker
 	 */
 	private $dummyLinker;
 
 	/**
-	 * @var File
+	 * @var \File
 	 */
 	private $file;
 
@@ -63,13 +58,13 @@ class ImageModal implements Nestable {
 	/**
 	 * ImageModal constructor.
 	 *
-	 * @param DummyLinker        $dummyLinker
-	 * @param Title              $title
-	 * @param File               $file
-	 * @param NestingController  $nestingController  DI for unit testing
+	 * @param \DummyLinker       $dummyLinker
+	 * @param \Title             $title
+	 * @param \File              $file
+	 * @param NestingController  $nestingController
 	 * @param ParserOutputHelper $parserOutputHelper DI for unit testing
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\ApplicationFactory} methods
+	 * @throws \MWException cascading {@see \BootstrapComponents\ApplicationFactory} methods
 	 */
 	public function __construct( $dummyLinker, $title, $file, $nestingController = null, $parserOutputHelper = null ) {
 		$this->file = $file;
@@ -123,8 +118,8 @@ class ImageModal implements Nestable {
 	 * @param string|bool $time          Timestamp of the file, set as false for current
 	 * @param string      $res           Final HTML output, used if this returns false
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\NestingController::open}
-	 * @throws ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTrigger}
+	 * @throws \MWException     cascading {@see \BootstrapComponents\NestingController::open}
+	 * @throws \ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTrigger}
 	 *
 	 * @return bool
 	 */
@@ -187,16 +182,16 @@ class ImageModal implements Nestable {
 	 * This is public, so it can be unit tested directly, making it possible to draw a direct comparison between this and
 	 * {@see \Linker::makeImageLink}
 	 *
-	 * @param File  $file
+	 * @param \File $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
-	 * @throws ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerCreateThumb}
+	 * @throws \ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerCreateThumb}
 	 *
 	 * @return false|string
 	 */
 	public function generateTrigger( $file, $sanitizedFrameParams, $handlerParams ) {
-		/** @var MediaTransformOutput $thumb */
+		/** @var \MediaTransformOutput $thumb */
 		list( $thumb, $thumbHandlerParams ) = $this->generateTriggerCreateThumb( $file, $sanitizedFrameParams, $handlerParams );
 
 		if ( !$thumb ) {
@@ -249,7 +244,7 @@ class ImageModal implements Nestable {
 	 * * we are not inside an image modal (thanks to {@see \BootstrapComponents\ImageModal::getNestingController})
 	 * * file allows inline display (ref {@see \File::allowInlineDisplay})
 	 *
-	 * @param File  $file
+	 * @param \File $file
 	 * @param array $frameParams
 	 *
 	 * @return bool true, if all assertions hold, false if one fails (see above)
@@ -278,7 +273,7 @@ class ImageModal implements Nestable {
 	}
 
 	/**
-	 * @param File  $file
+	 * @param \File  $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
@@ -329,10 +324,10 @@ class ImageModal implements Nestable {
 	}
 
 	/**
-	 * @param File                 $file
-	 * @param MediaTransformOutput $thumb
-	 * @param array                $sanitizedFrameParams
-	 * @param array                $thumbHandlerParams
+	 * @param \File                 $file
+	 * @param \MediaTransformOutput $thumb
+	 * @param array                 $sanitizedFrameParams
+	 * @param array                 $thumbHandlerParams
 	 *
 	 * @return array
 	 */
@@ -360,13 +355,13 @@ class ImageModal implements Nestable {
 	}
 
 	/**
-	 * @param File  $file
+	 * @param \File $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
-	 * @throws ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerReevaluateImageDimensions}
+	 * @throws \ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerReevaluateImageDimensions}
 	 *
-	 * @return array [ MediaTransformOutput|false, handlerParams ]
+	 * @return array [ \MediaTransformOutput|false, handlerParams ]
 	 */
 	protected function generateTriggerCreateThumb( $file, $sanitizedFrameParams, $handlerParams ) {
 		$transform = !isset( $sanitizedFrameParams['manualthumb'] ) && !$sanitizedFrameParams['framed'];
@@ -394,15 +389,15 @@ class ImageModal implements Nestable {
 	 * This is mostly taken from {@see \Linker::makeImageLink}, rest originates from {@see \Linker::makeThumbLink2}. Extracts are heavily
 	 * squashed and condensed
 	 *
-	 * @param File  $file
+	 * @param \File  $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
-	 * @throws ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerCalculateImageWidth}
+	 * @throws \ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerCalculateImageWidth}
 	 *
 	 * @return array thumbnail handler params
 	 */
-	protected function generateTriggerReevaluateImageDimensions( File $file, $sanitizedFrameParams, $handlerParams ) {
+	protected function generateTriggerReevaluateImageDimensions( $file, $sanitizedFrameParams, $handlerParams ) {
 		if ( !isset( $handlerParams['width'] ) ) {
 			$handlerParams = $this->generateTriggerCalculateImageWidth( $file, $sanitizedFrameParams, $handlerParams );
 		}
@@ -432,15 +427,15 @@ class ImageModal implements Nestable {
 	/**
 	 * Calculates a with from File, $sanitizedFrameParams, and $handlerParams
 	 *
-	 * @param File  $file
+	 * @param \File  $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
-	 * @throws ConfigException cascading {@see \Config::get}
+	 * @throws \ConfigException cascading {@see \Config::get}
 	 *
 	 * @return array thumbnail handler params
 	 */
-	protected function generateTriggerCalculateImageWidth( File $file, $sanitizedFrameParams, $handlerParams ) {
+	protected function generateTriggerCalculateImageWidth( $file, $sanitizedFrameParams, $handlerParams ) {
 		$globalConfig = MediaWikiServices::getInstance()->getMainConfig();
 		if ( isset( $handlerParams['height'] ) && $file->isVectorized() ) {
 			// If its a vector image, and user only specifies height
@@ -489,7 +484,7 @@ class ImageModal implements Nestable {
 		// for instance in parser tests. unfortunately, this value is not passed through the hook.
 		// so there are instances, there $thumbLimits[$widthOption] is not defined.
 		// solution: we cheat and take the first one
-		if ( $widthOption !== null && isset( $wgThumbLimits[$widthOption] ) ) {
+		if ( $widthOption !== null && isset( $thumbLimits[$widthOption] ) ) {
 			return $widthOption;
 		}
 		$availableOptions = array_keys( $thumbLimits );
@@ -554,7 +549,7 @@ class ImageModal implements Nestable {
 	}
 
 	/**
-	 * @return DummyLinker
+	 * @return \DummyLinker
 	 */
 	/** @scrutinizer ignore-unused */
 	protected function getDummyLinker() {
@@ -562,7 +557,7 @@ class ImageModal implements Nestable {
 	}
 
 	/**
-	 * @return File
+	 * @return \File
 	 */
 	protected function getFile() {
 		return $this->file;
@@ -611,7 +606,7 @@ class ImageModal implements Nestable {
 	/**
 	 * Performs all the mandatory actions on the parser output for the component class
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\ApplicationFactory::getComponentLibrary}
+	 * @throws \MWException cascading {@see \BootstrapComponents\ApplicationFactory::getComponentLibrary}
 	 */
 	private function augmentParserOutput() {
 		$skin = $this->getParserOutputHelper()->getNameOfActiveSkin();
@@ -624,7 +619,7 @@ class ImageModal implements Nestable {
 	/**
 	 * @param string $fileTitle
 	 *
-	 * @return bool|File
+	 * @return bool|\File
 	 */
 	private function getFileFromTitle( $fileTitle ) {
 		$manual_title = Title::makeTitleSafe( NS_FILE, $fileTitle );

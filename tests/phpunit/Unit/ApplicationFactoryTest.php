@@ -38,18 +38,30 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testGetComponentFunctionFactory() {
 		$instance = new ApplicationFactory();
 
 		$parser = $this->getMockBuilder( 'Parser' )
 			->disableOriginalConstructor()
 			->getMock();
+		$cl = $this->getMockBuilder( 'BootstrapComponents\\ComponentLibrary' )
+			->disableOriginalConstructor()
+			->getMock();
+		$nc = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
 		$this->assertInstanceOf(
 			'BootstrapComponents\\ComponentFunctionFactory',
-			$instance->getComponentFunctionFactory( $parser )
+			$instance->getComponentFunctionFactory( $parser, $cl, $nc )
 		);
 	}
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testGetParserOutputHelper() {
 		$instance = new ApplicationFactory();
 

@@ -9,10 +9,6 @@
 namespace BootstrapComponents;
 
 use Bootstrap\BootstrapManager;
-use \Closure;
-use \Config;
-use \ConfigException;
-use \ConfigFactory;
 use \Hooks;
 use \MediaWiki\MediaWikiServices;
 use \Parser;
@@ -33,7 +29,8 @@ class Setup {
 	 *
 	 * @param array $info
 	 *
-	 * @throws ConfigException cascading {@see \ConfigFactory::makeConfig}
+	 * @throws \ConfigException cascading {@see \ConfigFactory::makeConfig} and {@see \BootstrapComponents\Setup::registerHooks}
+	 * @throws \MWException cascading {@see \BootstrapComponents\Setup::registerHooks}
 	 *
 	 * @return bool
 	 */
@@ -53,12 +50,15 @@ class Setup {
 	}
 
 	/**
-	 * @return Closure
+	 * @param ComponentLibrary  $componentLibrary
+	 * @param NestingController $nestingController
+	 *
+	 * @return \Closure
 	 */
-	public function createParserFirstCallInitCallback() {
-		return function( Parser $parser ) {
+	public function createParserFirstCallInitCallback( $componentLibrary, $nestingController ) {
+		return function( Parser $parser ) use ( $componentLibrary, $nestingController ) {
 			$componentFunctionFactory = ApplicationFactory::getInstance()
-				->getComponentFunctionFactory( $parser );
+				->getComponentFunctionFactory( $parser, $componentLibrary, $nestingController );
 			foreach ( $componentFunctionFactory->generateParserHookList() as $register ) {
 
 				list ( $idTag, $handlerType, $callback ) = $register;
@@ -86,15 +86,18 @@ class Setup {
 	/**
 	 * Defines all hooks and the corresponding callbacks
 	 *
-	 * @param  Config $myConfig
+	 * @param  \Config $myConfig
 	 *
-	 * @throws \ConfigException cascading {@see \Config::get}
+	 * @throws \ConfigException cascading {@see \BootstrapComponents\Setup::initializeApplications}
+	 * @throws \MWException cascading {@see \BootstrapComponents\Setup::initializeApplications}
 	 *
-	 * @return Closure[]
+	 * @return \Closure[]
 	 */
 	public function getHooksToRegister( $myConfig ) {
+
+		list( $componentLibrary, $nestingController ) = $this->initializeApplications( $myConfig );
 		$hooks = [
-			'ParserFirstCallInit'    => $this->createParserFirstCallInitCallback(),
+			'ParserFirstCallInit'    => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
 			'SetupAfterCache'        => function() {
 				BootstrapManager::getInstance()->addAllBootstrapModules();
 				return true;
@@ -114,8 +117,8 @@ class Setup {
 		) {
 			$hooks['ImageBeforeProduceHTML'] = function(
 				&$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
-			) {
-				$imageModal = new ImageModal( $dummy, $title, $file );
+			) use ( $nestingController ) {
+				$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
 				return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
 			};
 		}
@@ -126,9 +129,10 @@ class Setup {
 	/**
 	 * Does the actual registration of hooks and components
 	 *
-	 * @param  Config $myConfig
+	 * @param  \Config $myConfig
 	 *
 	 * @throws \ConfigException cascading {@see \BootstrapComponents\Setup::getHooksToRegister}
+	 * @throws \MWException cascading {@see \BootstrapComponents\Setup::getHooksToRegister}
 	 */
 	public function registerHooks( $myConfig ) {
 		foreach ( $this->getHooksToRegister( $myConfig ) as $hook => $callback ) {
@@ -137,7 +141,7 @@ class Setup {
 	}
 
 	/**
-	 * @param ConfigFactory $configFactory
+	 * @param \ConfigFactory $configFactory
 	 * Registers my own configuration, so that it is present during onLoad. See phabricator issue T184837
 	 * @link https://phabricator.wikimedia.org/T184837
 	 */
@@ -155,14 +159,28 @@ class Setup {
 	}
 
 	/**
+	 * @param \Config $myConfig
+	 *
+	 * @return array
+	 * @throws \MWException cascading {@see \BootstrapComponents\applicationFactory} calls
+	 * @throws \ConfigException cascading {@see \Config::get}
+	 */
+	private function initializeApplications( $myConfig ) {
+		$applicationFactory = ApplicationFactory::getInstance();
+		$componentLibrary = $applicationFactory->getComponentLibrary();
+		$nestingController = $applicationFactory->getNestingController(
+			$myConfig->get('BootstrapComponentsDisableIdsForTestsEnvironment')
+		);
+		return [ $componentLibrary, $nestingController ];
+	}
+
+	/**
 	 * Information array created on extension registration.
 	 * Note: this array also resides as from ExtensionRegistry::getInstance()->getAllThings()['BootstrapComponents']
 	 * @param array $info
 	 */
 	private function prepareEnvironment( $info ) {
 		define( 'BOOTSTRAP_COMPONENTS_VERSION', (string) $info['version'] );
-		global $wgParserTestFiles;
-		$wgParserTestFiles[] = __DIR__ . '/../tests/parser/parserTests.txt';
 	}
 	### attend before deployment
 	# mandatory

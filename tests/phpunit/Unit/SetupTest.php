@@ -3,6 +3,7 @@
 namespace BootstrapComponents\Tests\Unit;
 
 use BootstrapComponents\ComponentFunctionFactory;
+use BootstrapComponents\ComponentLibrary;
 use BootstrapComponents\Setup as Setup;
 use \Parser;
 use \PHPUnit_Framework_TestCase;
@@ -27,6 +28,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @throws \ConfigException cascading {@see \BootstrapComponents\Setup::onExtensionLoad}
+	 * @throws \MWException
 	 */
 	public function testOnExtensionLoad() {
 		$this->assertTrue(
@@ -40,6 +42,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	 * @param array $expectedNotRegisteredHooks
 	 *
 	 * @throws \ConfigException cascading {@see \Config::get}
+	 * @throws \MWException
 	 *
 	 * @dataProvider hookRegistryProvider
 	 */
@@ -76,10 +79,18 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 
 	public function testCanCreateParserFirstCallInitCallback() {
 
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+
 		$setup = new Setup();
 		$prefix = ComponentFunctionFactory::PARSER_HOOK_PREFIX;
 
-		$callBackForParserFirstCallInitHook = $setup->createParserFirstCallInitCallback();
+		/** @noinspection PhpParamsInspection */
+		$callBackForParserFirstCallInitHook = $setup->createParserFirstCallInitCallback(
+			new ComponentLibrary( true ),
+			$nestingController
+		);
 
 		$observerParser = $this->getMockBuilder(Parser::class )
 			->disableOriginalConstructor()
@@ -114,6 +125,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @throws \ConfigException
+	 * @throws \MWException
 	 */
 	public function testHookSetupAfterCache() {
 
@@ -143,6 +155,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @throws \ConfigException
+	 * @throws \MWException
 	 */
 	public function testHookGalleryGetModes() {
 
@@ -187,6 +200,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @throws \ConfigException
+	 * @throws \MWException
 	 */
 	public function testHookImageBeforeProduceHTML() {
 

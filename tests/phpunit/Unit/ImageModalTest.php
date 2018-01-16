@@ -3,9 +3,7 @@
 namespace BootstrapComponents\Tests\Unit;
 
 use BootstrapComponents\ImageModal;
-use Cdb\Exception;
 use \ConfigException;
-use \Linker;
 use \MediaWiki\MediaWikiServices;
 use \PHPUnit_Framework_TestCase;
 
@@ -497,7 +495,10 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @return string
 	 */
-	private function generatePhpCodeForManualProviderDataOneCase( $frameParams, $handlerParams ) {
+	private function generatePhpCodeForManualProviderDataOneCase(
+		/** @noinspection PhpUnusedParameterInspection  */
+		$frameParams, $handlerParams
+	) {
 		$ret = PHP_EOL;
 		foreach ( [ 'frameParams', 'handlerParams' ] as $arrayArg ) {
 			$ret .= '$' . $arrayArg . ' = [' . PHP_EOL;

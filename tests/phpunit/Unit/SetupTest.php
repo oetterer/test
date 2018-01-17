@@ -2,7 +2,6 @@
 
 namespace BootstrapComponents\Tests\Unit;
 
-use BootstrapComponents\ComponentFunctionFactory;
 use BootstrapComponents\ComponentLibrary;
 use BootstrapComponents\Setup as Setup;
 use \Parser;
@@ -40,47 +39,6 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-	/**
-	 * @param array $configuration
-	 * @param array $expectedRegisteredHooks
-	 * @param array $expectedNotRegisteredHooks
-	 *
-	 * @throws \ConfigException cascading {@see \Config::get}
-	 * @throws \MWException
-	 *
-	 * @dataProvider hookRegistryProvider
-	 */
-	public function testRegisterHooks( $configuration, $expectedRegisteredHooks, $expectedNotRegisteredHooks ) {
-
-		$myConfig = $this->getMockBuilder( 'Config' )
-			->disableOriginalConstructor()
-			->getMock();
-		$returnMap = [];
-		foreach ( $configuration as $setting ) {
-			$returnMap[] = [ $setting, true ];
-		}
-		$myConfig->expects( $this->any() )
-			->method( 'has' )
-			->will( $this->returnValueMap( $returnMap ) );
-		$myConfig->expects( $this->any() )
-			->method( 'get' )
-			->will( $this->returnValueMap( $returnMap ) );
-
-		$setup = new Setup();
-		/** @noinspection PhpParamsInspection */
-		$setup->registerHooks( $myConfig );
-		/** @noinspection PhpParamsInspection */
-		$registeredHooks = $setup->getHooksToRegister( $myConfig );
-
-		foreach ( $expectedRegisteredHooks as $expectedHook ) {
-			$this->doTestHookIsRegistered( $setup, $registeredHooks, $expectedHook );
-		}
-
-		foreach ( $expectedNotRegisteredHooks as $notExpectedHook ) {
-			$this->doTestHookIsNotRegistered( $registeredHooks, $notExpectedHook );
-		}
-	}
-
 	public function testCanCreateParserFirstCallInitCallback() {
 
 		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
@@ -88,7 +46,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			->getMock();
 
 		$setup = new Setup();
-		$prefix = ComponentFunctionFactory::PARSER_HOOK_PREFIX;
+		$prefix = ComponentLibrary::PARSER_HOOK_PREFIX;
 
 		/** @noinspection PhpParamsInspection */
 		$callBackForParserFirstCallInitHook = $setup->createParserFirstCallInitCallback(
@@ -260,6 +218,79 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @param string $componentName
+	 *
+	 * @expectedException \ReflectionException
+	 *
+	 * @dataProvider CanCreateParserHookCallbackProvider
+	 */
+	public function testCanCreateParserHookCallbackFor( $componentName ) {
+
+		$componentLibrary = $this->getMockBuilder( 'BootstrapComponents\\ComponentLibrary' )
+			->disableOriginalConstructor()
+			->getMock();
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$instance = new Setup();
+
+		/** @noinspection PhpParamsInspection */
+		$callback = $instance->createParserHookCallbackFor( $componentName, $componentLibrary, $nestingController, $parserOutputHelper );
+
+		$this->assertTrue(
+			is_callable( $callback )
+		);
+
+		$this->setExpectedException( 'ReflectionException' );
+		$callback();
+	}
+
+	/**
+	 * @param array $configuration
+	 * @param array $expectedRegisteredHooks
+	 * @param array $expectedNotRegisteredHooks
+	 *
+	 * @throws \ConfigException cascading {@see \Config::get}
+	 * @throws \MWException
+	 *
+	 * @dataProvider hookRegistryProvider
+	 */
+	public function testRegisterHooks( $configuration, $expectedRegisteredHooks, $expectedNotRegisteredHooks ) {
+
+		$myConfig = $this->getMockBuilder( 'Config' )
+			->disableOriginalConstructor()
+			->getMock();
+		$returnMap = [];
+		foreach ( $configuration as $setting ) {
+			$returnMap[] = [ $setting, true ];
+		}
+		$myConfig->expects( $this->any() )
+			->method( 'has' )
+			->will( $this->returnValueMap( $returnMap ) );
+		$myConfig->expects( $this->any() )
+			->method( 'get' )
+			->will( $this->returnValueMap( $returnMap ) );
+
+		$setup = new Setup();
+		/** @noinspection PhpParamsInspection */
+		$setup->registerHooks( $myConfig );
+		/** @noinspection PhpParamsInspection */
+		$registeredHooks = $setup->getHooksToRegister( $myConfig );
+
+		foreach ( $expectedRegisteredHooks as $expectedHook ) {
+			$this->doTestHookIsRegistered( $setup, $registeredHooks, $expectedHook );
+		}
+
+		foreach ( $expectedNotRegisteredHooks as $notExpectedHook ) {
+			$this->doTestHookIsNotRegistered( $registeredHooks, $notExpectedHook );
+		}
+	}
+
+	/**
 	 * @param Setup  $setup
 	 * @param array  $registeredHooks
 	 * @param string $expectedHook
@@ -308,6 +339,19 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			$registeredHooks,
 			'Expected hook "' . $notExpectedHook . '" to not be registered! '
 		);
+	}
+
+/**
+	 * @return array
+	 */
+	public function CanCreateParserHookCallbackProvider() {
+		// this is lazy but efficient
+		$componentLibrary = new ComponentLibrary( true );
+		$data = [];
+		foreach ( $componentLibrary->getKnownComponents() as $component ) {
+			$data[$component] = [ $component ];
+		}
+		return $data;
 	}
 
 	/**

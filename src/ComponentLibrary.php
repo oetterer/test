@@ -53,6 +53,11 @@ class ComponentLibrary {
 	const HANDLER_TYPE_TAG_EXTENSION = 'TagExtension';
 
 	/**
+	 * @var string
+	 */
+	const PARSER_HOOK_PREFIX = 'bootstrap_';
+
+	/**
 	 * This array holds all the data for all known components, whether they are registered or not.
 	 *
 	 * Array has form
@@ -94,6 +99,15 @@ class ComponentLibrary {
 	private $registeredComponents;
 
 	/**
+	 * @param string $componentName
+	 *
+	 * @return string
+	 */
+	public static function compileParserHookStringFor( $componentName ) {
+		return self::PARSER_HOOK_PREFIX . strtolower( $componentName );
+	}
+
+	/**
 	 * ComponentLibrary constructor.
 	 *
 	 * Do not instantiate directly, but use {@see ApplicationFactory::getComponentLibrary}
@@ -128,8 +142,8 @@ class ComponentLibrary {
 		$magicWords = [];
 		foreach ( $this->getRegisteredComponents() as $componentName ) {
 			if ( $this->isParserFunction( $componentName ) ) {
-				$magicWords[ComponentFunctionFactory::PARSER_HOOK_PREFIX . $componentName]
-					= [ 0, ComponentFunctionFactory::PARSER_HOOK_PREFIX . $componentName ];
+				$magicWords[self::compileParserHookStringFor( $componentName )]
+					= [ 0, self::compileParserHookStringFor( $componentName ) ];
 			}
 		}
 		return $magicWords;

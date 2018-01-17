@@ -29,6 +29,19 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @param string $componentName
+	 * @param string $expectedParserHookString
+	 *
+	 * @dataProvider compileParserHookStringProvider
+	 */
+	public function testCanCompileParserHookStringFor( $componentName, $expectedParserHookString ) {
+		$this->assertEquals(
+			$expectedParserHookString,
+			ComponentLibrary::compileParserHookStringFor( $componentName )
+		);
+	}
+
 	public function testGetAllRegisteredComponents() {
 		$instance = new ComponentLibrary();
 		$this->assertEquals(
@@ -183,6 +196,28 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 		$this->setExpectedException( 'MWException' );
 
 		$instance->getClassFor( 'well' );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function compileParserHookStringProvider() {
+		return [
+			'accordion' => [ 'accordion', 'bootstrap_accordion' ],
+			'alert'     => [ 'alert', 'bootstrap_alert' ],
+			'badge'     => [ 'badge', 'bootstrap_badge' ],
+			'button'    => [ 'button', 'bootstrap_button' ],
+			'carousel'  => [ 'carousel', 'bootstrap_carousel' ],
+			'collapse'  => [ 'collapse', 'bootstrap_collapse' ],
+			'icon'      => [ 'icon', 'bootstrap_icon' ],
+			'jumbotron' => [ 'jumbotron', 'bootstrap_jumbotron' ],
+			'label'     => [ 'label', 'bootstrap_label' ],
+			'modal'     => [ 'modal', 'bootstrap_modal' ],
+			'panel'     => [ 'panel', 'bootstrap_panel' ],
+			'popover'   => [ 'popover', 'bootstrap_popover' ],
+			'tooltip'   => [ 'tooltip', 'bootstrap_tooltip' ],
+			'well'      => [ 'well', 'bootstrap_well' ],
+		];
 	}
 
 	/**

@@ -29,6 +29,7 @@ use \Bootstrap\BootstrapManager;
 use \Hooks;
 use \MediaWiki\MediaWikiServices;
 use \Parser;
+use \ReflectionClass;
 
 /**
  * Class Setup
@@ -73,21 +74,56 @@ class Setup {
 	 * @return \Closure
 	 */
 	public function createParserFirstCallInitCallback( $componentLibrary, $nestingController ) {
+
 		return function( Parser $parser ) use ( $componentLibrary, $nestingController ) {
-			$componentFunctionFactory = ApplicationFactory::getInstance()
-				->getComponentFunctionFactory( $parser, $componentLibrary, $nestingController );
-			foreach ( $componentFunctionFactory->generateParserHookList() as $register ) {
 
-				list ( $idTag, $handlerType, $callback ) = $register;
+			$parserOutputHelper = ApplicationFactory::getInstance()->getParserOutputHelper( $parser );
 
-				if ( $handlerType == ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ) {
-					$parser->setFunctionHook( $idTag, $callback );
-				} elseif ( $handlerType == ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
-					$parser->setHook( $idTag, $callback );
+			foreach ( $componentLibrary->getRegisteredComponents() as $componentName ) {
+
+				$parserHookString = $componentLibrary::compileParserHookStringFor( $componentName );
+				$callback = $this->createParserHookCallbackFor(
+					$componentName,
+					$componentLibrary,
+					$nestingController,
+					$parserOutputHelper
+				);
+
+				if ( $componentLibrary->isParserFunction( $componentName ) ) {
+					$parser->setFunctionHook( $parserHookString, $callback );
+				} elseif ( $componentLibrary->isTagExtension( $componentName ) ) {
+					$parser->setHook( $parserHookString, $callback );
 				} else {
-					wfDebugLog( 'BootstrapComponents', 'Unknown handler type (' . $handlerType . ') detected for component ' . $idTag );
+					wfDebugLog(
+						'BootstrapComponents', 'Unknown handler type (' . $componentLibrary->getHandlerTypeFor( $componentName )
+						. ') detected for component ' . $parserHookString );
 				}
 			}
+		};
+	}
+
+	/**
+	 * @param string             $componentName
+	 * @param ComponentLibrary   $componentLibrary
+	 * @param NestingController  $nestingController
+	 * @param ParserOutputHelper $parserOutputHelper
+	 *
+	 * @return \Closure
+	 */
+	public function createParserHookCallbackFor( $componentName, $componentLibrary, $nestingController, $parserOutputHelper ) {
+
+		return function() use ( $componentName, $componentLibrary, $nestingController, $parserOutputHelper ) {
+
+			$componentClass = $componentLibrary->getClassFor( $componentName );
+			$objectReflection = new ReflectionClass( $componentClass );
+			$object = $objectReflection->newInstanceArgs( [ $componentLibrary, $parserOutputHelper, $nestingController ] );
+
+			$parserRequest = ApplicationFactory::getInstance()->getNewParserRequest(
+				func_get_args(),
+				$componentLibrary->getHandlerTypeFor( $componentName )
+			);
+			/** @var AbstractComponent $object */
+			return $object->parseComponent( $parserRequest );
 		};
 	}
 
@@ -221,9 +257,7 @@ class Setup {
 	 */
 	#@todo remove newlines in image modal's image caption
 	#@fixme tests/parser/parserTests.txt (after previous todo)
-	#@todo adapt file headers (see chameleon and bootstrap for example)
 	#@todo ComponentLibrary::isParserFunction and ::isParserTag are scarcely used. remove or see to more usage
-	#@todo give \BootstrapComponents\ComponentFunctionFactory::__construct a parserOutputHelper directly, instead of a $parser
 	#@todo you can increase code coverage be testing private and protected methods directly
 		# see https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
 		# when starting to use this, revert some previously exposed methods to protected/private again.

@@ -91,28 +91,6 @@ class ApplicationFactory {
 	}
 
 	/**
-	 * @param \Parser           $parser
-	 * @param ComponentLibrary  $componentLibrary
-	 * @param NestingController $nestingController
-	 *
-	 * @throws MWException  cascading {@see \BootstrapComponents\ApplicationFactory::getApplication}
-	 *
-	 * @return ComponentFunctionFactory
-	 */
-	public function getComponentFunctionFactory( $parser = null, $componentLibrary = null, $nestingController = null ) {
-		if ( $parser === null ) {
-			$parser = $GLOBALS['wgParser'];
-		}
-		if ( $componentLibrary === null ) {
-			$componentLibrary = $this->getComponentLibrary();
-		}
-		if ( $nestingController === null ) {
-			$nestingController = $this->getNestingController();
-		}
-		return $this->getApplication( 'ComponentFunctionFactory', $parser, $componentLibrary, $nestingController );
-	}
-
-	/**
 	 * @param null|bool|array $componentWhiteList
 	 *
 	 * @throws MWException  cascading {@see \BootstrapComponents\ApplicationFactory::getApplication}
@@ -242,7 +220,6 @@ class ApplicationFactory {
 	private function getApplicationClassRegister() {
 		return [
 			'AttributeManager' => 'BootstrapComponents\\AttributeManager',
-			'ComponentFunctionFactory' => 'BootstrapComponents\\ComponentFunctionFactory',
 			'ComponentLibrary' => 'BootstrapComponents\\ComponentLibrary',
 			'NestingController' => 'BootstrapComponents\\NestingController',
 			'ParserOutputHelper' => 'BootstrapComponents\\ParserOutputHelper',

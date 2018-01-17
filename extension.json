@@ -21,7 +21,6 @@
 		"BootstrapComponents\\ApplicationFactory": "src/ApplicationFactory.php",
 		"BootstrapComponents\\AttributeManager": "src/AttributeManager.php",
 		"BootstrapComponents\\CarouselGallery": "src/CarouselGallery.php",
-		"BootstrapComponents\\ComponentFunctionFactory": "src/ComponentFunctionFactory.php",
 		"BootstrapComponents\\ComponentLibrary": "src/ComponentLibrary.php",
 		"BootstrapComponents\\ModalBuilder": "src/ModalBuilder.php",
 		"BootstrapComponents\\ImageModal": "src/ImageModal.php",

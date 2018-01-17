@@ -295,20 +295,10 @@ class ImageModal implements NestableInterface {
 		if ( !$img ) {
 			return [ false, false ];
 		}
-		$imgParams = [
-			'alt'       => $sanitizedFrameParams['alt'],
-			'title'     => $sanitizedFrameParams['title'],
-			'img-class' => trim( $sanitizedFrameParams['class'] . ' img-responsive' ),
+		return [
+			$this->buildContentImageString( $img, $sanitizedFrameParams ),
+			$img->getWidth() > 600
 		];
-		$imgString = $img->toHtml( $imgParams );
-		if ( $sanitizedFrameParams['caption'] ) {
-			$imgString .= ' ' . Html::rawElement(
-					'div',
-					[ 'class' => 'modal-caption' ],
-					$this->sanitizeCaption( $sanitizedFrameParams['caption'] )
-				);
-		}
-		return [ $imgString, $img->getWidth() > 600 ];
 	}
 
 	/**
@@ -422,53 +412,26 @@ class ImageModal implements NestableInterface {
 
 
 	/**
-	 * Envelops the thumbnail img-tag.
+	 * Envelops the publication trigger img-tag.
 	 *
-	 * @param string $thumbString
+	 * @param string $publicationString
 	 * @param array  $sanitizedFrameParams
-	 * @param int    $thumbWidth
+	 * @param int    $publicationWidth
 	 *
 	 * @return string
 	 */
-	protected function generateTriggerWrapAndFinalize( $thumbString, $sanitizedFrameParams, $thumbWidth ) {
+	protected function generateTriggerWrapAndFinalize( $publicationString, $sanitizedFrameParams, $publicationWidth ) {
 		if ( $sanitizedFrameParams['thumbnail'] || isset( $sanitizedFrameParams['manualthumb'] ) || $sanitizedFrameParams['framed'] ) {
-			if ( !strlen( $sanitizedFrameParams['align'] ) ) {
-				$sanitizedFrameParams['align'] = $this->getTitle()->getPageLanguage()->alignEnd();
-			}
-
-			$zoomIcon = !$sanitizedFrameParams['framed'] ? $this->generateTriggerBuildZoomIcon() : '';
-			$outerWidth = $thumbWidth + 2;
-
-			$ret = Html::rawElement(
-				'div',
-				[
-					'class' => 'thumb t' . ($sanitizedFrameParams['align'] == 'center' ? 'none' : $sanitizedFrameParams['align']),
-				],
-				ModalBuilder::wrapTriggerElement(
-					Html::rawElement(
-						'div',
-						[
-							'class' => 'thumbinner',
-							'style' => 'width:' . $outerWidth . 'px;',
-						],
-						$thumbString . '  ' . Html::rawElement(
-							'div',
-							[ 'class' => 'thumbcaption' ],
-							$zoomIcon . $sanitizedFrameParams['caption']
-						)
-					),
-					$this->getId()
-				)
-			);
+			$ret = $this->buildThumbnailTrigger( $publicationString, $sanitizedFrameParams, $publicationWidth );
 		} elseif ( strlen( $sanitizedFrameParams['align'] ) ) {
 			$class = $sanitizedFrameParams['align'] == 'center' ? 'center' : 'float' . $sanitizedFrameParams['align'];
 			$ret = Html::rawElement(
 				'div',
 				[ 'class' => $class, ],
-				ModalBuilder::wrapTriggerElement( $thumbString, $this->getId() )
+				ModalBuilder::wrapTriggerElement( $publicationString, $this->getId() )
 			);
 		} else {
-			$ret = ModalBuilder::wrapTriggerElement( $thumbString, $this->getId() );
+			$ret = ModalBuilder::wrapTriggerElement( $publicationString, $this->getId() );
 		}
 
 		return str_replace( "\n", ' ', $ret );
@@ -597,26 +560,83 @@ class ImageModal implements NestableInterface {
 	}
 
 	/**
+	 * @param \MediaTransformOutput $img
+	 * @param array                 $sanitizedFrameParams
+	 *
+	 * @return string
+	 */
+	private function buildContentImageString( $img, $sanitizedFrameParams ) {
+		$imgParams = [
+			'alt'       => $sanitizedFrameParams['alt'],
+			'title'     => $sanitizedFrameParams['title'],
+			'img-class' => trim( $sanitizedFrameParams['class'] . ' img-responsive' ),
+		];
+		$imgString = $img->toHtml( $imgParams );
+		if ( $sanitizedFrameParams['caption'] ) {
+			$imgString .= ' ' . Html::rawElement(
+					'div',
+					[ 'class' => 'modal-caption' ],
+					$this->sanitizeCaption( $sanitizedFrameParams['caption'] )
+				);
+		}
+		return $imgString;
+	}
+
+	/**
+	 * Envelops a publication trigger img-tag that is a thumbnail.
+	 *
+	 * @param string $publicationString
+	 * @param array  $sanitizedFrameParams
+	 * @param int    $publicationWidth
+	 *
+	 * @return string
+	 */
+	private function buildThumbnailTrigger( $publicationString, $sanitizedFrameParams, $publicationWidth ) {
+		if ( !strlen( $sanitizedFrameParams['align'] ) ) {
+			$sanitizedFrameParams['align'] = $this->getTitle()->getPageLanguage()->alignEnd();
+		}
+		$zoomIcon = !$sanitizedFrameParams['framed'] ? $this->generateTriggerBuildZoomIcon() : '';
+		$outerWidth = $publicationWidth + 2;
+		$class = 'thumb t' . ($sanitizedFrameParams['align'] == 'center' ? 'none' : $sanitizedFrameParams['align']);
+
+		return Html::rawElement(
+			'div',
+			[
+				'class' => $class,
+			],
+			ModalBuilder::wrapTriggerElement(
+				Html::rawElement(
+					'div',
+					[
+						'class' => 'thumbinner',
+						'style' => 'width:' . $outerWidth . 'px;',
+					],
+					$publicationString . '  ' . Html::rawElement(
+						'div',
+						[ 'class' => 'thumbcaption' ],
+						$zoomIcon . $sanitizedFrameParams['caption']
+					)
+				),
+				$this->getId()
+			)
+		);
+	}
+
+	/**
 	 * Calculates a with from File, $sanitizedFrameParams, and $handlerParams
 	 *
 	 * @param \File $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
-	 * @throws \ConfigException cascading {@see \Config::get}
+	 * @throws \ConfigException cascading {@see ImageModal::getInitialWidthSuggestion} or {@see ImageModal::getPreferredWidth}
 	 *
 	 * @return array thumbnail handler params
 	 */
 	private function calculateImageWidth( $file, $sanitizedFrameParams, $handlerParams ) {
 		$globalConfig = MediaWikiServices::getInstance()->getMainConfig();
 
-		if ( isset( $handlerParams['height'] ) && $file->isVectorized() ) {
-			// If its a vector image, and user only specifies height
-			// we don't want it to be limited by its "normal" width.
-			$handlerParams['width'] = $globalConfig->get( 'SVGMaxSize' );
-		} else {
-			$handlerParams['width'] = $file->getWidth( $handlerParams['page'] );
-		}
+		$handlerParams['width'] = $this->getInitialWidthSuggestion( $globalConfig, $file, $handlerParams );
 
 		if ( $this->amIThumbnailRelated( $sanitizedFrameParams ) || !$handlerParams['width'] ) {
 			// Reduce width for upright images when parameter 'upright' is used
@@ -671,6 +691,25 @@ class ImageModal implements NestableInterface {
 			return wfFindFile( $manual_title );
 		}
 		return false;
+	}
+
+	/**
+	 * @param \Config $globalConfig
+	 * @param \File   $file
+	 * @param array   $handlerParams
+	 *
+	 * @throws \ConfigException cascading {@see \Config::get}
+	 *
+	 * @return mixed
+	 */
+	private function getInitialWidthSuggestion( $globalConfig, $file, $handlerParams ) {
+		if ( isset( $handlerParams['height'] ) && $file->isVectorized() ) {
+			// If its a vector image, and user only specifies height
+			// we don't want it to be limited by its "normal" width.
+			return $globalConfig->get( 'SVGMaxSize' );
+		} else {
+			return $file->getWidth( $handlerParams['page'] );
+		}
 	}
 
 	/**

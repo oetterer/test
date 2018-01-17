@@ -291,8 +291,7 @@ class Setup {
 	in composer does not work, because mw >= 1.29 has parserTests.php moved to tests/parser/parserTests.php; need test script...
 	 */
 	#@fixme tests/parser/parserTests.txt (after previous todo)
-	#@todo ComponentLibrary::isParserFunction and ::isParserTag are scarcely used. remove or see to more usage
-	#@todo you can increase code coverage be testing private and protected methods directly
+	#@todo you can increase code coverage by testing private and protected methods directly
 	# see https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
 	# when starting to use this, revert some previously exposed methods to protected/private again.
 

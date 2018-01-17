@@ -54,7 +54,6 @@ class Alert extends AbstractComponent {
 	 * @param ParserRequest $parserRequest
 	 */
 	public function placeMe( $parserRequest ) {
-		$attributes = $parserRequest->getAttributes();
 
 		$this->dismissible = $this->getValueFor( 'dismissible' );
 
@@ -83,7 +82,7 @@ class Alert extends AbstractComponent {
 	/**
 	 * Calculates the class attribute value from the passed attributes
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	private function calculateClassFrom() {
 		$class = [ 'alert' ];

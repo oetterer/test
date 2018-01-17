@@ -364,8 +364,8 @@ class ComponentLibrary {
 				'attributes'  => [
 					'default' => true,
 					'active',
-					'disabled',
 					'color',
+					'disabled',
 					'size',
 					'text',
 				],

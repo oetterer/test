@@ -74,7 +74,7 @@ class Button extends AbstractComponent {
 		}
 
 		list ( $class, $style ) = $this->processCss(
-			$this->calculateClassFrom( $parserRequest->getAttributes() ),
+			$this->calculateClassFrom(),
 			[]
 		);
 
@@ -98,12 +98,9 @@ class Button extends AbstractComponent {
 	/**
 	 * Calculates the css class string from the attributes array.
 	 *
-	 * @param string[] $attributes
-	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
-	 * @return array
+	 * @return string[]
 	 */
-	private function calculateClassFrom( $attributes ) {
+	private function calculateClassFrom() {
 
 		$class = [ "btn" ];
 		$class[] = 'btn-' . $this->getValueFor( 'color', 'default' );

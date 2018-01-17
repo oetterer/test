@@ -221,8 +221,8 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
-	 * @param string $attribute
-	 * @param mixed  $fallback
+	 * @param string      $attribute
+	 * @param bool|string $fallback
 	 *
 	 * @return bool|string
 	 */
@@ -276,12 +276,14 @@ abstract class AbstractComponent implements NestableInterface {
 	 *
 	 * @throws \MWException cascading {@see \BootstrapComponents\AbstractComponent::getAttributeManager}
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	private function sanitizeAttributes( $attributes ) {
 		$sanitizedAttributes = [];
 		foreach ( $this->getComponentLibrary()->getAttributesFor( $this->getComponentName() ) as $validAttribute ) {
-			$sanitizedAttributes[$validAttribute] = $this->getAttributeManager()->verifyValueFor( $validAttribute, $attributes );
+			$sanitizedAttributes[$validAttribute] =	$this->getAttributeManager()->verifyValueFor( $validAttribute, $attributes )
+				? isset( $attributes[$validAttribute] ) ? $attributes[$validAttribute] : true
+				: false;
 		}
 		return $sanitizedAttributes;
 	}

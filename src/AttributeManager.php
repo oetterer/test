@@ -55,31 +55,9 @@ class AttributeManager {
 	 * @see ApplicationFactory::getAttributeManager
 	 */
 	public function __construct() {
-		$this->allowedValuesForAttribute = [];
+		$this->allowedValuesForAttribute = $this->getInitialAttributeRegister();
 		$this->noValues = [ false, 0, '0', 'no', 'false', 'off', 'disabled', 'ignored' ];
-		$this->noValues = [ 0, '0', 'no', 'false', 'off', 'disabled', 'ignored' ];
 		$this->noValues[] = strtolower( wfMessage( 'confirmable-no' )->text() );
-
-		// notes on attribute registering
-		// true: every non empty string is allowed
-		// false: as along as the attribute is present and NOT set to a value contained in $this->noValues, the attribute is considered valid
-		// array: attribute must be present and contain a value in the array to be valid
-		// note also, that values will be converted to lower case before checking
-		$this->register( 'active', false );
-		$this->register( 'class', true );
-		$this->register( 'color', [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ] );
-		$this->register( 'collapsible', false );
-		$this->register( 'disabled', false );
-		$this->register( 'dismissible', false );
-		$this->register( 'footer', true );
-		$this->register( 'heading', true );
-		$this->register( 'id', true );
-		$this->register( 'link', true );
-		$this->register( 'placement', [ 'top', 'bottom', 'left', 'right' ] );
-		$this->register( 'size', [ 'xs', 'sm', 'md', 'lg' ] );
-		$this->register( 'style', true );
-		$this->register( 'text', true );
-		$this->register( 'trigger', [ 'focus', 'hover' ] );
 	}
 
 	/**
@@ -125,7 +103,7 @@ class AttributeManager {
 	 * @param string $attribute
 	 * @param array  $attributes
 	 *
-	 * @return bool|string
+	 * @return bool
 	 */
 	public function verifyValueFor( $attribute, $attributes ) {
 		if ( !isset( $attributes[$attribute] ) ) {
@@ -143,22 +121,54 @@ class AttributeManager {
 			// prerequisites: value is set and (if $allowedValues was set to false), not in $this->noValues
 			// here we check for $allowedValues to be bool, so $allowedValues is either true (any value) or
 			// false and not in $allowedValues
-			return $value;
-		}
-		if ( !is_string( $attributes[$attribute] ) ) {
-			return false;
+			return true;
 		}
 		// $allowedValues could have been null, bool or an array. since the first two have been handled before, we can safely assume the array; so we can do:
-		return in_array( strtolower( $value ), $allowedValues ) ? $value : false;
+		return in_array( strtolower( $value ), $allowedValues, true );
 	}
 
 	/**
 	 * Registers `attribute` with a description and allowed values
 	 *
+	 * notes on attribute registering:
+	 * * `true`: every non empty string is allowed
+	 * * `false`: as along as the attribute is present and NOT set to a value contained in $this->noValues, the attribute is considered valid
+	 * * array: attribute must be present and contain a value in the array to be valid
+	 *
+	 * note also, that values will be converted to lower case before checking, you therefore should only put lower case values in your
+	 * allowed-values array.
+	 *
 	 * @param string     $attribute
 	 * @param array|bool $allowedValues
 	 */
-	private function register( $attribute, $allowedValues ) {
-		$this->allowedValuesForAttribute[$attribute] = $allowedValues;
+	protected function register( $attribute, $allowedValues ) {
+		if ( !is_string( $attribute ) || !strlen( trim( $attribute ) ) ) {
+			return;
+		}
+		$this->allowedValuesForAttribute[trim($attribute)] = $allowedValues;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getInitialAttributeRegister() {
+		return [
+			'active' => false,
+			'class' => true,
+			'color' => [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ],
+			'collapsible' => false,
+			'disabled' => false,
+			'dismissible' => false,
+			'footer' => true,
+			'heading' => true,
+			'id' => true,
+			'link' => true,
+			'placement' => [ 'top', 'bottom', 'left', 'right' ],
+			'size' => [ 'xs', 'sm', 'md', 'lg' ],
+			'style' => true,
+			'text' => true,
+			'trigger' => [ 'focus', 'hover' ],
+		];
+
 	}
 }

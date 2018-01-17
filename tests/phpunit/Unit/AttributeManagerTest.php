@@ -64,12 +64,12 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 			$attributes = [ $attribute => $value ];
 			$verificationResult = $instance->verifyValueFor( $attribute, $attributes );
 			$this->assertInternalType(
-				'string',
+				'bool',
 				$verificationResult
 			);
-			$this->assertEquals(
+			$this->assertTrue(
 				$verificationResult,
-				$value
+				'failed with value (' . gettype( $value ) . ') ' . $value
 			);
 		}
 	}
@@ -90,7 +90,8 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 				$verificationResult
 			);
 			$this->assertTrue(
-				!$verificationResult
+				!$verificationResult,
+				'failed with value (' . gettype( $value ) . ') ' . $value
 			);
 			$this->assertTrue(
 				!$instance->verifyValueFor( $attribute, [] )

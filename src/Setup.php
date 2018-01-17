@@ -68,6 +68,38 @@ class Setup {
 	}
 
 	/**
+	 * @return \Closure
+	 */
+	public function createGalleryGetModes() {
+		return function( &$modeArray ) {
+			$modeArray['carousel'] = 'BootstrapComponents\\CarouselGallery';
+			return true;
+		};
+	}
+
+	/**
+	 * @param NestingController $nestingController
+	 * @param \Config           $myConfig
+	 *
+	 * @return \Closure
+	 */
+	public function createImageBeforeProduceHTML( $nestingController, $myConfig ) {
+		return function( &$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
+		) use ( $nestingController, $myConfig ) {
+
+			$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
+
+			if ( $myConfig->has( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+				&& $myConfig->get( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+			) {
+				$imageModal->disableSourceLink();
+			}
+
+			return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
+		};
+	}
+
+	/**
 	 * @param ComponentLibrary  $componentLibrary
 	 * @param NestingController $nestingController
 	 *
@@ -120,10 +152,21 @@ class Setup {
 
 			$parserRequest = ApplicationFactory::getInstance()->getNewParserRequest(
 				func_get_args(),
-				$componentLibrary->getHandlerTypeFor( $componentName )
+				$componentLibrary->isParserFunction( $componentName ),
+				$componentName
 			);
 			/** @var AbstractComponent $object */
 			return $object->parseComponent( $parserRequest );
+		};
+	}
+
+	/**
+	 * @return \Closure
+	 */
+	public function createSetupAfterCache() {
+		return function() {
+			BootstrapManager::getInstance()->addAllBootstrapModules();
+			return true;
 		};
 	}
 
@@ -142,37 +185,18 @@ class Setup {
 		list( $componentLibrary, $nestingController ) = $this->initializeApplications( $myConfig );
 		$hooks = [
 			'ParserFirstCallInit'    => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
-			'SetupAfterCache'        => function() {
-				BootstrapManager::getInstance()->addAllBootstrapModules();
-				return true;
-			},
+			'SetupAfterCache'        => $this->createSetupAfterCache(),
 		];
 
 		if ( $myConfig->has( 'BootstrapComponentsEnableCarouselGalleryMode' )
 			&& $myConfig->get( 'BootstrapComponentsEnableCarouselGalleryMode' )
 		) {
-			$hooks['GalleryGetModes'] = function( &$modeArray ) {
-				$modeArray['carousel'] = 'BootstrapComponents\\CarouselGallery';
-				return true;
-			};
+			$hooks['GalleryGetModes'] = $this->createGalleryGetModes();
 		}
 		if ( $myConfig->has( 'BootstrapComponentsModalReplaceImageThumbnail' )
 			&& $myConfig->get( 'BootstrapComponentsModalReplaceImageThumbnail' )
 		) {
-			$hooks['ImageBeforeProduceHTML'] = function(
-				&$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
-			) use ( $nestingController, $myConfig ) {
-
-				$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
-
-				if ( $myConfig->has( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
-					&& $myConfig->get( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
-				) {
-					$imageModal->disableSourceLink();
-				}
-
-				return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
-			};
+			$hooks['ImageBeforeProduceHTML'] = $this->createImageBeforeProduceHTML( $nestingController, $myConfig );
 		}
 
 		return $hooks;
@@ -265,7 +289,6 @@ class Setup {
 		],
 	in composer does not work, because mw >= 1.29 has parserTests.php moved to tests/parser/parserTests.php; need test script...
 	 */
-	#@todo remove newlines in image modal's image caption
 	#@fixme tests/parser/parserTests.txt (after previous todo)
 	#@todo ComponentLibrary::isParserFunction and ::isParserTag are scarcely used. remove or see to more usage
 	#@todo you can increase code coverage be testing private and protected methods directly

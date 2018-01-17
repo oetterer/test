@@ -125,12 +125,13 @@ class ApplicationFactory {
 
 	/**
 	 * @param array  $argumentsPassedByParser
-	 * @param string $handlerType
+	 * @param bool   $isParserFunction
+	 * @param string $componentName
 	 *
 	 * @return ParserRequest
 	 */
-	public function getNewParserRequest( array $argumentsPassedByParser, $handlerType = ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
-		return new ParserRequest( $argumentsPassedByParser, $handlerType );
+	public function getNewParserRequest( $argumentsPassedByParser, $isParserFunction, $componentName = 'unknown' ) {
+		return new ParserRequest( $argumentsPassedByParser, $isParserFunction, $componentName );
 	}
 
 	/**

@@ -80,8 +80,13 @@ class Collapse extends AbstractComponent {
 
 		$buttonAttributes = $parserRequest->getAttributes();
 		unset( $buttonAttributes['id'] );
+
+		// note that button indeed is a parser function. however, the argument isParserFunction to getNewParserRequest
+		// only determines, how the first parameter is processed. pretending to have a tag extension is easier to produce.
 		$buttonParserRequest = ApplicationFactory::getInstance()->getNewParserRequest(
-			[ '#' . $this->getId(), $buttonAttributes, $parserRequest->getParser(), $parserRequest->getFrame() ]
+			[ '#' . $this->getId(), $buttonAttributes, $parserRequest->getParser(), $parserRequest->getFrame() ],
+			false,
+			'button'
 		);
 
 		$buttonPrintOut = $button->parseComponent( $buttonParserRequest );

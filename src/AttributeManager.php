@@ -36,7 +36,7 @@ class AttributeManager {
 
 	/**
 	 * Holds the register for allowed attributes per component
-	 * @var array[] $allowedValuesForAttribute
+	 * @var array $allowedValuesForAttribute
 	 */
 	private $allowedValuesForAttribute;
 
@@ -63,7 +63,7 @@ class AttributeManager {
 	/**
 	 * Returns the list of all available attributes
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function getAllAttributes() {
 		return array_keys( $this->allowedValuesForAttribute );

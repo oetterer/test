@@ -272,7 +272,7 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
-	 * @param $attributes
+	 * @param string[] $attributes
 	 *
 	 * @throws \MWException cascading {@see \BootstrapComponents\AbstractComponent::getAttributeManager}
 	 *

@@ -44,47 +44,47 @@ class ParserRequestTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @param array  $arguments
-	 * @param string $handlerType
+	 * @param array $arguments
+	 * @param bool  $isParserFunction
 	 *
 	 * @dataProvider constructionProvider
 	 */
-	public function testCanConstruct( $arguments, $handlerType ) {
+	public function testCanConstruct( $arguments, $isParserFunction ) {
 
 		$this->assertInstanceOf(
 			'BootstrapComponents\\ParserRequest',
-			new ParserRequest( $arguments, $handlerType )
+			new ParserRequest( $arguments, $isParserFunction )
 		);
 	}
 
 	/**
-	 * @param array  $arguments
-	 * @param string $handlerType
+	 * @param array $arguments
+	 * @param bool  $isParserFunction
 	 *
 	 * @expectedException \MWException
 	 *
 	 * @dataProvider constructionFailsProvider
 	 */
-	public function testCanNotConstruct( $arguments, $handlerType ) {
+	public function testCanNotConstruct( $arguments, $isParserFunction ) {
 
 		$this->setExpectedException( 'MWException' );
 
 		$this->assertInstanceOf(
 			'BootstrapComponents\\ParserRequest',
-			new ParserRequest( $arguments, $handlerType )
+			new ParserRequest( $arguments, $isParserFunction )
 		);
 	}
 
 	/**
 	 * @param array  $arguments
-	 * @param string $handlerType
+	 * @param bool   $isParserFunction
 	 * @param string $expectedInput
 	 * @param array  $expectedAttributes
 	 *
 	 * @dataProvider constructionProvider
 	 */
-	public function testGetAttributesAndInput( $arguments, $handlerType, $expectedInput, $expectedAttributes ) {
-		$instance = new ParserRequest( $arguments, $handlerType );
+	public function testGetAttributesAndInput( $arguments, $isParserFunction, $expectedInput, $expectedAttributes ) {
+		$instance = new ParserRequest( $arguments, $isParserFunction );
 
 		$this->assertEquals(
 			$expectedInput,
@@ -101,14 +101,14 @@ class ParserRequestTest extends PHPUnit_Framework_TestCase {
 			$instance->getParser()
 		);
 
-		if ( $handlerType == ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
-			$this->assertInstanceOf(
-				'PPFrame',
+		if ( $isParserFunction ) {
+			$this->assertInternalType(
+				'null',
 				$instance->getFrame()
 			);
 		} else {
-			$this->assertInternalType(
-				'null',
+			$this->assertInstanceOf(
+				'PPFrame',
 				$instance->getFrame()
 			);
 		}
@@ -128,37 +128,37 @@ class ParserRequestTest extends PHPUnit_Framework_TestCase {
 		return [
 			'pf'          => [
 				[ $parser, $inputText ],
-				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				true,
 				$inputText,
 				[]
 			],
 			'te'          => [
 				[ $inputText, [], $parser, $frame ],
-				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
+				false,
 				$inputText,
 				[]
 			],
 			'pf many'     => [
 				[ $parser, $inputText, 'attr1=1', 'attr2=2', 'attr3=3', 'single', ],
-				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				true,
 				$inputText,
 				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', 'single' => true, ],
 			],
 			'te many'     => [
 				[ $inputText, [ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', 'single' => true, ], $parser, $frame ],
-				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
+				false,
 				$inputText,
 				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', 'single' => true, ],
 			],
 			'pf no input' => [
 				[ $parser, '', '', 'attr1=1', 'attr2=2', 'attr3=3', ],
-				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				true,
 				'',
 				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ],
 			],
 			'te no input' => [
 				[ '', [ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ], $parser, $frame ],
-				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
+				false,
 				'',
 				[ 'attr1' => '1', 'attr2' => '2', 'attr3' => '3', ],
 			],
@@ -176,15 +176,13 @@ class ParserRequestTest extends PHPUnit_Framework_TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 		return [
-			'pf'  => [ [ null, 'input' ], ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ],
-			'pf0' => [ [ null ], ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ],
-			'pf1' => [ [ $parser, '', false ], ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ],
-			'te'  => [ [ 'input', [], null, $frame ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ],
-			'te1' => [ [ 'input', [ false ], $parser ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ],
-			'te2' => [ [ 'input', [ 13 ], $parser ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ],
-			'te3' => [ [ 'input', [], $parser ], ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ],
-			'uk1' => [ [ $parser, 'input', [] ], 'FooBar' ],
-			'uk2' => [ [ 'input', [], $parser, $frame ], 'FooBar' ],
+			'pf'  => [ [ null, 'input' ], true ],
+			'pf0' => [ [ null ], true ],
+			'pf1' => [ [ $parser, '', false ], true ],
+			'te'  => [ [ 'input', [], null, $frame ], false ],
+			'te1' => [ [ 'input', [ false ], $parser ], false ],
+			'te2' => [ [ 'input', [ 13 ], $parser ], false ],
+			'te3' => [ [ 'input', [], $parser ], false ],
 		];
 	}
 }

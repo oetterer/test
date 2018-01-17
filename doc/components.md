@@ -1,6 +1,6 @@
 ## Components
 
-Introducing bootstrap components into the wiki test is the main goal of
+Introducing bootstrap components into the wiki text is the main goal of
 this extension. Depending on your configuration, none, some, or all of
 the following components are available to be used inside the wiki text:
 

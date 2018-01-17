@@ -39,6 +39,59 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testCanCreateGalleryGetModes() {
+		$setup = new Setup();
+
+		$closure = $setup->createGalleryGetModes();
+
+		$this->assertTrue(
+			is_callable( $closure )
+		);
+
+		$galleryModes = [];
+		$this->assertTrue(
+			$closure( $galleryModes )
+		);
+
+		$this->assertArrayHasKey(
+			'carousel', $galleryModes
+		);
+
+		$this->assertTrue(
+			is_subclass_of( $galleryModes['carousel'], 'ImageGalleryBase' )
+		);
+	}
+
+	public function testCreateImageBeforeProduceHTML() {
+		$setup = new Setup();
+
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+		$myConfig = $this->getMockBuilder( 'Config' )
+			->disableOriginalConstructor()
+			->getMock();
+		$myConfig->expects( $this->any() )
+			->method( 'has' )
+			->willReturn( true );
+		$myConfig->expects( $this->any() )
+			->method( 'get' )
+			->willReturn( true );
+
+		/** @noinspection PhpParamsInspection */
+		$closure = $setup->createImageBeforeProduceHTML( $nestingController, $myConfig );
+
+		$this->assertTrue(
+			is_callable( $closure )
+		);
+
+		$linker = $title = $file = $frameParams = $handlerParams = $time = $res = false;
+
+		$this->assertTrue(
+			$closure( $linker, $title, $file, $frameParams, $handlerParams, $time, $res )
+		);
+	}
+
 	public function testCanCreateParserFirstCallInitCallback() {
 
 		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
@@ -49,7 +102,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		$prefix = ComponentLibrary::PARSER_HOOK_PREFIX;
 
 		/** @noinspection PhpParamsInspection */
-		$callBackForParserFirstCallInitHook = $setup->createParserFirstCallInitCallback(
+		$closure = $setup->createParserFirstCallInitCallback(
 			new ComponentLibrary( true ),
 			$nestingController
 		);
@@ -80,9 +133,55 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 				[ $this->equalTo( $prefix . 'popover' ), $this->callback( 'is_callable' ) ],
 				[ $this->equalTo( $prefix . 'well' ), $this->callback( 'is_callable' ) ]
 			);
-		$callBackForParserFirstCallInitHook( $observerParser );
-		# we have to call $callBackForParserFirstCallInitHook with an observer (of type parser)
+		$closure( $observerParser );
+		# we have to call $closure with an observer (of type parser)
 		# see to it, that functions setHook() and setFunctionHook() get called the right amount of times with the correct parameters
+	}
+
+	/**
+	 * @param string $componentName
+	 *
+	 * @expectedException \ReflectionException
+	 *
+	 * @dataProvider CanCreateParserHookCallbackProvider
+	 */
+	public function testCanCreateParserHookCallbackFor( $componentName ) {
+
+		$componentLibrary = $this->getMockBuilder( 'BootstrapComponents\\ComponentLibrary' )
+			->disableOriginalConstructor()
+			->getMock();
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$instance = new Setup();
+
+		/** @noinspection PhpParamsInspection */
+		$callback = $instance->createParserHookCallbackFor( $componentName, $componentLibrary, $nestingController, $parserOutputHelper );
+
+		$this->assertTrue(
+			is_callable( $callback )
+		);
+
+		$this->setExpectedException( 'ReflectionException' );
+		$callback();
+	}
+
+	public function testCanCreateSetupAfterCache() {
+		$setup = new Setup();
+
+		$closure = $setup->createSetupAfterCache();
+
+		$this->assertTrue(
+			is_callable( $closure )
+		);
+
+		$this->assertTrue(
+			$closure()
+		);
 	}
 
 	/**
@@ -215,38 +314,6 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		$setup = new Setup();
 		/** @noinspection PhpParamsInspection */
 		$setup->registerMyConfiguration( $configFactory );
-	}
-
-	/**
-	 * @param string $componentName
-	 *
-	 * @expectedException \ReflectionException
-	 *
-	 * @dataProvider CanCreateParserHookCallbackProvider
-	 */
-	public function testCanCreateParserHookCallbackFor( $componentName ) {
-
-		$componentLibrary = $this->getMockBuilder( 'BootstrapComponents\\ComponentLibrary' )
-			->disableOriginalConstructor()
-			->getMock();
-		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
-			->disableOriginalConstructor()
-			->getMock();
-		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$instance = new Setup();
-
-		/** @noinspection PhpParamsInspection */
-		$callback = $instance->createParserHookCallbackFor( $componentName, $componentLibrary, $nestingController, $parserOutputHelper );
-
-		$this->assertTrue(
-			is_callable( $callback )
-		);
-
-		$this->setExpectedException( 'ReflectionException' );
-		$callback();
 	}
 
 	/**

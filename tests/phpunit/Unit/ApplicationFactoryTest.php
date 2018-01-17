@@ -161,11 +161,11 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		return [
 			'simpleTE' => [
 				[ 'input', [], $parser, $frame ],
-				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
+				false,
 			],
 			'simplePF' => [
 				[ $parser, 'input', 'class=test' ],
-				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				true,
 			],
 		];
 	}
@@ -183,23 +183,23 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		return [
 			'wrongHandlerType PF instead of TE' => [
 				[ 'input', [], $parser, $frame ],
-				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				true,
 			],
 			'emptyPF'                           => [
 				[],
-				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				true,
 			],
 			'Parser Function no parser'         => [
 				[ '1', '2', '3' ],
-				ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION,
+				true,
 			],
 			'Tag Extensions no parser'          => [
-				[ '1', '2', '3' ],
-				ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION,
+				[ '1', '2', '3', '4' ],
+				false,
 			],
-			'Unknown handler type'              => [
-				[ $parser, 'input', '3' ],
-				'FooBar',
+			'Tag Extensions wrong #of args'     => [
+				[ '1', '2', $parser ],
+				false,
 			],
 		];
 	}

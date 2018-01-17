@@ -343,7 +343,7 @@ class ImageModal implements NestableInterface {
 			$imgString .= ' ' . Html::rawElement(
 					'div',
 					[ 'class' => 'modal-caption' ],
-					$sanitizedFrameParams['caption']
+					$this->sanitizeCaption( $sanitizedFrameParams['caption'] )
 				);
 		}
 		return [ $imgString, $img->getWidth() > 600 ];
@@ -715,5 +715,14 @@ class ImageModal implements NestableInterface {
 			$text = $matches[1];
 		}
 		return $text;
+	}
+
+	/**
+	 * @param string $caption
+	 *
+	 * @return string
+	 */
+	private function sanitizeCaption( $caption ) {
+		return preg_replace( '/([^\n])\n([^\n])/m', '$1$2', $caption );
 	}
 }

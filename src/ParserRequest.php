@@ -62,20 +62,21 @@ class ParserRequest {
 	 * instead.
 	 *
 	 * @param array  $argumentsPassedByParser
-	 * @param string $handlerType
+	 * @param bool   $isParserFunction
+	 * @param string $componentName
 	 *
 	 * @see ApplicationFactory::getNewParserRequest
 	 *
 	 * @throws MWException
 	 */
-	public function __construct( array $argumentsPassedByParser, $handlerType ) {
+	public function __construct( $argumentsPassedByParser, $isParserFunction, $componentName = 'unknown' ) {
 		list( $this->input, $this->attributes, $this->parser, $this->frame ) =
-			$this->processArguments( $argumentsPassedByParser, $handlerType );
+			$this->processArguments( $argumentsPassedByParser, $isParserFunction, $componentName );
 		if ( !is_array( $this->attributes ) ) {
 			$this->attributes = [ $this->attributes ];
 		}
 		if ( !$this->parser || !is_a( $this->parser, 'Parser' ) ) {
-			throw new MWException( 'Invalid parser object passed to component ' . $handlerType . '!' );
+			throw new MWException( 'Invalid parser object passed to component ' . $componentName . '!' );
 		}
 	}
 
@@ -116,12 +117,13 @@ class ParserRequest {
 	 *
 	 * @see https://www.mediawiki.org/w/index.php?title=Manual:Parser_functions&oldid=2572048
 	 *
-	 * @param array $options
+	 * @param array  $options
+	 * @param string $componentName
 	 *
 	 * @throws MWException
 	 * @return array $results
 	 */
-	private function extractParserFunctionOptions( $options ) {
+	private function extractParserFunctionOptions( $options, $componentName ) {
 		if ( empty( $options ) ) {
 			return [];
 		}
@@ -131,7 +133,7 @@ class ParserRequest {
 		$results = [];
 		foreach ( $options as $option ) {
 			if ( !is_string( $option ) ) {
-				throw new MWException( 'Arguments passed to bootstrap component are invalid!' );
+				throw new MWException( 'Arguments passed to bootstrap component "' . $componentName . '" are invalid!' );
 			}
 			list( $key, $value ) = $this->getKeyValuePairFrom( $option );
 			if ( strlen( $key ) ) {
@@ -168,25 +170,26 @@ class ParserRequest {
 	 * (parser function or tag extension).
 	 *
 	 * @param array  $argumentsPassedByParser
-	 * @param string $handlerType
+	 * @param bool   $isParserFunction
+	 * @param string $componentName
 	 *
 	 * @throws MWException if argument list does not match handler type or unknown handler type detected
 	 * @return array array consisting of (string) $input, (array) $options, (Parser) $parser, and optional (PPFrame) $frame
 	 */
-	private function processArguments( $argumentsPassedByParser, $handlerType ) {
-		if ( $handlerType == ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
-			if ( count( $argumentsPassedByParser ) != 4 ) {
-				throw new MWException( 'Argument list passed to bootstrap tag component is invalid!' );
-			}
-			return $argumentsPassedByParser;
-		} elseif ( $handlerType == ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ) {
+	private function processArguments( $argumentsPassedByParser, $isParserFunction, $componentName ) {
+		if ( $isParserFunction ) {
 			$parser = array_shift( $argumentsPassedByParser );
 			$input = isset( $argumentsPassedByParser[0] ) ? $argumentsPassedByParser[0] : '';
 			unset( $argumentsPassedByParser[0] );
-			$attributes = $this->extractParserFunctionOptions( $argumentsPassedByParser );
+
+			$attributes = $this->extractParserFunctionOptions( $argumentsPassedByParser, $componentName );
+
 			return [ $input, $attributes, $parser, null ];
 		} else {
-			throw new MWException( 'Unknown handler type detected. Cannot create ParserRequest Object!' );
+			if ( count( $argumentsPassedByParser ) != 4 ) {
+				throw new MWException( 'Argument list passed to bootstrap tag component "' . $componentName . '" is invalid!' );
+			}
+			return $argumentsPassedByParser;
 		}
 	}
 }

@@ -49,7 +49,7 @@ class Badge extends AbstractComponent {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-badge-content-missing' );
 		}
 
-		list ( $class, $style ) = $this->processCss( [ 'badge' ], [], $parserRequest->getAttributes() );
+		list ( $class, $style ) = $this->processCss( [ 'badge' ], [] );
 		return Html::rawElement(
 			'span',
 			[

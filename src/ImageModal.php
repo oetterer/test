@@ -69,6 +69,11 @@ class ImageModal implements NestableInterface {
 	private $parserOutputHelper;
 
 	/**
+	 * @var bool $disableSourceLink
+	 */
+	private $disableSourceLink;
+
+	/**
 	 * @var Title $title
 	 */
 	private $title;
@@ -88,12 +93,19 @@ class ImageModal implements NestableInterface {
 		$this->file = $file;
 		$this->dummyLinker = $dummyLinker;
 		$this->title = $title;
-		$this->nestingController = $nestingController ? $nestingController : ApplicationFactory::getInstance()->getNestingController();
+
+		$this->nestingController = is_null( $nestingController )
+			? ApplicationFactory::getInstance()->getNestingController()
+			: $nestingController;
+		$this->parserOutputHelper = is_null( $parserOutputHelper )
+			? ApplicationFactory::getInstance()->getParserOutputHelper()
+			: $parserOutputHelper ;
+
 		$this->parentComponent = $this->getNestingController()->getCurrentElement();
-		$this->parserOutputHelper = $parserOutputHelper ? $parserOutputHelper : ApplicationFactory::getInstance()->getParserOutputHelper();
 		$this->id = $this->getNestingController()->generateUniqueId(
 			$this->getComponentName()
 		);
+		$this->disableSourceLink = false;
 	}
 
 	/**
@@ -181,12 +193,21 @@ class ImageModal implements NestableInterface {
 		);
 		$modal->setHeader(
 			$this->getTitle()->getBaseText()
-		)->setFooter(
-			$this->generateButtonToSource( $this->getTitle(), $handlerParams )
 		);
+
+		if ( !$this->disableSourceLink ) {
+			$modal->setFooter(
+				$this->generateButtonToSource(
+					$this->getTitle(),
+					$handlerParams
+				)
+			);
+		};
+
 		if ( $largeDialog ) {
 			$modal->setDialogClass( 'modal-lg' );
 		}
+
 		$res = $modal->parse();
 
 		$this->getNestingController()->close(
@@ -252,6 +273,13 @@ class ImageModal implements NestableInterface {
 		$frameParams['caption'] = $this->preventModalInception( $frameParams['caption'] );
 		$frameParams['title'] = $this->preventModalInception( $frameParams['title'] );
 		return $frameParams;
+	}
+
+	/**
+	 * Disables the source link in modal content.
+	 */
+	public function disableSourceLink() {
+		$this->disableSourceLink = true;
 	}
 
 	/**

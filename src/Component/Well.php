@@ -47,10 +47,10 @@ class Well extends AbstractComponent {
 	public function placeMe( $parserRequest ) {
 
 		$class = [ 'well' ];
-		if ( $size = $this->extractAttribute( 'size', $parserRequest->getAttributes() ) ) {
+		if ( $size = $this->getValueFor( 'size' ) ) {
 			$class[] = 'well-' . $size;
 		}
-		list ( $class, $style ) = $this->processCss( $class, [], $parserRequest->getAttributes() );
+		list ( $class, $style ) = $this->processCss( $class, [] );
 		return Html::rawElement(
 			'div',
 			[

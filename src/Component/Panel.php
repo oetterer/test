@@ -84,16 +84,16 @@ class Panel extends AbstractComponent {
 		$attributes = $parserRequest->getAttributes();
 		$parser = $parserRequest->getParser();
 
-		$this->collapsible = isset( $attributes['collapsible'] ) || $this->isInsideAccordion();
+		$this->collapsible = $this->getValueFor( 'collapsible' ) || $this->isInsideAccordion();
 
 		if ( $this->isInsideAccordion() && (!isset( $attributes['heading'] ) || !strlen( $attributes['heading'] )) ) {
 			$attributes['heading'] = $this->getId();
 		}
 
-		$outerClass = $this->calculateOuterClassFrom( $attributes );
-		$innerClass = $this->calculateInnerClassFrom( $attributes );
+		$outerClass = $this->calculateOuterClassFrom();
+		$innerClass = $this->calculateInnerClassFrom();
 
-		list ( $outerClass, $style ) = $this->processCss( $outerClass, [], $attributes );
+		list ( $outerClass, $style ) = $this->processCss( $outerClass, [] );
 
 		return Html::rawElement(
 			'div',
@@ -123,31 +123,26 @@ class Panel extends AbstractComponent {
 	/**
 	 * Calculates the css class string from the attributes array
 	 *
-	 * @param array $attributes
-	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
 	 * @return string[]
 	 */
-	private function calculateOuterClassFrom( &$attributes ) {
+	private function calculateOuterClassFrom() {
 
 		$class = [ 'panel' ];
-		$class[] = 'panel-' . $this->extractAttribute( 'color', $attributes, 'default' );
+		$class[] = 'panel-' . $this->getValueFor( 'color', 'default' );
 		return $class;
 	}
 
 	/**
 	 * Calculates the css class from the attributes array for the "inner" section (div around body and footer)
 	 *
-	 * @param array $attributes
-	 *
 	 * @return bool|array
 	 */
-	private function calculateInnerClassFrom( $attributes ) {
+	private function calculateInnerClassFrom() {
 
 		$class = false;
 		if ( $this->isCollapsible() ) {
 			$class = [ 'panel-collapse', 'collapse', 'fade' ];
-			if ( isset( $attributes['active'] ) ) {
+			if ( $this->getValueFor( 'active' ) ) {
 				$class[] = 'in';
 			}
 		}

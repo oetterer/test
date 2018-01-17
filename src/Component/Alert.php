@@ -56,9 +56,9 @@ class Alert extends AbstractComponent {
 	public function placeMe( $parserRequest ) {
 		$attributes = $parserRequest->getAttributes();
 
-		$this->dismissible = isset( $attributes['dismissible'] );
+		$this->dismissible = $this->getValueFor( 'dismissible' );
 
-		$class = $this->calculateClassFrom( $attributes );
+		$class = $this->calculateClassFrom();
 		$inside = $parserRequest->getParser()->recursiveTagParse(
 			$parserRequest->getInput(),
 			$parserRequest->getFrame()
@@ -67,7 +67,7 @@ class Alert extends AbstractComponent {
 			$inside = $this->renderDismissButton() . $inside;
 		}
 
-		list ( $class, $style ) = $this->processCss( $class, [], $attributes );
+		list ( $class, $style ) = $this->processCss( $class, [] );
 		return Html::rawElement(
 			'div',
 			[
@@ -83,17 +83,14 @@ class Alert extends AbstractComponent {
 	/**
 	 * Calculates the class attribute value from the passed attributes
 	 *
-	 * @param array $attributes
-	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
 	 * @return array
 	 */
-	private function calculateClassFrom( $attributes ) {
+	private function calculateClassFrom() {
 		$class = [ 'alert' ];
-		$class[] = 'alert-' . $this->extractAttribute( 'color', $attributes, 'info' );
+		$class[] = 'alert-' . $this->getValueFor( 'color', 'info' );
 
-		if ( $dismiss = $this->extractAttribute( 'dismissible', $attributes ) ) {
-			if ( $dismiss == 'fade' ) {
+		if ( $dismiss = $this->getValueFor( 'dismissible' ) ) {
+			if ( $dismiss === 'fade' ) {
 				$class = array_merge( $class, [ 'fade', 'in' ] );
 			} else {
 				$class[] = 'alert-dismissible';

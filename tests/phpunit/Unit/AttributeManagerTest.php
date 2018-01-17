@@ -55,21 +55,45 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @param string $attribute
 	 * @param array  $valuesToTest
-	 * @param bool   $expectedVerificationResult
 	 *
 	 * @dataProvider verifyValueProvider
 	 */
-	public function testVerifyValueFor( $attribute, $valuesToTest, $expectedVerificationResult ) {
+	public function testVerifyValueFor( $attribute, $valuesToTest ) {
 		$instance = new AttributeManager();
 		foreach ( $valuesToTest as $value ) {
-			$verificationResult = $instance->verifyValueFor( $attribute, $value );
+			$attributes = [ $attribute => $value ];
+			$verificationResult = $instance->verifyValueFor( $attribute, $attributes );
+			$this->assertInternalType(
+				'string',
+				$verificationResult
+			);
 			$this->assertEquals(
 				$verificationResult,
-				$expectedVerificationResult
+				$value
 			);
+		}
+	}
+
+	/**
+	 * @param string $attribute
+	 * @param array  $valuesToTest
+	 *
+	 * @dataProvider failToVerifyValueProvider
+	 */
+	public function testFailToVerifyValueFor( $attribute, $valuesToTest ) {
+		$instance = new AttributeManager();
+		foreach ( $valuesToTest as $value ) {
+			$attributes = [ $attribute => $value ];
+			$verificationResult = $instance->verifyValueFor( $attribute, $attributes );
 			$this->assertInternalType(
 				'boolean',
-				$expectedVerificationResult
+				$verificationResult
+			);
+			$this->assertTrue(
+				!$verificationResult
+			);
+			$this->assertTrue(
+				!$instance->verifyValueFor( $attribute, [] )
 			);
 		}
 	}
@@ -79,12 +103,12 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function allowedValuesForAttributeProvider() {
 		return [
-			'active'      => [ 'active', true ],
+			'active'      => [ 'active', false ],
 			'class'       => [ 'class', true ],
 			'color'       => [ 'color', [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ] ],
-			'collapsible' => [ 'collapsible', true ],
-			'disabled'    => [ 'disabled', true ],
-			'dismissible' => [ 'dismissible', true ],
+			'collapsible' => [ 'collapsible', false ],
+			'disabled'    => [ 'disabled', false ],
+			'dismissible' => [ 'dismissible', false ],
 			'footer'      => [ 'footer', true ],
 			'heading'     => [ 'heading', true ],
 			'id'          => [ 'id', true ],
@@ -103,11 +127,23 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function verifyValueProvider() {
 		return [
-			'active'      => [ 'active', [ md5( microtime() ), md5( microtime() . microtime() ) ], true ],
-			'active_fail' => [ 'active', [ true, false, null, [] ], false ],
-			'color'       => [ 'color', [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ], true ],
-			'color_fail'  => [ 'color', [ '!default', true, false, null, [] ], false ],
-			'rnd_fail'    => [ md5( microtime() ), [ md5( microtime() ) ], false ],
+			'active' => [ 'active', [ md5( microtime() ), md5( microtime() . microtime() ) ] ],
+			'class'  => [ 'class', [  md5( microtime() ), md5( microtime() . microtime() ) ] ],
+			'color'  => [ 'color', [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ] ],
+		];
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public function failToVerifyValueProvider() {
+		return [
+			'active'      => [ 'active', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'collapsible' => [ 'collapsible', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'color'       => [ 'color', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'disabled'    => [ 'disabled', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'dismissible' => [ 'dismissible', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'rnd_fail'    => [ md5( microtime() ), [ md5( microtime() ) ] ],
 		];
 	}
 }

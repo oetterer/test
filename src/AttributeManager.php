@@ -38,7 +38,13 @@ class AttributeManager {
 	 * Holds the register for allowed attributes per component
 	 * @var array[] $allowedValuesForAttribute
 	 */
-	private $allowedValuesForAttribute = [];
+	private $allowedValuesForAttribute;
+
+	/**
+	 * Holds all values indicating a "no". Can be used to ignore "enable"-fields.
+	 * @var array $noValues
+	 */
+	private $noValues;
 
 	/**
 	 * AttributeManager constructor.
@@ -50,12 +56,21 @@ class AttributeManager {
 	 */
 	public function __construct() {
 		$this->allowedValuesForAttribute = [];
-		$this->register( 'active', true );
+		$this->noValues = [ false, 0, '0', 'no', 'false', 'off', 'disabled', 'ignored' ];
+		$this->noValues = [ 0, '0', 'no', 'false', 'off', 'disabled', 'ignored' ];
+		$this->noValues[] = strtolower( wfMessage( 'confirmable-no' )->text() );
+
+		// notes on attribute registering
+		// true: every non empty string is allowed
+		// false: as along as the attribute is present and NOT set to a value contained in $this->noValues, the attribute is considered valid
+		// array: attribute must be present and contain a value in the array to be valid
+		// note also, that values will be converted to lower case before checking
+		$this->register( 'active', false );
 		$this->register( 'class', true );
 		$this->register( 'color', [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ] );
-		$this->register( 'collapsible', true );
-		$this->register( 'disabled', true );
-		$this->register( 'dismissible', true );
+		$this->register( 'collapsible', false );
+		$this->register( 'disabled', false );
+		$this->register( 'dismissible', false );
 		$this->register( 'footer', true );
 		$this->register( 'heading', true );
 		$this->register( 'id', true );
@@ -85,7 +100,7 @@ class AttributeManager {
 	 * @return null|array|bool
 	 */
 	public function getAllowedValuesFor( $attribute ) {
-		if ( !$this->registered( $attribute ) ) {
+		if ( !$this->isRegistered( $attribute ) ) {
 			return null;
 		}
 		return $this->allowedValuesForAttribute[$attribute];
@@ -98,7 +113,7 @@ class AttributeManager {
 	 *
 	 * @return bool
 	 */
-	public function registered( $attribute ) {
+	public function isRegistered( $attribute ) {
 		return isset( $this->allowedValuesForAttribute[$attribute] );
 	}
 
@@ -108,24 +123,33 @@ class AttributeManager {
 	 * Note that every value for an unregistered attribute fails verification automatically
 	 *
 	 * @param string $attribute
-	 * @param string $value
+	 * @param array  $attributes
 	 *
-	 * @return bool
+	 * @return bool|string
 	 */
-	public function verifyValueFor( $attribute, $value ) {
-		if ( !is_string( $value ) ) {
+	public function verifyValueFor( $attribute, $attributes ) {
+		if ( !isset( $attributes[$attribute] ) ) {
 			return false;
 		}
 		$allowedValues = $this->getAllowedValuesFor( $attribute );
-		if ( !$allowedValues ) {
+		if ( is_null( $allowedValues ) ) {
+			return false;
+		}
+		$value = $attributes[$attribute];
+		if ( ($allowedValues === false) && in_array( $value, $this->noValues, true ) ) {
 			return false;
 		}
 		if ( is_bool( $allowedValues ) ) {
-			// $allowedValues is bool and not false => is true, meaning all values are allowed
-			return true;
+			// prerequisites: value is set and (if $allowedValues was set to false), not in $this->noValues
+			// here we check for $allowedValues to be bool, so $allowedValues is either true (any value) or
+			// false and not in $allowedValues
+			return $value;
 		}
-		// $allowedValues can be null, bool or an array. since all them have been handled above, except the array, we can do:
-		return in_array( $value, $allowedValues );
+		if ( !is_string( $attributes[$attribute] ) ) {
+			return false;
+		}
+		// $allowedValues could have been null, bool or an array. since the first two have been handled before, we can safely assume the array; so we can do:
+		return in_array( strtolower( $value ), $allowedValues ) ? $value : false;
 	}
 
 	/**

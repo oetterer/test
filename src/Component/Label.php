@@ -50,13 +50,9 @@ class Label extends AbstractComponent {
 		}
 
 		$class = [
-			'label', 'label-' . $this->extractAttribute(
-				'color',
-				$parserRequest->getAttributes(),
-				'default'
-			),
+			'label', 'label-' . $this->getValueFor( 'color', 'default' ),
 		];
-		list ( $class, $style ) = $this->processCss( $class, [], $parserRequest->getAttributes() );
+		list ( $class, $style ) = $this->processCss( $class, [] );
 		return Html::rawElement(
 			'span',
 			[

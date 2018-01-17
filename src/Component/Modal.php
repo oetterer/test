@@ -47,10 +47,9 @@ class Modal extends AbstractComponent {
 	 * @param ParserRequest $parserRequest
 	 */
 	public function placeMe( $parserRequest ) {
-		$attributes = $parserRequest->getAttributes();
 		$parser = $parserRequest->getParser();
 
-		list ( $outerClass, $style ) = $this->processCss( [], [], $attributes );
+		list ( $outerClass, $style ) = $this->processCss( [], [] );
 
 		$modal = ApplicationFactory::getInstance()->getModalBuilder(
 			$this->getId(),
@@ -67,16 +66,16 @@ class Modal extends AbstractComponent {
 			$this->arrayToString( $style, ';' )
 		);
 		$modal->setDialogClass(
-			$this->calculateInnerClassFrom( $attributes )
+			$this->calculateInnerClassFrom()
 		);
-		if ( isset( $attributes['heading'] ) && strlen( $attributes['heading'] ) ) {
+		if ( $header = $this->getValueFor( 'heading' ) ) {
 			$modal->setHeader(
-				$parser->recursiveTagParse( $attributes['heading'] )
+				$parser->recursiveTagParse( $header )
 			);
 		}
-		if ( isset( $attributes['footer'] ) && strlen( $attributes['footer'] ) ) {
+		if ( $footer = $this->getValueFor( 'footer' ) ) {
 			$modal->setFooter(
-				$parser->recursiveTagParse( $attributes['footer'] )
+				$parser->recursiveTagParse( $footer )
 			);
 		}
 		return $modal->parse();
@@ -85,16 +84,13 @@ class Modal extends AbstractComponent {
 	/**
 	 * Calculates the css class string from the attributes array for the "inner" section (div around body and heading)
 	 *
-	 * @param string[] $attributes
-	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
 	 * @return false|string
 	 */
-	private function calculateInnerClassFrom( $attributes ) {
+	private function calculateInnerClassFrom() {
 
 		$class = [];
 
-		if ( $size = $this->extractAttribute( 'size', $attributes ) ) {
+		if ( $size = $this->getValueFor( 'size' ) ) {
 			$class[] = 'modal-' . $size;
 		}
 		return $this->arrayToString( $class, ' ' );
@@ -105,23 +101,21 @@ class Modal extends AbstractComponent {
 	 *
 	 * @param ParserRequest $parserRequest
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
 	 * @return string
 	 */
 	private function generateButton( $parserRequest ) {
-		$attributes = $parserRequest->getAttributes();
 		$parser = $parserRequest->getParser();
 
 		return Html::rawElement(
 			'button',
 			[
 				'type'        => 'button',
-				'class'       => 'modal-trigger btn btn-' . $this->extractAttribute( 'color', $attributes, 'default' ),
+				'class'       => 'modal-trigger btn btn-' . $this->getValueFor( 'color', 'default' ),
 				'data-toggle' => 'modal',
 				'data-target' => '#' . $this->getId(),
 			],
 			$parser->recursiveTagParse(
-				$attributes['text'],
+				$parserRequest->getAttributes()['text'],
 				$parserRequest->getFrame()
 			)
 		);
@@ -130,7 +124,6 @@ class Modal extends AbstractComponent {
 	/**
 	 * @param ParserRequest $parserRequest
 	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Modal::generateButton}
 	 * @return string
 	 */
 	private function generateTrigger( $parserRequest ) {

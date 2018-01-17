@@ -161,8 +161,16 @@ class Setup {
 		) {
 			$hooks['ImageBeforeProduceHTML'] = function(
 				&$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
-			) use ( $nestingController ) {
+			) use ( $nestingController, $myConfig ) {
+
 				$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
+
+				if ( $myConfig->has( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+					&& $myConfig->get( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+				) {
+					$imageModal->disableSourceLink();
+				}
+
 				return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
 			};
 		}
@@ -241,6 +249,8 @@ class Setup {
 	#@todo create composer package. see https://packagist.org/ and https://packagist.org/about#how-to-update-packages; packet name "bootstrap-components"
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
 	#@todo complete documentation in /doc (installation, configuration, howto, expansion)
+	#@todo change release date in docs/release-notes.md
+
 
 	# code improvement
 	#@todo add more comments

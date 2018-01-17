@@ -163,7 +163,7 @@ class ComponentLibrary {
 	/**
 	 * @param string $component
 	 *
-	 * @return bool|array
+	 * @return array
 	 * @throws MWException provided component is not known
 	 */
 	public function getAttributesFor( $component ) {
@@ -282,6 +282,25 @@ class ComponentLibrary {
 	}
 
 	/**
+	 * @param array $componentAttributes
+	 *
+	 * @return array
+	 */
+	private function normalizeAttributes( $componentAttributes ) {
+		$componentAttributes = (array) $componentAttributes;
+		if ( $componentAttributes['default'] ) {
+			$componentAttributes = array_unique(
+				array_merge(
+					$componentAttributes,
+					self::DEFAULT_ATTRIBUTES
+				)
+			);
+		}
+		unset( $componentAttributes['default'] );
+		return $componentAttributes;
+	}
+
+	/**
 	 * Generates the array for registered components containing all whitelisted components and the two supporting data arrays.
 	 *
 	 * @param bool|array $componentWhiteList
@@ -293,17 +312,15 @@ class ComponentLibrary {
 		$componentNamesByClass = [];
 		$registeredComponents = [];
 		foreach ( $this->rawComponentsDefinition() as $componentName => $componentData ) {
-			$componentData['attributes'] = (array)$componentData['attributes'];
-			if ( $componentData['attributes']['default'] ) {
-				$componentData['attributes'] = array_unique( array_merge( $componentData['attributes'], self::DEFAULT_ATTRIBUTES ) );
-			}
-			unset( $componentData['attributes']['default'] );
 
+			$componentData['attributes'] = $this->normalizeAttributes( $componentData['attributes'] );
 			$componentDataStore[$componentName] = $componentData;
+
 			if ( !$componentWhiteList || (is_array( $componentWhiteList ) && !in_array( $componentName, $componentWhiteList )) ) {
 				// if $componentWhiteList is false, or and array and does not contain the componentName, we will not register it
 				continue;
 			}
+
 			$registeredComponents[] = $componentName;
 			$componentNamesByClass[$componentData['class']] = $componentName;
 		}

@@ -61,9 +61,8 @@ class Popover extends AbstractComponent {
 		}
 
 		list ( $class, $style ) = $this->processCss(
-			$this->calculateClassFrom( $attributes ),
-			[],
-			$attributes
+			$this->calculateClassFrom(),
+			[]
 		);
 
 		return Html::rawElement(
@@ -78,8 +77,8 @@ class Popover extends AbstractComponent {
 					(string) $parserRequest->getInput(),
 					$parserRequest->getFrame()
 				),
-				'data-placement' => $this->extractAttribute( 'placement', $attributes ),
-				'data-trigger'   => $this->extractAttribute( 'trigger', $attributes ),
+				'data-placement' => $this->getValueFor( 'placement' ),
+				'data-trigger'   => $this->getValueFor( 'trigger' ),
 			],
 			$text
 		);
@@ -88,17 +87,11 @@ class Popover extends AbstractComponent {
 	/**
 	 * Calculates the class attribute value from the passed attributes
 	 *
-	 * @param array $attributes
-	 *
-	 * @throws MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
 	 * @return array
 	 */
-	private function calculateClassFrom( array $attributes ) {
-		if ( !isset( $attributes['color'] ) || !$this->getAttributeManager()->verifyValueFor( 'color', $attributes['color'] ) ) {
-			$attributes['color'] = 'info';
-		}
-		$class = [ 'btn', 'btn-' . $this->extractAttribute( 'color', $attributes, 'info' ) ];
-		if ( $size = $this->extractAttribute( 'size', $attributes ) ) {
+	private function calculateClassFrom() {
+		$class = [ 'btn', 'btn-' . $this->getValueFor( 'color', 'info' ) ];
+		if ( $size = $this->getValueFor( 'size' ) ) {
 			$class[] = 'btn-' . $size;
 		}
 		return $class;

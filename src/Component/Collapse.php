@@ -50,7 +50,7 @@ class Collapse extends AbstractComponent {
 	public function placeMe( $parserRequest ) {
 		$buttonPrintOut = $this->generateButton( clone $parserRequest );
 
-		list ( $class, $style ) = $this->processCss( 'collapse', [], $parserRequest->getAttributes() );
+		list ( $class, $style ) = $this->processCss( 'collapse', [] );
 		return $buttonPrintOut . Html::rawElement(
 				'div',
 				[

@@ -50,7 +50,7 @@ class Carousel extends AbstractComponent {
 		}
 
 		$class = [ 'carousel', 'slide' ];
-		list ( $class, $style ) = $this->processCss( $class, [], $parserRequest->getAttributes() );
+		list ( $class, $style ) = $this->processCss( $class, [] );
 
 		return [
 			Html::rawElement(

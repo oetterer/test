@@ -75,8 +75,7 @@ class Button extends AbstractComponent {
 
 		list ( $class, $style ) = $this->processCss(
 			$this->calculateClassFrom( $parserRequest->getAttributes() ),
-			[],
-			$parserRequest->getAttributes()
+			[]
 		);
 
 		return [
@@ -107,14 +106,14 @@ class Button extends AbstractComponent {
 	private function calculateClassFrom( $attributes ) {
 
 		$class = [ "btn" ];
-		$class[] = 'btn-' . $this->extractAttribute( 'color', $attributes, 'default' );
-		if ( $size = $this->extractAttribute( 'size', $attributes ) ) {
+		$class[] = 'btn-' . $this->getValueFor( 'color', 'default' );
+		if ( $size = $this->getValueFor( 'size' ) ) {
 			$class[] = "btn-" . $size;
 		}
-		if ( isset( $attributes['active'] ) ) {
+		if ( $this->getValueFor( 'active' ) ) {
 			$class[] = 'active';
 		}
-		if ( isset( $attributes['disabled'] ) ) {
+		if ( $this->getValueFor( 'disabled' ) ) {
 			$class[] = 'disabled';
 		}
 		return $class;

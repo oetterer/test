@@ -48,11 +48,11 @@ class Tooltip extends AbstractComponent {
 		if ( !$parserRequest->getInput() ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-content-missing' );
 		}
-		$tooltip = $this->extractAttribute( 'text', $parserRequest->getAttributes(), false );
+		$tooltip = $this->getValueFor( 'text' );
 		if ( $tooltip === false ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-text-missing' );
 		}
-		list ( $class, $style ) = $this->processCss( [], [], $parserRequest->getAttributes() );
+		list ( $class, $style ) = $this->processCss( [], [] );
 
 		return Html::rawElement(
 			'span',
@@ -62,7 +62,7 @@ class Tooltip extends AbstractComponent {
 				'id'             => $this->getId(),
 				'data-toggle'    => 'tooltip',
 				'title'          => htmlentities( $parserRequest->getParser()->recursiveTagParse( $tooltip ) ),
-				'data-placement' => $this->extractAttribute( 'placement', $parserRequest->getAttributes() ),
+				'data-placement' => $this->getValueFor( 'placement' ),
 			],
 			$parserRequest->getParser()->recursiveTagParse(
 				$parserRequest->getInput()

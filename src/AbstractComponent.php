@@ -43,6 +43,14 @@ abstract class AbstractComponent implements NestableInterface {
 	private static $attributeManager = null;
 
 	/**
+	 * For every of my registered attributes holds a value. false, if not valid in supplied
+	 * parserRequest.
+	 *
+	 * @var array $attributes
+	 */
+	private $attributes;
+
+	/**
 	 * @var ComponentLibrary $componentLibrary
 	 */
 	private $componentLibrary;
@@ -134,10 +142,12 @@ abstract class AbstractComponent implements NestableInterface {
 	 * @return string|array
 	 */
 	public function parseComponent( $parserRequest ) {
-		$manualId = $this->checkForManualIdIn( $parserRequest );
+		$this->attributes = $this->sanitizeAttributes(
+			$parserRequest->getAttributes()
+		);
 		$this->setId(
-			is_string( $manualId )
-				? $manualId
+			$this->getValueFor( 'id' ) !== false
+				? $this->getValueFor( 'id' )
 				: $this->getNestingController()->generateUniqueId( $this->getComponentName() )
 		);
 		$this->augmentParserOutput();
@@ -166,29 +176,6 @@ abstract class AbstractComponent implements NestableInterface {
 			}
 		}
 		return count( $array ) ? implode( $glue, $array ) : false;
-	}
-
-	/**
-	 * If $attribute is set in $attributes and is valid, it is returned. Otherwise default is returned
-	 *
-	 * @param string $attribute
-	 * @param array  $attributes
-	 * @param mixed  $default
-	 *
-	 * @throws \MWException cascading {@see \BootstrapComponents\ComponentLibrary::getAttributesFor} and
-	 *                     {@see \BootstrapComponents\Component::getAttributeManager}
-	 * @return string|false|null
-	 */
-	protected function extractAttribute( $attribute, $attributes, $default = false ) {
-		if ( in_array( $attribute, $this->getComponentLibrary()->getAttributesFor( $this->getComponentName() ) )
-			&& is_array( $attributes )
-			&& isset( $attributes[$attribute] )
-			&& strlen( trim( $attributes[$attribute] ) )
-			&& $this->getAttributeManager()->verifyValueFor( $attribute, trim( $attributes[$attribute] ) )
-		) {
-			return trim( $attributes[$attribute] );
-		}
-		return $default;
 	}
 
 	/**
@@ -234,27 +221,38 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
+	 * @param string $attribute
+	 * @param mixed  $fallback
+	 *
+	 * @return bool|string
+	 */
+	protected function getValueFor( $attribute, $fallback = false ) {
+		if ( !isset( $this->attributes[$attribute] ) || ( $this->attributes[$attribute] === false ) ) {
+			return $fallback;
+		}
+		return $this->attributes[$attribute];
+	}
+
+	/**
 	 * Takes your class and style string and appends them with corresponding data from user (if present)
 	 * passed in attributes.
 	 *
 	 * @param string|array $class
 	 * @param string|array $style
-	 * @param array        $attributes
 	 *
-	 * @throws \MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
 	 * @return array[] containing (array)$class and (array)$style
 	 */
-	protected function processCss( $class, $style, $attributes ) {
+	protected function processCss( $class, $style  ) {
 		if ( !is_array( $class ) ) {
 			$class = [ $class ];
 		}
 		if ( !is_array( $style ) ) {
 			$style = [ $style ];
 		}
-		if ( $newClass = $this->extractAttribute( 'class', $attributes ) ) {
+		if ( $newClass = $this->getValueFor( 'class' ) ) {
 			$class[] = $newClass;
 		}
-		if ( $newStyle = $this->extractAttribute( 'style', $attributes ) ) {
+		if ( $newStyle = $this->getValueFor( 'style' ) ) {
 			$style[] = $newStyle;
 		}
 		return [ $class, $style ];
@@ -274,14 +272,18 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
-	 * @param ParserRequest $parserRequest
+	 * @param $attributes
 	 *
-	 * @throws \MWException cascading {@see \BootstrapComponents\Component::extractAttribute}
-	 * @return string|null
+	 * @throws \MWException cascading {@see \BootstrapComponents\AbstractComponent::getAttributeManager}
+	 *
+	 * @return array
 	 */
-	private function checkForManualIdIn( ParserRequest $parserRequest ) {
-		$attributes = $parserRequest->getAttributes();
-		return $this->extractAttribute( 'id', $attributes, null );
+	private function sanitizeAttributes( $attributes ) {
+		$sanitizedAttributes = [];
+		foreach ( $this->getComponentLibrary()->getAttributesFor( $this->getComponentName() ) as $validAttribute ) {
+			$sanitizedAttributes[$validAttribute] = $this->getAttributeManager()->verifyValueFor( $validAttribute, $attributes );
+		}
+		return $sanitizedAttributes;
 	}
 
 	/**

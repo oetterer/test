@@ -1,9 +1,27 @@
 <?php
 /**
- * @license GNU GPL v3+
- * @since   1.0
+ * Contains the class controlling the references and creating necessary helper objects.
  *
- * @author  Tobias Oetterer < oetterer@uni-paderborn.de >
+ * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
+ *
+ * This file is part of the MediaWiki extension BootstrapComponents.
+ * The BootstrapComponents extension is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The BootstrapComponents extension is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup       BootstrapComponents
+ * @author        Tobias Oetterer
  */
 
 namespace BootstrapComponents;
@@ -16,24 +34,24 @@ use \ReflectionClass;
  *
  * Manages access to application classes.
  *
- * @package BootstrapComponents
+ * @since 1.0
  */
 class ApplicationFactory {
 
 	/**
-	 * @var ApplicationFactory
+	 * @var ApplicationFactory $instance
 	 */
 	private static $instance = null;
 
 	/**
 	 * Holds the application singletons
-	 * @var array
+	 * @var array $applicationStore
 	 */
 	private $applicationStore;
 
 	/**
 	 * Library, that tells the ApplicationFactory, which class to use to instantiate which application
-	 * @var array
+	 * @var array $applicationClassRegister
 	 */
 	private $applicationClassRegister;
 
@@ -50,6 +68,14 @@ class ApplicationFactory {
 		return self::$instance = new self();
 	}
 
+	/**
+	 * ApplicationFactory constructor.
+	 *
+	 * Do not instantiate directly, but use {@see ApplicationFactory::getInstance}
+	 * instead.
+	 *
+	 * @see ApplicationFactory::getInstance
+	 */
 	public function __construct() {
 		$this->applicationStore = [];
 		$this->applicationClassRegister = $this->getApplicationClassRegister();
@@ -98,6 +124,17 @@ class ApplicationFactory {
 	}
 
 	/**
+	 * @param string $id
+	 * @param string $trigger must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param string $content must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 *
+	 * @return ModalBuilder
+	 */
+	public function getModalBuilder( $id, $trigger, $content ) {
+		return new ModalBuilder( $id, $trigger, $content );
+	}
+
+	/**
 	 * @param bool $disableUniqueIds    needed in parser tests
 	 *
 	 * @throws MWException  cascading {@see \BootstrapComponents\ApplicationFactory::getApplication}
@@ -106,6 +143,16 @@ class ApplicationFactory {
 	 */
 	public function getNestingController( $disableUniqueIds = false ) {
 		return $this->getApplication( 'NestingController', $disableUniqueIds );
+	}
+
+	/**
+	 * @param array  $argumentsPassedByParser
+	 * @param string $handlerType
+	 *
+	 * @return ParserRequest
+	 */
+	public function getNewParserRequest( array $argumentsPassedByParser, $handlerType = ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
+		return new ParserRequest( $argumentsPassedByParser, $handlerType );
 	}
 
 	/**
@@ -120,16 +167,6 @@ class ApplicationFactory {
 			$parser = $GLOBALS['wgParser'];
 		}
 		return $this->getApplication( 'ParserOutputHelper', $parser );
-	}
-
-	/**
-	 * @param array  $argumentsPassedByParser
-	 * @param string $handlerType
-	 *
-	 * @return ParserRequest
-	 */
-	public function getNewParserRequest( array $argumentsPassedByParser, $handlerType = ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
-		return new ParserRequest( $argumentsPassedByParser, $handlerType );
 	}
 
 	/**

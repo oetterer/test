@@ -8,11 +8,15 @@ use \MWException;
 
 /**
  * @covers  \BootstrapComponents\Component\Modal
- * @group   bootstrap-components
+ *
+ * @ingroup Test
+ *
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
 class ModalTest extends ComponentsTestBase {

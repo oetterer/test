@@ -1,9 +1,27 @@
 <?php
 /**
- * @license GNU GPL v3+
- * @since   1.0
+ * Contains the class holding a modal building kit.
  *
- * @author  Tobias Oetterer < oetterer@uni-paderborn.de >
+ * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
+ *
+ * This file is part of the MediaWiki extension BootstrapComponents.
+ * The BootstrapComponents extension is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The BootstrapComponents extension is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup       BootstrapComponents
+ * @author        Tobias Oetterer
  */
 
 namespace BootstrapComponents;
@@ -13,66 +31,66 @@ use \Html;
 /**
  * Class ModalBase
  *
- * This is a low layer class, that helps build a modal. It does no have access to a parser, so it expects all content
+ * This is a low layer class, that helps build a modal. It does not have access to a parser, so it expects all content
  * elements to be hardened by you (with the help of {@see Parser::recursiveTagParse}). All attribute elements
- * will be hardened here, through the use of {@see Html::rawElement}
+ * will be hardened here, through the use of {@see Html::rawElement}.
  *
- * @package BootstrapComponents
+ * @since 1.0
  */
-class ModalBase {
+class ModalBuilder {
 
 	/**
-	 * @var string
+	 * @var string $content
 	 */
 	private $content;
 
 	/**
-	 * @var string|false
+	 * @var string|false $footer
 	 */
 	private $footer;
 
 	/**
-	 * @var string|false
+	 * @var string|false $header
 	 */
 	private $header;
 
 	/**
-	 * @var string
+	 * @var string $id
 	 */
 	private $id;
 
 	/**
-	 * @var string|false
+	 * @var string|false $bodyClass
 	 */
 	private $bodyClass;
 
 	/**
-	 * @var string|false
+	 * @var string|false $bodyStyle
 	 */
 	private $bodyStyle;
 
 	/**
-	 * @var string|false
+	 * @var string|false $dialogClass
 	 */
 	private $dialogClass;
 
 	/**
-	 * @var string|false
+	 * @var string|false $dialogStyle
 	 */
 	private $dialogStyle;
 
 	/**
-	 * @var string|false
+	 * @var string|false $outerClass
 	 */
 	private $outerClass;
 
 	/**
-	 * @var string|false
+	 * @var string|false $outerStyle
 	 */
 	private $outerStyle;
 
 	/**
-	 * @var string
+	 * @var string $trigger
 	 */
 	private $trigger;
 
@@ -101,11 +119,15 @@ class ModalBase {
 	 * ModalBase constructor.
 	 *
 	 * Takes $id, $trigger and $content and produces a modal with the html id $id, using $content as the
-	 * body content of the opening modal. For trigger, you can use a generic html code and warp it in
+	 * body content of the opening modal. For trigger, you can use a generic html code and wrap it in
 	 * {@see \BootstrapComponents\ModalBase::wrapTriggerElement}, or you make sure you generate
 	 * a correct trigger for yourself, using the necessary attributes and especially the id, you supplied
 	 * here (see {@see \BootstrapComponents\Component\Modal::generateButton} for example).
 	 *
+	 * Do not instantiate directly, but use {@see ApplicationFactory::getModalBuilder}
+	 * instead.
+	 *
+	 * @see ApplicationFactory::getModalBuilder
 	 * @see \BootstrapComponents\Component\Modal::generateButton
 	 *
 	 * @param string $id
@@ -165,7 +187,7 @@ class ModalBase {
 	/**
 	 * @param string|false $bodyClass
 	 *
-	 * @return ModalBase
+	 * @return ModalBuilder
 	 */
 	public function setBodyClass( $bodyClass ) {
 		$this->bodyClass = $bodyClass;
@@ -175,7 +197,7 @@ class ModalBase {
 	/**
 	 * @param string|false $bodyStyle
 	 *
-	 * @return ModalBase
+	 * @return ModalBuilder
 	 */
 	public function setBodyStyle( $bodyStyle ) {
 		$this->bodyStyle = $bodyStyle;
@@ -185,7 +207,7 @@ class ModalBase {
 	/**
 	 * @param string|false $dialogClass
 	 *
-	 * @return ModalBase
+	 * @return ModalBuilder
 	 */
 	public function setDialogClass( $dialogClass ) {
 		$this->dialogClass = $dialogClass;
@@ -195,7 +217,7 @@ class ModalBase {
 	/**
 	 * @param string|false $dialogStyle
 	 *
-	 * @return ModalBase
+	 * @return ModalBuilder
 	 */
 	public function setDialogStyle( $dialogStyle ) {
 		$this->dialogStyle = $dialogStyle;
@@ -205,7 +227,7 @@ class ModalBase {
 	/**
 	 * @param string|false $footer must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
-	 * @return ModalBase
+	 * @return ModalBuilder
 	 */
 	public function setFooter( $footer ) {
 		$this->footer = $footer;
@@ -215,7 +237,7 @@ class ModalBase {
 	/**
 	 * @param string|false $header must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
-	 * @return ModalBase
+	 * @return ModalBuilder
 	 */
 	public function setHeader( $header ) {
 		$this->header = $header;
@@ -225,7 +247,7 @@ class ModalBase {
 	/**
 	 * @param string|false $outerClass
 	 *
-	 * @return ModalBase
+	 * @return ModalBuilder
 	 */
 	public function setOuterClass( $outerClass ) {
 		$this->outerClass = $outerClass;
@@ -235,7 +257,7 @@ class ModalBase {
 	/**
 	 * @param string|false $outerStyle
 	 *
-	 * @return ModalBase
+	 * @return ModalBuilder
 	 */
 	public function setOuterStyle( $outerStyle ) {
 		$this->outerStyle = $outerStyle;

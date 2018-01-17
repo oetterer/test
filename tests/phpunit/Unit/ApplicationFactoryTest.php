@@ -8,11 +8,15 @@ use \PHPUnit_Framework_TestCase;
 
 /**
  * @covers  \BootstrapComponents\ApplicationFactory
- * @group   bootstrap-components
+ *
+ * @ingroup Test
+ *
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
 class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
@@ -62,18 +66,12 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-	/**
-	 * @throws \MWException
-	 */
-	public function testGetParserOutputHelper() {
+	public function testGetModalBuilder() {
 		$instance = new ApplicationFactory();
 
-		$parser = $this->getMockBuilder( 'Parser' )
-			->disableOriginalConstructor()
-			->getMock();
 		$this->assertInstanceOf(
-			'BootstrapComponents\\ParserOutputHelper',
-			$instance->getParserOutputHelper( $parser )
+			'BootstrapComponents\\ModalBuilder',
+			$instance->getModalBuilder( '', '', '' )
 		);
 	}
 
@@ -93,8 +91,25 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @throws \MWException
+	 */
+	public function testGetParserOutputHelper() {
+		$instance = new ApplicationFactory();
+
+		$parser = $this->getMockBuilder( 'Parser' )
+			->disableOriginalConstructor()
+			->getMock();
+		$this->assertInstanceOf(
+			'BootstrapComponents\\ParserOutputHelper',
+			$instance->getParserOutputHelper( $parser )
+		);
+	}
+
+	/**
 	 * @param array  $arguments
 	 * @param string $handlerType
+	 *
+	 * @expectedException \MWException
 	 *
 	 * @dataProvider parserRequestFailureProvider
 	 */
@@ -126,6 +141,9 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @expectedException \MWException
+	 */
 	public function testCanNotRegisterApplicationOnInvalidClass() {
 		$instance = new ApplicationFactory();
 		$this->setExpectedException( 'MWException' );

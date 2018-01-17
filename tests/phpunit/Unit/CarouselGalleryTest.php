@@ -10,11 +10,15 @@ use \Title;
 
 /**
  * @covers  \BootstrapComponents\CarouselGallery
- * @group   bootstrap-components
+ *
+ * @ingroup Test
+ *
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
 class CarouselGalleryTest extends PHPUnit_Framework_TestCase {

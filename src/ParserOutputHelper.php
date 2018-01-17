@@ -1,9 +1,27 @@
 <?php
 /**
- * @license GNU GPL v3+
- * @since   1.0
+ * Contains the class augmenting the parser output.
  *
- * @author  Tobias Oetterer < oetterer@uni-paderborn.de >
+ * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
+ *
+ * This file is part of the MediaWiki extension BootstrapComponents.
+ * The BootstrapComponents extension is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The BootstrapComponents extension is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup       BootstrapComponents
+ * @author        Tobias Oetterer
  */
 
 namespace BootstrapComponents;
@@ -17,39 +35,44 @@ use \Title;
  *
  * Performs all the adaptions on the ParserOutput
  *
- * @package BootstrapComponents
+ * @since 1.0
  */
 class ParserOutputHelper {
 	/**
 	 * To make sure, we only add the tracking category once
 	 *
-	 * @var bool
+	 * @var bool $articleTracked
 	 */
 	private $articleTracked;
 
 	/**
 	 * To make sure, we only add the error tracking category once
 	 *
-	 * @var bool
+	 * @var bool $articleTrackedOnError
 	 */
 	private $articleTrackedOnError;
 
 	/**
 	 * Holds the name of the skin we use (or false, if there is no skin)
 	 *
-	 * @var string
+	 * @var string $nameOfActiveSkin
 	 */
 	private $nameOfActiveSkin;
 
 	/**
-	 * @var \Parser
+	 * @var \Parser $parser
 	 */
 	private $parser;
 
 	/**
 	 * ParserOutputHelper constructor.
 	 *
+	 * Do not instantiate directly, but use {@see ApplicationFactory::getParserOutputHelper}
+	 * instead.
+	 *
 	 * @param \Parser $parser
+	 *
+	 * @see ApplicationFactory::getParserOutputHelper
 	 */
 	public function __construct( $parser ) {
 		$this->articleTracked = false;

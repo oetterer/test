@@ -2,27 +2,31 @@
 
 namespace BootstrapComponents\Tests\Unit;
 
-use BootstrapComponents\Component;
+use BootstrapComponents\AbstractComponent;
 use BootstrapComponents\ComponentLibrary;
 use \MWException;
 use \PHPUnit_Framework_MockObject_MockObject;
 
 /**
- * @covers  \BootstrapComponents\Component
- * @group   bootstrap-components
+ * @covers  \BootstrapComponents\AbstractComponent
+ *
+ * @ingroup Test
+ *
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
-class ComponentTest extends ComponentsTestBase {
+class AbstractComponentTest extends ComponentsTestBase {
 	private $componentPlacing = '<component placing>';
 
 	private $name = 'abstract';
 
 	/**
-	 * @return Component|PHPUnit_Framework_MockObject_MockObject
+	 * @return AbstractComponent|PHPUnit_Framework_MockObject_MockObject
 	 */
 	private function createStub() {
 		$componentLibrary = $this->getMockBuilder( 'BootstrapComponents\\ComponentLibrary' )
@@ -36,7 +40,7 @@ class ComponentTest extends ComponentsTestBase {
 			->will( $this->returnValue( [] ) );
 
 		$stub = $this->getMockForAbstractClass(
-			'BootstrapComponents\\Component',
+			'BootstrapComponents\\AbstractComponent',
 			[ $componentLibrary, $this->getParserOutputHelper(), $this->getNestingController() ]
 		);
 		$stub->expects( $this->any() )
@@ -47,11 +51,11 @@ class ComponentTest extends ComponentsTestBase {
 
 	public function testCanConstruct() {
 		$this->assertInstanceOf(
-			'BootstrapComponents\\Component',
+			'BootstrapComponents\\AbstractComponent',
 			$this->createStub()
 		);
 		$this->assertInstanceOf(
-			'BootstrapComponents\\Nestable',
+			'BootstrapComponents\\NestableInterface',
 			$this->createStub()
 		);
 	}
@@ -96,7 +100,7 @@ class ComponentTest extends ComponentsTestBase {
 			[ 'class' => 'test-class' ]
 		);
 		$class = $this->getComponentLibrary()->getClassFor( $component );
-		/** @var Component $instance */
+		/** @var AbstractComponent $instance */
 		$instance = new $class(
 			$this->getComponentLibrary(),
 			$this->getParserOutputHelper(),

@@ -11,11 +11,15 @@ use \PHPUnit_Framework_TestCase;
 
 /**
  * @covers  \BootstrapComponents\ParserOutputHelper
- * @group   bootstrap-components
+ *
+ * @ingroup Test
+ *
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
 class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {

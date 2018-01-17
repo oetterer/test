@@ -2,7 +2,7 @@
 
 namespace BootstrapComponents\Tests\Unit;
 
-use BootstrapComponents\Component;
+use BootstrapComponents\AbstractComponent;
 use BootstrapComponents\ComponentLibrary;
 use BootstrapComponents\NestingController;
 use \MWException;
@@ -10,11 +10,15 @@ use \PHPUnit_Framework_TestCase;
 
 /**
  * @covers  \BootstrapComponents\NestingController
- * @group   bootstrap-components
+ *
+ * @ingroup Test
+ *
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
 class NestingControllerTest extends PHPUnit_Framework_TestCase {
@@ -22,7 +26,7 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	 * @param string $componentName
 	 * @param string $componentClass
 	 *
-	 * @return Component
+	 * @return AbstractComponent
 	 */
 	private function getComponent( $componentName, $componentClass ) {
 		$mock = $this->getMockBuilder( $componentClass )
@@ -32,7 +36,7 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 			->method( 'getId' )
 			->willReturn( 'mockId_' . $componentName . '_' . md5( microtime() ) );
 
-		/** @var Component $mock */
+		/** @var AbstractComponent $mock */
 		return $mock;
 	}
 
@@ -64,7 +68,7 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 			$instance->getStackSize()
 		);
 		$this->assertInstanceOf(
-			'BootstrapComponents\\Component',
+			'BootstrapComponents\\AbstractComponent',
 			$instance->getCurrentElement()
 		);
 		$this->assertEquals(
@@ -73,7 +77,7 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 		);
 		/** @noinspection PhpParamsInspection */
 		$instance->close(
-		/** @var Component $component */
+		/** @var AbstractComponent $component */
 			$component->getId()
 		);
 		$this->assertEquals(
@@ -84,6 +88,8 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @throws MWException
+	 *
+	 * @expectedException \MWException
 	 */
 	public function testCloseFailOnEmptyStack() {
 		$instance = new NestingController( false );
@@ -95,13 +101,15 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @throws MWException
+	 *
+	 * @expectedException \MWException
 	 */
 	public function testCloseFailOnInvalidId() {
 		$instance = new NestingController( false );
 
 		$this->setExpectedException( 'MWException' );
 
-		/** @var Component $component */
+		/** @var AbstractComponent $component */
 		$component = $this->getComponent( 'panel', 'BootstrapComponents\\Component\\Panel' );
 		$instance->open( $component );
 

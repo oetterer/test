@@ -1,6 +1,6 @@
 <?php
 /**
- * File holding the BootstrapComponents magic words definition.
+ * Contains the interface for nestable objects handled by {@see NestingController}.
  *
  * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
  * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
@@ -24,9 +24,27 @@
  * @author        Tobias Oetterer
  */
 
-$magicWords = [];
+namespace BootstrapComponents;
 
-$componentLibrary = \BootstrapComponents\ApplicationFactory::getInstance()->getComponentLibrary();
+/**
+ * Interface Nestable
+ *
+ * All entities, that can be handled by the {@see \BootstrapComponents\NestingController}
+ *
+ * @since 1.0
+ */
+interface NestableInterface {
+	/**
+	 * Returns the name of the component.
+	 *
+	 * @return string
+	 */
+	public function getComponentName();
 
-// English
-$magicWords['en'] = $componentLibrary->compileMagicWordsArray();
+	/**
+	 * Returns the id used in html output. Unique in a given page context.
+	 *
+	 * @return string
+	 */
+	public function getId();
+}

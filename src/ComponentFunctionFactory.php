@@ -1,9 +1,27 @@
 <?php
 /**
- * @license GNU GPL v3+
- * @since   1.0
+ * Contains the class producing the function called by the parser for rendering a component.
  *
- * @author  Tobias Oetterer < oetterer@uni-paderborn.de >
+ * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
+ *
+ * This file is part of the MediaWiki extension BootstrapComponents.
+ * The BootstrapComponents extension is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The BootstrapComponents extension is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup       BootstrapComponents
+ * @author        Tobias Oetterer
  */
 
 namespace BootstrapComponents;
@@ -15,32 +33,37 @@ use \ReflectionClass;
  *
  * Spawns a component objects
  *
- * @package BootstrapComponents
+ * @since 1.0
  */
 class ComponentFunctionFactory {
 	const PARSER_HOOK_PREFIX = 'bootstrap_';
 
 	/**
-	 * @var ComponentLibrary
+	 * @var ComponentLibrary $componentLibrary
 	 */
 	private $componentLibrary;
 
 	/**
-	 * @var NestingController
+	 * @var NestingController $nestingController
 	 */
 	private $nestingController;
 
 	/**
-	 * @var ParserOutputHelper
+	 * @var ParserOutputHelper $parserOutputHelper
 	 */
 	private $parserOutputHelper;
 
 	/**
 	 * ComponentFunctionFactory constructor.
 	 *
+	 * Do not instantiate directly, but use {@see ApplicationFactory::getComponentFunctionFactory}
+	 * instead.
+	 *
 	 * @param \Parser           $parser
 	 * @param ComponentLibrary  $componentLibrary
 	 * @param NestingController $nestingController
+	 *
+	 * @see ApplicationFactory::getComponentFunctionFactory
 	 *
 	 * @throws \MWException cascading the application calls to {@see \BootstrapComponents\ApplicationFactory}
 	 */
@@ -70,7 +93,7 @@ class ComponentFunctionFactory {
 				func_get_args(),
 				$componentLibrary->getHandlerTypeFor( $componentName )
 			);
-			/** @var Component $object */
+			/** @var AbstractComponent $object */
 			return $object->parseComponent( $parserRequest );
 		};
 	}

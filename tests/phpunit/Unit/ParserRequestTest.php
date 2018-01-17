@@ -11,11 +11,15 @@ use \PPFrame;
 
 /**
  * @covers  \BootstrapComponents\ParserRequest
- * @group   bootstrap-components
+ *
+ * @ingroup Test
+ *
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
 class ParserRequestTest extends PHPUnit_Framework_TestCase {
@@ -56,6 +60,8 @@ class ParserRequestTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @param array  $arguments
 	 * @param string $handlerType
+	 *
+	 * @expectedException \MWException
 	 *
 	 * @dataProvider constructionFailsProvider
 	 */

@@ -2,25 +2,29 @@
 
 namespace BootstrapComponents\Tests\Unit;
 
-use BootstrapComponents\ModalBase;
+use BootstrapComponents\ModalBuilder;
 use \PHPUnit_Framework_TestCase;
 
 /**
- * @covers  \BootstrapComponents\ModalBase
- * @group   bootstrap-components
+ * @covers  \BootstrapComponents\ModalBuilder
+ *
+ * @ingroup Test
+ *
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
-class ModalBaseTest extends PHPUnit_Framework_TestCase {
+class ModalBuilderTest extends PHPUnit_Framework_TestCase {
 
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(
-			'BootstrapComponents\\ModalBase',
-			new ModalBase( 'id', 'trigger', 'content' )
+			'BootstrapComponents\\ModalBuilder',
+			new ModalBuilder( 'id', 'trigger', 'content' )
 		);
 	}
 
@@ -38,7 +42,7 @@ class ModalBaseTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider parseDataProvider
 	 */
 	public function testCanParse( $id, $trigger, $content, $header, $footer, $outerClass, $outerStyle, $innerClass, $expected ) {
-		$instance = new ModalBase( $id, $trigger, $content );
+		$instance = new ModalBuilder( $id, $trigger, $content );
 		if ( $header ) {
 			$instance->setHeader( $header );
 		}

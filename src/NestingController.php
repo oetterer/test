@@ -1,9 +1,27 @@
 <?php
 /**
- * @license GNU GPL v3+
- * @since   1.0
+ * Contains the class handling the component nesting stack.
  *
- * @author  Tobias Oetterer < oetterer@uni-paderborn.de >
+ * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
+ *
+ * This file is part of the MediaWiki extension BootstrapComponents.
+ * The BootstrapComponents extension is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The BootstrapComponents extension is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup       BootstrapComponents
+ * @author        Tobias Oetterer
  */
 
 namespace BootstrapComponents;
@@ -15,7 +33,7 @@ use \MWException;
  *
  * Takes care of some things that occur when nesting bootstrap components
  *
- * @package BootstrapComponents
+ * @since 1.0
  */
 class NestingController {
 
@@ -23,31 +41,36 @@ class NestingController {
 	 * List of ids already in use in the context of the bootstrap components.
 	 * Key is of this array is the component name, value is the next usable id
 	 *
-	 * @var array
+	 * @var array $autoincrementPerComponent
 	 */
-	private $autoincrementPerComponent = [];
+	private $autoincrementPerComponent;
 
 	/**
 	 * Holds information about the bootstrap component stack,
 	 * so that components can be called within components.
-	 * Consists of elements of type {@see Nestable}
+	 * Consists of elements of type {@see Nestable}.
 	 *
-	 * @var array
+	 * @var array $componentStack
 	 */
 	private $componentStack;
 
 	/**
-	 * When in testing mode, unique ids tend to make things very difficult. So this known, when not to generate them.
-	 * @var bool
+	 * When in testing mode, unique ids tend to make things very difficult. So this knows, when not to generate them.
+	 * @var bool $disableUniqueIds
 	 */
 	private $disableUniqueIds;
 
 	/**
 	 * NestingController constructor.
 	 *
-	 * @param bool $disableUniqueIds
+	 * Do not instantiate directly, but use {@see ApplicationFactory::getNestingController}
+	 * instead.
+	 *
+	 * @param bool $disableUniqueIds defaults to false
+	 *
+	 * @see ApplicationFactory::getNestingController
 	 */
-	public function __construct( $disableUniqueIds ) {
+	public function __construct( $disableUniqueIds = false ) {
 		$this->autoincrementPerComponent = [];
 		$this->componentStack = [];
 		$this->disableUniqueIds =  $disableUniqueIds;
@@ -91,7 +114,7 @@ class NestingController {
 	/**
 	 * Returns a reference to the last opened component
 	 *
-	 * @return false|Nestable
+	 * @return false|NestableInterface
 	 */
 	public function getCurrentElement() {
 		return end( $this->componentStack );
@@ -109,12 +132,12 @@ class NestingController {
 	/**
 	 * Signals the opening of a bootstrap component (thus letting the nc put the nestable component on its stack)
 	 *
-	 * @param Nestable $component
+	 * @param NestableInterface $component
 	 *
 	 * @throws MWException when open is called with an invalid object
 	 */
 	public function open( &$component ) {
-		if ( !$component instanceof Nestable ) {
+		if ( !$component instanceof NestableInterface ) {
 			throw new MWException( 'Nesting error. Trying to put an object other than a Component an the nesting stack.' );
 		}
 		array_push( $this->componentStack, $component );

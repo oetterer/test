@@ -1,9 +1,27 @@
 <?php
 /**
- * @license GNU GPL v3+
- * @since   1.0
+ * Contains the class for replacing image normal image display with a modal.
  *
- * @author  Tobias Oetterer < oetterer@uni-paderborn.de >
+ * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
+ *
+ * This file is part of the MediaWiki extension BootstrapComponents.
+ * The BootstrapComponents extension is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The BootstrapComponents extension is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup       BootstrapComponents
+ * @author        Tobias Oetterer
  */
 
 namespace BootstrapComponents;
@@ -11,47 +29,47 @@ namespace BootstrapComponents;
 use \Linker;
 use \Html;
 use \MediaWiki\MediaWikiServices;
+use \RequestContext;
 use \Title;
-use \User;
 
 /**
  * Class ImageModal
  *
- * @package BootstrapComponents
+ * @since 1.0
  */
-class ImageModal implements Nestable {
+class ImageModal implements NestableInterface {
 	/**
-	 * @var \DummyLinker
+	 * @var \DummyLinker $dummyLinker
 	 */
 	private $dummyLinker;
 
 	/**
-	 * @var \File
+	 * @var \File $file
 	 */
 	private $file;
 
 	/**
-	 * @var string
+	 * @var string $id
 	 */
 	private $id;
 
 	/**
-	 * @var NestingController
+	 * @var NestingController $nestingController
 	 */
 	private $nestingController;
 
 	/**
-	 * @var Nestable|false
+	 * @var NestableInterface|false $parentComponent
 	 */
 	private $parentComponent;
 
 	/**
-	 * @var ParserOutputHelper
+	 * @var ParserOutputHelper $parserOutputHelper
 	 */
 	private $parserOutputHelper;
 
 	/**
-	 * @var Title
+	 * @var Title $title
 	 */
 	private $title;
 
@@ -123,7 +141,7 @@ class ImageModal implements Nestable {
 	 *
 	 * @return bool
 	 */
-	public function parse( &$frameParams, &$handlerParams, /** @scrutinizer ignore-unused */ &$time, &$res ) {
+	public function parse( &$frameParams, &$handlerParams, &$time, &$res ) {
 		if ( !$this->assessResponsibility( $this->getFile(), $frameParams ) ) {
 			return true;
 		}
@@ -156,7 +174,7 @@ class ImageModal implements Nestable {
 			return true;
 		}
 
-		$modal = new ModalBase(
+		$modal = ApplicationFactory::getInstance()->getModalBuilder(
 			$this->getId(),
 			$trigger,
 			$content
@@ -273,7 +291,7 @@ class ImageModal implements Nestable {
 	}
 
 	/**
-	 * @param \File  $file
+	 * @param \File $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
@@ -373,7 +391,7 @@ class ImageModal implements Nestable {
 		}
 
 		if ( !$thumbFile
-			|| ( !$sanitizedFrameParams['thumbnail'] && !$sanitizedFrameParams['framed'] && !isset( $thumbHandlerParams['width'] ) )
+			|| (!$sanitizedFrameParams['thumbnail'] && !$sanitizedFrameParams['framed'] && !isset( $thumbHandlerParams['width'] ))
 		) {
 			return [ false, $thumbHandlerParams ];
 		}
@@ -389,7 +407,7 @@ class ImageModal implements Nestable {
 	 * This is mostly taken from {@see \Linker::makeImageLink}, rest originates from {@see \Linker::makeThumbLink2}. Extracts are heavily
 	 * squashed and condensed
 	 *
-	 * @param \File  $file
+	 * @param \File $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
@@ -427,7 +445,7 @@ class ImageModal implements Nestable {
 	/**
 	 * Calculates a with from File, $sanitizedFrameParams, and $handlerParams
 	 *
-	 * @param \File  $file
+	 * @param \File $file
 	 * @param array $sanitizedFrameParams
 	 * @param array $handlerParams
 	 *
@@ -478,7 +496,8 @@ class ImageModal implements Nestable {
 	 */
 	protected function generateTriggerGetWidthOption( $thumbLimits ) {
 
-		$widthOption = User::getDefaultOption( 'thumbsize' );
+		$user = RequestContext::getMain()->getUser();
+		$widthOption = $user::getDefaultOption( 'thumbsize' );
 
 		// we have a problem here: the original \Linker::makeImageLink does get a value for $widthOption,
 		// for instance in parser tests. unfortunately, this value is not passed through the hook.
@@ -514,7 +533,7 @@ class ImageModal implements Nestable {
 				[
 					'class' => 'thumb t' . ($sanitizedFrameParams['align'] == 'center' ? 'none' : $sanitizedFrameParams['align']),
 				],
-				ModalBase::wrapTriggerElement(
+				ModalBuilder::wrapTriggerElement(
 					Html::rawElement(
 						'div',
 						[
@@ -534,16 +553,16 @@ class ImageModal implements Nestable {
 			$ret = Html::rawElement(
 				'div',
 				[ 'class' => 'float' . $sanitizedFrameParams['align'], ],
-				ModalBase::wrapTriggerElement( $thumbString, $this->getId() )
+				ModalBuilder::wrapTriggerElement( $thumbString, $this->getId() )
 			);
-		} elseif  ( $sanitizedFrameParams['align'] == 'center' ) {
+		} elseif ( $sanitizedFrameParams['align'] == 'center' ) {
 			$ret = Html::rawElement(
 				'div',
 				[ 'class' => 'center', ],
-				ModalBase::wrapTriggerElement( $thumbString, $this->getId() )
+				ModalBuilder::wrapTriggerElement( $thumbString, $this->getId() )
 			);
 		} else {
-			$ret = ModalBase::wrapTriggerElement( $thumbString, $this->getId() );
+			$ret = ModalBuilder::wrapTriggerElement( $thumbString, $this->getId() );
 		}
 
 		return str_replace( "\n", ' ', $ret );
@@ -572,7 +591,7 @@ class ImageModal implements Nestable {
 	}
 
 	/**
-	 * @return null|Nestable
+	 * @return null|NestableInterface
 	 */
 	protected function getParentComponent() {
 		return $this->parentComponent;
@@ -664,7 +683,7 @@ class ImageModal implements Nestable {
 	private function preventModalInception( $text ) {
 		if ( preg_match(
 			'~div class="modal-dialog.+div class="modal-content.+div class="modal-body.+'
-				. '(<img[^>]*/>).+ class="modal-footer.+~Ds', $text, $matches ) ) {
+			. '(<img[^>]*/>).+ class="modal-footer.+~Ds', $text, $matches ) ) {
 			$text = $matches[1];
 		}
 		return $text;

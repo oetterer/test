@@ -8,11 +8,15 @@ use \PHPUnit_Framework_TestCase;
 
 /**
  * @covers  \BootstrapComponents\ComponentLibrary
- * @group   bootstrap-components
+ *
+ * @ingroup Test
+ *
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
 class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
@@ -142,6 +146,8 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @param string $method
 	 *
+	 * @expectedException \MWException
+	 *
 	 * @dataProvider exceptionThrowingMethodsProvider
 	 */
 	public function testFails( $method ) {
@@ -153,6 +159,8 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @expectedException \MWException
+	 *
 	 * @throws \MWException cascading {@see \BootstrapComponents\ComponentLibrary::getClassFor}
 	 */
 	public function testRegisterVsKnown() {

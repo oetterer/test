@@ -10,11 +10,12 @@ use \Parser;
 use \PPFrame;
 
 /**
- * @group   bootstrap-components
+ * @group extension-bootstrap-components
+ * @group mediawiki-databaseless
  *
  * @license GNU GPL v3+
- * @since   1.0
  *
+ * @since   1.0
  * @author  Tobias Oetterer
  */
 abstract class ComponentsTestBase extends PHPUnit_Framework_TestCase {

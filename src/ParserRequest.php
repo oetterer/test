@@ -1,8 +1,32 @@
 <?php
+/**
+ * Contains the class handling the parameters passed by the parser to the parser function / tag.
+ *
+ * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
+ *
+ * This file is part of the MediaWiki extension BootstrapComponents.
+ * The BootstrapComponents extension is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The BootstrapComponents extension is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * @file
+ * @ingroup       BootstrapComponents
+ * @author        Tobias Oetterer
+ */
 
 namespace BootstrapComponents;
 
-use \MWException;
+use MWException;
 
 /**
  * @license GNU GPL v3+
@@ -12,30 +36,35 @@ use \MWException;
  */
 class ParserRequest {
 	/**
-	 * @var string[]
+	 * @var string[] $attributes
 	 */
 	private $attributes;
 
 	/**
-	 * @var string
+	 * @var string $input
 	 */
 	private $input;
 
 	/**
-	 * @var \PPFrame
+	 * @var \PPFrame $frame
 	 */
 	private $frame;
 
 	/**
-	 * @var \Parser
+	 * @var \Parser $parser
 	 */
 	private $parser;
 
 	/**
 	 * ParserRequest constructor.
 	 *
+	 * Do not instantiate directly, but use {@see ApplicationFactory::getNewParserRequest}
+	 * instead.
+	 *
 	 * @param array  $argumentsPassedByParser
 	 * @param string $handlerType
+	 *
+	 * @see ApplicationFactory::getNewParserRequest
 	 *
 	 * @throws MWException
 	 */
@@ -85,7 +114,7 @@ class ParserRequest {
 	 *
 	 * Note: shamelessly copied, see link below
 	 *
-	 * @link https://www.mediawiki.org/w/index.php?title=Manual:Parser_functions&oldid=2572048
+	 * @see https://www.mediawiki.org/w/index.php?title=Manual:Parser_functions&oldid=2572048
 	 *
 	 * @param array $options
 	 *

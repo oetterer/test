@@ -49,26 +49,17 @@ class CarouselGallery extends ImageGalleryBase {
 		if ( $this->isEmpty() ) {
 			return $parserOutputHelper->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
 		}
+
 		$carousel = new Carousel(
 			ApplicationFactory::getInstance()->getComponentLibrary(),
 			$parserOutputHelper,
 			ApplicationFactory::getInstance()->getNestingController()
 		);
-		$carouselAttributes = $this->convertImages(
-			$this->getImages(),
-			$this->mParser,
-			$this->mHideBadImages,
-			$this->getContextTitle()
-		);
-		if ( !count( $carouselAttributes ) ) {
+		$carouselParserRequest = $this->constructCarouselParserRequest();
+
+		if ( $carouselParserRequest === false ) {
 			return $parserOutputHelper->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
 		}
-		$carouselAttributes = $this->addAttributes( $carouselAttributes, $this->mAttribs );
-		array_unshift( $carouselAttributes, $this->mParser );
-		$carouselParserRequest = ApplicationFactory::getInstance()->getNewParserRequest(
-			$carouselAttributes,
-			ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION
-		);
 		return $carousel->parseComponent( $carouselParserRequest );
 	}
 
@@ -87,35 +78,6 @@ class CarouselGallery extends ImageGalleryBase {
 			$origAttributes[] = $key . '=' . $val;
 		}
 		return $origAttributes;
-	}
-
-	/**
-	 * @param         $imageList
-	 * @param \Parser $parser
-	 * @param bool    $hideBadImages
-	 * @param bool    $contextTitle
-	 *
-	 * @return array
-	 */
-	private function convertImages( $imageList, $parser = null, $hideBadImages = true, $contextTitle = false ) {
-		$newImageList = [];
-		foreach ( $imageList as $imageData ) {
-			/** @var \Title $imageTitle */
-			$imageTitle = $imageData[0];
-
-			if ( $imageTitle->getNamespace() !== NS_FILE ) {
-				if ( is_a( $parser, 'Parser' ) ) {
-					$parser->addTrackingCategory( 'broken-file-category' );
-				}
-				continue;
-			} elseif ( $hideBadImages && wfIsBadImage( $imageTitle->getDBkey(), $contextTitle ) ) {
-				continue;
-			}
-
-			$carouselImage = $this->buildImageStringFromData( $imageData );
-			$newImageList[] = $carouselImage;
-		}
-		return $newImageList;
 	}
 
 	/**
@@ -149,5 +111,57 @@ class CarouselGallery extends ImageGalleryBase {
 		$carouselImage .= ']]';
 
 		return $carouselImage;
+	}
+
+	/**
+	 * @param         $imageList
+	 * @param \Parser $parser
+	 * @param bool    $hideBadImages
+	 * @param bool    $contextTitle
+	 *
+	 * @return array
+	 */
+	private function convertImages( $imageList, $parser = null, $hideBadImages = true, $contextTitle = false ) {
+		$newImageList = [];
+		foreach ( $imageList as $imageData ) {
+			/** @var \Title $imageTitle */
+			$imageTitle = $imageData[0];
+
+			if ( $imageTitle->getNamespace() !== NS_FILE ) {
+				if ( is_a( $parser, 'Parser' ) ) {
+					$parser->addTrackingCategory( 'broken-file-category' );
+				}
+				continue;
+			} elseif ( $hideBadImages && wfIsBadImage( $imageTitle->getDBkey(), $contextTitle ) ) {
+				continue;
+			}
+
+			$carouselImage = $this->buildImageStringFromData( $imageData );
+			$newImageList[] = $carouselImage;
+		}
+		return $newImageList;
+	}
+
+	/**
+	 * @return false|ParserRequest
+	 */
+	private function constructCarouselParserRequest() {
+		$carouselAttributes = $this->convertImages(
+			$this->getImages(),
+			$this->mParser,
+			$this->mHideBadImages,
+			$this->getContextTitle()
+		);
+		if ( !count( $carouselAttributes ) ) {
+			return false;
+		}
+		$carouselAttributes = $this->addAttributes( $carouselAttributes, $this->mAttribs );
+		array_unshift( $carouselAttributes, $this->mParser );
+
+		return ApplicationFactory::getInstance()->getNewParserRequest(
+			$carouselAttributes,
+			true,
+			'gallery carousel'
+		);
 	}
 }

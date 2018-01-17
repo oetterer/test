@@ -23,6 +23,7 @@
  * @ingroup       BootstrapComponents
  * @author        Tobias Oetterer
  */
+
 namespace BootstrapComponents;
 
 use \Bootstrap\BootstrapManager;
@@ -115,10 +116,7 @@ class Setup {
 
 				$parserHookString = $componentLibrary::compileParserHookStringFor( $componentName );
 				$callback = $this->createParserHookCallbackFor(
-					$componentName,
-					$componentLibrary,
-					$nestingController,
-					$parserOutputHelper
+					$componentName, $componentLibrary, $nestingController, $parserOutputHelper
 				);
 
 				if ( $componentLibrary->isParserFunction( $componentName ) ) {
@@ -127,8 +125,9 @@ class Setup {
 					$parser->setHook( $parserHookString, $callback );
 				} else {
 					wfDebugLog(
-						'BootstrapComponents', 'Unknown handler type (' . $componentLibrary->getHandlerTypeFor( $componentName )
-						. ') detected for component ' . $parserHookString );
+						'BootstrapComponents', 'Unknown handler type ('
+							. $componentLibrary->getHandlerTypeFor( $componentName ) . ') detected for component ' . $parserHookString
+					);
 				}
 			}
 		};
@@ -184,8 +183,8 @@ class Setup {
 
 		list( $componentLibrary, $nestingController ) = $this->initializeApplications( $myConfig );
 		$hooks = [
-			'ParserFirstCallInit'    => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
-			'SetupAfterCache'        => $this->createSetupAfterCache(),
+			'ParserFirstCallInit' => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
+			'SetupAfterCache'     => $this->createSetupAfterCache(),
 		];
 
 		if ( $myConfig->has( 'BootstrapComponentsEnableCarouselGalleryMode' )
@@ -213,7 +212,7 @@ class Setup {
 		$applicationFactory = ApplicationFactory::getInstance();
 		$componentLibrary = $applicationFactory->getComponentLibrary();
 		$nestingController = $applicationFactory->getNestingController(
-			$myConfig->get('BootstrapComponentsDisableIdsForTestsEnvironment')
+			$myConfig->get( 'BootstrapComponentsDisableIdsForTestsEnvironment' )
 		);
 		return [ $componentLibrary, $nestingController ];
 	}
@@ -244,6 +243,7 @@ class Setup {
 	/**
 	 * @param \ConfigFactory $configFactory
 	 * Registers my own configuration, so that it is present during onLoad. See phabricator issue T184837
+	 *
 	 * @link https://phabricator.wikimedia.org/T184837
 	 */
 	public function registerMyConfiguration( $configFactory ) {
@@ -262,6 +262,7 @@ class Setup {
 	/**
 	 * Information array created on extension registration.
 	 * Note: this array also resides as from ExtensionRegistry::getInstance()->getAllThings()['BootstrapComponents']
+	 *
 	 * @param array $info
 	 */
 	private function prepareEnvironment( $info ) {
@@ -279,9 +280,9 @@ class Setup {
 	# code improvement
 	#@todo add more comments
 	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5)
-		# or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
-		# 1. adjust composer.json, integration script, create tests/parser/parserTests.txt 2. copy all image related stuff from mw/tests/parser/parserTests.txt
-		# still thinking about integration tests, using smw. increases code coverage report data
+	# or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
+	# 1. adjust composer.json, integration script, create tests/parser/parserTests.txt 2. copy all image related stuff from mw/tests/parser/parserTests.txt
+	# still thinking about integration tests, using smw. increases code coverage report data
 	/*
 	 * 	"parser":[
 			"echo '$wgBootstrapComponentsDisableIdsForTestsEnvironment = true;' >> ../../LocalSettings.php",
@@ -292,8 +293,8 @@ class Setup {
 	#@fixme tests/parser/parserTests.txt (after previous todo)
 	#@todo ComponentLibrary::isParserFunction and ::isParserTag are scarcely used. remove or see to more usage
 	#@todo you can increase code coverage be testing private and protected methods directly
-		# see https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
-		# when starting to use this, revert some previously exposed methods to protected/private again.
+	# see https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
+	# when starting to use this, revert some previously exposed methods to protected/private again.
 
 
 	### this remains

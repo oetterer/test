@@ -465,7 +465,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png?page=7">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',
 			],
-			'manual thumbnail, framed' => [
+			'manual thumbnail, NOT centered' => [
 				[
 					'align'       => 'center',
 					'manualthumb' => 'Shuttle.png',
@@ -473,6 +473,29 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 				],
 				[],
 				'<div class="thumb tnone"><span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="img-responsive thumbimage" />  <div class="thumbcaption"></div></div></span></div><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				. '<div class="modal-body"><img src=TEST_OUTPUT class="img-responsive"></div>' . PHP_EOL
+				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
+				. '</div></div></div>',
+			],
+			'framed' => [
+				[
+					'align'  => 'center',
+					'framed' => false,
+				],
+				[],
+				'<div class="thumb tnone"><span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><div class="thumbinner" style="width:642px;"><img src=TEST_OUTPUT class="img-responsive thumbimage">  <div class="thumbcaption"></div></div></span></div><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
+				. '<div class="modal-body"><img src=TEST_OUTPUT class="img-responsive"></div>' . PHP_EOL
+				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
+				. '</div></div></div>',
+			],
+			'centered' => [
+				[
+					'align' => 'center',
+				],
+				[
+					'width' => 200,
+				],
+				'<div class="center"><span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img src=TEST_OUTPUT class="img-responsive"></span></div><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL
 				. '<div class="modal-body"><img src=TEST_OUTPUT class="img-responsive"></div>' . PHP_EOL
 				. '<div class="modal-footer"><a class="btn btn-primary" role="button" href="/File:Serenity.png">Visit Source</a><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>' . PHP_EOL
 				. '</div></div></div>',

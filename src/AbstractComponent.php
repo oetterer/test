@@ -26,6 +26,8 @@
 
 namespace BootstrapComponents;
 
+use \MWException;
+
 /**
  * Class Component
  *
@@ -100,7 +102,7 @@ abstract class AbstractComponent implements NestableInterface {
 	 * @param ParserOutputHelper $parserOutputHelper
 	 * @param NestingController  $nestingController
 	 *
-	 * @throws \MWException cascading {@see \BootstrapComponents\ComponentLibrary::getNameFor}
+	 * @throws MWException cascading {@see \BootstrapComponents\ComponentLibrary::getNameFor}
 	 *                      or {@see \BootstrapComponents\Component::extractAttribute}
 	 */
 	public function __construct( $componentLibrary, $parserOutputHelper, $nestingController ) {
@@ -137,11 +139,14 @@ abstract class AbstractComponent implements NestableInterface {
 	/**
 	 * @param ParserRequest $parserRequest ;
 	 *
-	 * @throws \MWException cascading from {@see \BootstrapComponents\Component::processArguments}
-	 *  or {@see \BootstrapComponents\NestingController::close}
+	 * @throws \MWException self or cascading from {@see \BootstrapComponents\Component::processArguments}
+	 *                      or {@see \BootstrapComponents\NestingController::close}
 	 * @return string|array
 	 */
 	public function parseComponent( $parserRequest ) {
+		if ( !is_a( $parserRequest, 'BootstrapComponents\ParserRequest' )  ) {
+			throw new MWException( 'Invalid ParserRequest supplied to component ' . $this->getComponentName() . '! Got class ' . get_class( $parserRequest ) );
+		}
 		$this->attributes = $this->sanitizeAttributes(
 			$parserRequest->getAttributes()
 		);

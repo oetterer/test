@@ -55,17 +55,17 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @param array  $arguments
-	 * @param string $handlerType
+	 * @param array $arguments
+	 * @param bool  $isParserFunction
 	 *
 	 * @dataProvider parserRequestProvider
 	 */
-	public function testGetNewParserRequest( $arguments, $handlerType ) {
+	public function testGetNewParserRequest( $arguments, $isParserFunction ) {
 		$instance = new ApplicationFactory();
 
 		$this->assertInstanceOf(
 			'BootstrapComponents\\ParserRequest',
-			$instance->getNewParserRequest( $arguments, $handlerType )
+			$instance->getNewParserRequest( $arguments, $isParserFunction )
 		);
 	}
 
@@ -85,19 +85,20 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @param array  $arguments
-	 * @param string $handlerType
+	 * @param array $arguments
+	 * @param bool  $isParserFunction
+
 	 *
 	 * @expectedException \MWException
 	 *
 	 * @dataProvider parserRequestFailureProvider
 	 */
-	public function testFailingGetNewParserRequest( $arguments, $handlerType ) {
+	public function testFailingGetNewParserRequest( $arguments, $isParserFunction ) {
 		$instance = new ApplicationFactory();
 
 		$this->setExpectedException( 'MWException' );
 
-		$instance->getNewParserRequest( $arguments, $handlerType );
+		$instance->getNewParserRequest( $arguments, $isParserFunction );
 	}
 
 	public function testCanRegisterApplication() {

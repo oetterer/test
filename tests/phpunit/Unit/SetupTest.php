@@ -71,12 +71,6 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		$myConfig = $this->getMockBuilder( 'Config' )
 			->disableOriginalConstructor()
 			->getMock();
-		$myConfig->expects( $this->any() )
-			->method( 'has' )
-			->willReturn( true );
-		$myConfig->expects( $this->any() )
-			->method( 'get' )
-			->willReturn( true );
 
 		/** @noinspection PhpParamsInspection */
 		$closure = $setup->createImageBeforeProduceHTML( $nestingController, $myConfig );

@@ -84,7 +84,7 @@ class Panel extends AbstractComponent {
 		$attributes = $parserRequest->getAttributes();
 		$parser = $parserRequest->getParser();
 
-		$this->collapsible = $this->getValueFor( 'collapsible' ) || $this->isInsideAccordion();
+		$this->collapsible = (bool) $this->getValueFor( 'collapsible' ) || $this->isInsideAccordion();
 
 		if ( $this->isInsideAccordion() && (!isset( $attributes['heading'] ) || !strlen( $attributes['heading'] )) ) {
 			$attributes['heading'] = $this->getId();

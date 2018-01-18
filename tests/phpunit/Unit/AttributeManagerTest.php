@@ -61,8 +61,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	public function testVerifyValueFor( $attribute, $valuesToTest ) {
 		$instance = new AttributeManager();
 		foreach ( $valuesToTest as $value ) {
-			$attributes = [ $attribute => $value ];
-			$verificationResult = $instance->verifyValueFor( $attribute, $attributes );
+			$verificationResult = $instance->verifyValueFor( $attribute, $value );
 			$this->assertInternalType(
 				'bool',
 				$verificationResult
@@ -83,8 +82,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	public function testFailToVerifyValueFor( $attribute, $valuesToTest ) {
 		$instance = new AttributeManager();
 		foreach ( $valuesToTest as $value ) {
-			$attributes = [ $attribute => $value ];
-			$verificationResult = $instance->verifyValueFor( $attribute, $attributes );
+			$verificationResult = $instance->verifyValueFor( $attribute, $value );
 			$this->assertInternalType(
 				'boolean',
 				$verificationResult
@@ -92,9 +90,6 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 			$this->assertTrue(
 				!$verificationResult,
 				'failed with value (' . gettype( $value ) . ') ' . $value
-			);
-			$this->assertTrue(
-				!$instance->verifyValueFor( $attribute, [] )
 			);
 		}
 	}
@@ -118,7 +113,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 			'size'        => [ 'size', [ 'xs', 'sm', 'md', 'lg' ] ],
 			'style'       => [ 'style', true ],
 			'text'        => [ 'text', true ],
-			'trigger'     => [ 'trigger', [ 'focus', 'hover' ] ],
+			'trigger'     => [ 'trigger', [ 'default', 'focus', 'hover' ] ],
 			'rnd'         => [ md5( microtime() ), null ],
 		];
 	}

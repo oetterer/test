@@ -136,6 +136,16 @@ class Button extends AbstractComponent {
 			$targetTitle = Title::newFromText( $target );
 			$target = $targetTitle ? $targetTitle->getLocalURL() : null;
 		}
+		$text = $this->stripLinksFrom( $text );
 		return [ $target, $text ];
+	}
+
+	/**
+	 * @param string $text
+	 *
+	 * @return string
+	 */
+	private function stripLinksFrom( $text ) {
+		return preg_replace( '~^(.*)(<a.+href=[^>]+>)(.+)(</a>)(.*)$~ms', '\1\3\5', $text );
 	}
 }

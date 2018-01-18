@@ -45,14 +45,6 @@ abstract class AbstractComponent implements NestableInterface {
 	private static $attributeManager = null;
 
 	/**
-	 * For every of my registered attributes holds a value. false, if not valid in supplied
-	 * parserRequest.
-	 *
-	 * @var array $attributes
-	 */
-	private $attributes;
-
-	/**
 	 * @var ComponentLibrary $componentLibrary
 	 */
 	private $componentLibrary;
@@ -87,6 +79,19 @@ abstract class AbstractComponent implements NestableInterface {
 	private $parserOutputHelper;
 
 	/**
+	 * @var ParserRequest $parserRequest
+	 */
+	private $parserRequest;
+
+	/**
+	 * For every of my registered attributes holds a value. false, if not valid in supplied
+	 * parserRequest.
+	 *
+	 * @var array $sanitizedAttributes
+	 */
+	private $sanitizedAttributes;
+
+	/**
 	 * Does the actual work in the individual components.
 	 *
 	 * @param ParserRequest $parserRequest
@@ -109,12 +114,17 @@ abstract class AbstractComponent implements NestableInterface {
 		$this->componentLibrary = $componentLibrary;
 		$this->parserOutputHelper = $parserOutputHelper;
 		$this->nestingController = $nestingController;
+		if ( !self::$attributeManager ) {
+			self::$attributeManager = ApplicationFactory::getInstance()->getAttributeManager();
+		}
 		$this->name = $componentLibrary->getNameFor(
 			get_class( $this )
 		);
 		$this->setParentComponent(
 			$this->getNestingController()->getCurrentElement()
 		);
+		$this->parserRequest = false;
+		$this->sanitizedAttributes = [];
 	}
 
 	/**
@@ -147,9 +157,7 @@ abstract class AbstractComponent implements NestableInterface {
 		if ( !is_a( $parserRequest, 'BootstrapComponents\ParserRequest' )  ) {
 			throw new MWException( 'Invalid ParserRequest supplied to component ' . $this->getComponentName() . '! Got class ' . get_class( $parserRequest ) );
 		}
-		$this->attributes = $this->sanitizeAttributes(
-			$parserRequest->getAttributes()
-		);
+		$this->parserRequest = $parserRequest;
 		$this->setId(
 			$this->getValueFor( 'id' ) !== false
 				? $this->getValueFor( 'id' )
@@ -186,15 +194,10 @@ abstract class AbstractComponent implements NestableInterface {
 	/**
 	 * Returns the classes reference to the component library.
 	 *
-	 * @throws \MWException cascading {@see \BootstrapComponents\ApplicationFactory::getAttributeManager}
-	 *
 	 * @return AttributeManager
 	 */
 	protected function getAttributeManager() {
-		if ( self::$attributeManager ) {
-			return self::$attributeManager;
-		}
-		return self::$attributeManager = ApplicationFactory::getInstance()->getAttributeManager();
+		return self::$attributeManager;
 	}
 
 	/**
@@ -226,16 +229,27 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
+	 * @return ParserRequest
+	 */
+	protected function getParserRequest() {
+		return $this->parserRequest;
+	}
+
+	/**
 	 * @param string      $attribute
 	 * @param bool|string $fallback
 	 *
 	 * @return bool|string
 	 */
 	protected function getValueFor( $attribute, $fallback = false ) {
-		if ( !isset( $this->attributes[$attribute] ) || ( $this->attributes[$attribute] === false ) ) {
-			return $fallback;
+		if ( !isset( $this->sanitizedAttributes[$attribute] ) ) {
+			$this->sanitizedAttributes[$attribute] = $this->sanitizeAttribute(
+				$attribute,
+				$this->getParserRequest()->getAttributes(),
+				$this->getParserRequest()->getParser()
+			);
 		}
-		return $this->attributes[$attribute];
+		return $this->sanitizedAttributes[$attribute] === false ? $fallback : $this->sanitizedAttributes[$attribute];
 	}
 
 	/**
@@ -277,20 +291,24 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
+	 * @param string   $attribute
 	 * @param string[] $attributes
+	 * @param \Parser  $parser
 	 *
-	 * @throws \MWException cascading {@see \BootstrapComponents\AbstractComponent::getAttributeManager}
-	 *
-	 * @return string[]
+	 * @return bool|string
 	 */
-	private function sanitizeAttributes( $attributes ) {
-		$sanitizedAttributes = [];
-		foreach ( $this->getComponentLibrary()->getAttributesFor( $this->getComponentName() ) as $validAttribute ) {
-			$sanitizedAttributes[$validAttribute] =	$this->getAttributeManager()->verifyValueFor( $validAttribute, $attributes )
-				? isset( $attributes[$validAttribute] ) ? $attributes[$validAttribute] : true
-				: false;
+	private function sanitizeAttribute( $attribute, $attributes, $parser ) {
+		if ( !isset( $attributes[$attribute] ) ) {
+			return false;
 		}
-		return $sanitizedAttributes;
+		$value = $attributes[$attribute];
+		if ( is_string( $value ) ) {
+			$value = $parser->recursiveTagParse( $value );
+		}
+		if ( $this->getAttributeManager()->verifyValueFor( $attribute, $value ) ) {
+			return $value;
+		}
+		return false;
 	}
 
 	/**

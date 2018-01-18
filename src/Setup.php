@@ -270,6 +270,8 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
+	#@todo: after refactoring of  \BootstrapComponents\AbstractComponent::sanitizeAttribute, strip components of the parser->recursiveTag() - calls
+
 	#@todo put on github with automatic testing and scrutinizing
 	#@todo create composer package. see https://packagist.org/ and https://packagist.org/about#how-to-update-packages; packet name "bootstrap-components"
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
@@ -300,4 +302,5 @@ class Setup {
 	#@todo when dropping support for mw > 1.31, replace manual class autoloading in extension.json with psr-4 autoloading
 	#@todo add extensions requirement to extension.json for "Bootstrap": "~ 1.2" as soon as Bootstrap supports new Extension loading (leaving this in breaks 1.31.x)
 	#@todo remove \BootstrapComponents\Setup::registerMyConfiguration when dropping support for mw > 1.31 (assuming T184837 will be fixed)
+	#@todo components like popover, collapse, etc use #button to activate. You can supply an img tag and have an image inside the button. what if you want to have just the image?
 }

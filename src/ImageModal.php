@@ -38,6 +38,13 @@ use \Title;
  * @since 1.0
  */
 class ImageModal implements NestableInterface {
+
+	/**
+	 * The components listed here prevent the generation of an image modal.
+	 * @var array
+	 */
+	const PARENTS_PREVENTING_MODAL = [ 'button', 'collapse ', 'image_modal', 'modal', 'popover' ];
+
 	/**
 	 * @var \DummyLinker $dummyLinker
 	 */
@@ -232,9 +239,7 @@ class ImageModal implements NestableInterface {
 			wfDebugLog( 'BootstrapComponents', 'Image modal detected link options. Relegating back.' );
 			return false;
 		}
-		if ( $this->getParentComponent() && $this->getParentComponent()->getComponentName() == $this->getComponentName() ) {
-			// there cannot be an image modal inside an image modal
-			// never should occur, but better safe than sorry
+		if ( $this->getParentComponent() && in_array( $this->getParentComponent()->getComponentName(), self::PARENTS_PREVENTING_MODAL ) ) {
 			return false;
 		}
 		if ( !$file->allowInlineDisplay() ) {
@@ -447,6 +452,6 @@ class ImageModal implements NestableInterface {
 	 * @return string
 	 */
 	private function sanitizeCaption( $caption ) {
-		return preg_replace( '/([^\n])\n([^\n])/m', '$1$2', $caption );
+		return preg_replace( '/([^\n])\n([^\n])/m', '\1\2', $caption );
 	}
 }

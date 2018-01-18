@@ -101,19 +101,15 @@ class AttributeManager {
 	 * Note that every value for an unregistered attribute fails verification automatically
 	 *
 	 * @param string $attribute
-	 * @param array  $attributes
+	 * @param string $value
 	 *
 	 * @return bool
 	 */
-	public function verifyValueFor( $attribute, $attributes ) {
-		if ( !isset( $attributes[$attribute] ) ) {
-			return false;
-		}
+	public function verifyValueFor( $attribute, $value ) {
 		$allowedValues = $this->getAllowedValuesFor( $attribute );
 		if ( is_null( $allowedValues ) ) {
 			return false;
 		}
-		$value = $attributes[$attribute];
 		if ( ($allowedValues === false) && in_array( $value, $this->noValues, true ) ) {
 			return false;
 		}
@@ -167,7 +163,7 @@ class AttributeManager {
 			'size' => [ 'xs', 'sm', 'md', 'lg' ],
 			'style' => true,
 			'text' => true,
-			'trigger' => [ 'focus', 'hover' ],
+			'trigger' => [ 'default', 'focus', 'hover' ],
 		];
 
 	}

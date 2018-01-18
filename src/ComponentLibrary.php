@@ -389,8 +389,8 @@ class ComponentLibrary {
 				'attributes'  => [
 					'default' => true,
 					'active',
-					'disabled',
 					'color',
+					'disabled',
 					'size',
 					'text',
 				],
@@ -443,10 +443,10 @@ class ComponentLibrary {
 				'class'       => 'BootstrapComponents\\Component\\Panel',
 				'handlerType' => self::HANDLER_TYPE_TAG_EXTENSION,
 				'attributes'  => [
+					'default' => true,
 					'active',
 					'collapsible',
 					'color',
-					'default' => true,
 					'footer',
 					'heading',
 				],
@@ -455,8 +455,8 @@ class ComponentLibrary {
 				'class'       => 'BootstrapComponents\\Component\\Popover',
 				'handlerType' => self::HANDLER_TYPE_TAG_EXTENSION,
 				'attributes'  => [
-					'color',
 					'default' => true,
+					'color',
 					'heading',
 					'placement',
 					'size',

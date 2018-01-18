@@ -61,7 +61,7 @@ class Tooltip extends AbstractComponent {
 				'style'          => $this->arrayToString( $style, ';' ),
 				'id'             => $this->getId(),
 				'data-toggle'    => 'tooltip',
-				'title'          => htmlentities( $parserRequest->getParser()->recursiveTagParse( $tooltip ) ),
+				'title'          => $parserRequest->getParser()->recursiveTagParse( $tooltip ),
 				'data-placement' => $this->getValueFor( 'placement' ),
 			],
 			$parserRequest->getParser()->recursiveTagParse(

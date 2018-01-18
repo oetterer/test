@@ -126,6 +126,11 @@ class ButtonTest extends ComponentsTestBase {
 				[ 'size' => 'nice' ],
 				'~^<a class="btn btn-default" role="button" id="bsc_button_NULL" href=".*/' . str_replace( ' ', '_', $this->input ) . '">' . $this->input . '</a>$~',
 			],
+			'link inside button' => [
+				$this->input,
+				[ 'text' => 'This is a <a href="/wiki/index.php/Link>Link</a> inside the button text' ],
+				'~^<a class="btn btn-default" role="button" id="bsc_button_NULL" href=".*/' . str_replace( ' ', '_', $this->input ) . '">This is a Link inside the button text</a>$~',
+			],
 		];
 	}
 }

@@ -135,8 +135,8 @@ class Modal extends AbstractComponent {
 			$attributes['text'],
 			$parserRequest->getFrame()
 		);
-		if ( !preg_match( '~^(.*)<a.*href=".+".*>(.+)</a>(.*)$~', $input, $matches )
-			&& !preg_match( '~(^.*<img.*src=".+".*>.*)$~', $input, $matches )
+		if ( !preg_match( '~^(.*)<a.+href=[^>]+>(.+)</a>(.*)$~', $input, $matches )
+			&& !preg_match( '~(^.*<img.*src=.+>.*)$~', $input, $matches )
 		) {
 			return $this->generateButton( $parserRequest );
 		}

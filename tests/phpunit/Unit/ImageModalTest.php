@@ -22,8 +22,6 @@ use \PHPUnit_Framework_TestCase;
  */
 class ImageModalTest extends PHPUnit_Framework_TestCase {
 
-	const NUM_OF_RND_COMPARE_TESTS = 25;
-
 	public function setUp() {
 		parent::setUp();
 		set_time_limit( 300 );
@@ -429,7 +427,7 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 					'caption' => 'test_caption:' . PHP_EOL . 'not next line, ' . PHP_EOL . 'still not next line, .' . PHP_EOL . PHP_EOL . 'next line',
 					'class'   => 'test_class',
 					'title'   => 'test_title',
-					'vAlign'  => 'text-top',
+					'valign'  => 'text-top',
 				],
 				[],
 				'<div class="floatleft"><span class="modal-trigger" data-toggle="modal" data-target="#bsc_image_modal_test"><img src=TEST_OUTPUT alt="test_alt" title="test_title" class="test_class img-responsive"></span></div><div class="modal fade" role="dialog" id="bsc_image_modal_test" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>' . PHP_EOL

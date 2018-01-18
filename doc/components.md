@@ -172,17 +172,6 @@ ToDo
   * popover
   * tooltip
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
-
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
-
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
-
 ## Addendum
 
 ### No Values

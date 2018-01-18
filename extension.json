@@ -24,6 +24,7 @@
 		"BootstrapComponents\\ComponentLibrary": "src/ComponentLibrary.php",
 		"BootstrapComponents\\ModalBuilder": "src/ModalBuilder.php",
 		"BootstrapComponents\\ImageModal": "src/ImageModal.php",
+		"BootstrapComponents\\ImageModalTrigger": "src/ImageModalTrigger.php",
 		"BootstrapComponents\\NestableInterface": "src/NestableInterface.php",
 		"BootstrapComponents\\ParserOutputHelper": "src/ParserOutputHelper.php",
 		"BootstrapComponents\\ParserRequest": "src/ParserRequest.php",

@@ -135,7 +135,7 @@ class ImageModal implements NestableInterface {
 	 *                                   border          If present, show a border around the image
 	 *                                   align           Horizontal alignment (left, right, center, none)
 	 *                                   valign          Vertical alignment (baseline, sub, super, top, text-top, middle,
-	 *                                   bottom, text-bottom)
+	 *                                                   bottom, text-bottom)
 	 *                                   alt             Alternate text for image (i.e. alt attribute). Plain text.
 	 *                                   class           HTML for image classes. Plain text.
 	 *                                   caption         HTML for image caption.
@@ -168,6 +168,7 @@ class ImageModal implements NestableInterface {
 		$res = $this->turnParamsIntoModal( $sanitizedFrameParams, $handlerParams );
 
 		if ( $res === '' ) {
+			// \BootstrapComponents\ImageModal::turnParamsIntoModal returns the empty string, when something went wrong
 			return true;
 		}
 
@@ -176,42 +177,6 @@ class ImageModal implements NestableInterface {
 		);
 
 		return false;
-	}
-
-	/**
-	 * This is public, so it can be unit tested directly, making it possible to draw a direct comparison between this and
-	 * {@see \Linker::makeImageLink}
-	 *
-	 * @param \File $file
-	 * @param array $sanitizedFrameParams
-	 * @param array $handlerParams
-	 *
-	 * @throws \ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerCreateThumb}
-	 *
-	 * @return false|string
-	 */
-	public function generateTrigger( $file, $sanitizedFrameParams, $handlerParams ) {
-		/** @var \MediaTransformOutput $thumb */
-		list( $thumb, $thumbHandlerParams ) = $this->generateTriggerCreateThumb( $file, $sanitizedFrameParams, $handlerParams );
-
-		if ( !$thumb ) {
-			// We could deal with an invalid thumb, but then we would also need to signal in invalid modal.
-			// Better let Linker.php take care
-			wfDebugLog( 'BootstrapComponents', 'Image modal encountered an invalid thumbnail. Relegating back.' );
-			return false;
-		}
-		$triggerOptions = $this->generateTriggerCalculateHtmlOptions(
-			$file,
-			$thumb,
-			$sanitizedFrameParams,
-			$thumbHandlerParams
-		);
-		$publicationString = $thumb->toHtml( $triggerOptions );
-		return $this->generateTriggerWrapAndFinalize(
-			$publicationString,
-			$sanitizedFrameParams,
-			$thumb->getWidth()
-		);
 	}
 
 	/**
@@ -302,142 +267,6 @@ class ImageModal implements NestableInterface {
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function generateTriggerBuildZoomIcon() {
-		return Html::rawElement(
-			'div',
-			[
-				'class' => 'magnify',
-			],
-			Html::rawElement(
-				'a',
-				[
-					'class' => 'internal',
-					'title' => wfMessage( 'thumbnail-more' )->text(),
-				],
-				""
-			)
-		);
-	}
-
-	/**
-	 * @param \File                 $file
-	 * @param \MediaTransformOutput $thumb
-	 * @param array                 $sanitizedFrameParams
-	 * @param array                 $thumbHandlerParams
-	 *
-	 * @return array
-	 */
-	protected function generateTriggerCalculateHtmlOptions( $file, $thumb, $sanitizedFrameParams, $thumbHandlerParams ) {
-		if ( $sanitizedFrameParams['thumbnail'] && (!isset( $sanitizedFrameParams['manualthumb'] ) && !$sanitizedFrameParams['framed']) ) {
-			Linker::processResponsiveImages( $file, $thumb, $thumbHandlerParams );
-		}
-		$options = [
-			'alt'       => $sanitizedFrameParams['alt'],
-			'title'     => $sanitizedFrameParams['title'],
-			'img-class' => $sanitizedFrameParams['class'] . ' img-responsive',
-		];
-		if ( $sanitizedFrameParams['thumbnail'] || isset( $sanitizedFrameParams['manualthumb'] ) || $sanitizedFrameParams['framed'] ) {
-			$options['img-class'] .= ' thumbimage';
-		} elseif ( $sanitizedFrameParams['border'] ) {
-			$options['img-class'] .= ' thumbborder';
-		}
-		$options['img-class'] = trim( $options['img-class'] );
-
-		// in Linker.php, options also run through {@see \Linker::getImageLinkMTOParams} to calculate the link value.
-		// Since we abort at the beginning, if any link related frameParam is set, we can skip this.
-		// also, obviously, we don't want to have ANY link around the img present.
-
-		return $options;
-	}
-
-	/**
-	 * @param \File $file
-	 * @param array $sanitizedFrameParams
-	 * @param array $handlerParams
-	 *
-	 * @throws \ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerReevaluateImageDimensions}
-	 *
-	 * @return array [ \MediaTransformOutput|false, handlerParams ]
-	 */
-	protected function generateTriggerCreateThumb( $file, $sanitizedFrameParams, $handlerParams ) {
-		$transform = !isset( $sanitizedFrameParams['manualthumb'] ) && !$sanitizedFrameParams['framed'];
-		$thumbFile = $file;
-		$thumbHandlerParams = $this->generateTriggerReevaluateImageDimensions( $file, $sanitizedFrameParams, $handlerParams );
-
-		if ( isset( $sanitizedFrameParams['manualthumb'] ) ) {
-			$thumbFile = $this->getFileFromTitle( $sanitizedFrameParams['manualthumb'] );
-		}
-
-		if ( !$thumbFile
-			|| (!$sanitizedFrameParams['thumbnail'] && !$sanitizedFrameParams['framed'] && !isset( $thumbHandlerParams['width'] ))
-		) {
-			return [ false, $thumbHandlerParams ];
-		}
-
-		if ( $transform ) {
-			return [ $thumbFile->transform( $thumbHandlerParams ), $thumbHandlerParams ];
-		} else {
-			return [ $thumbFile->getUnscaledThumb( $thumbHandlerParams ), $thumbHandlerParams ];
-		}
-	}
-
-	/**
-	 * This is mostly taken from {@see \Linker::makeImageLink}, rest originates from {@see \Linker::makeThumbLink2}. Extracts are heavily
-	 * squashed and condensed
-	 *
-	 * @param \File $file
-	 * @param array $sanitizedFrameParams
-	 * @param array $handlerParams
-	 *
-	 * @throws \ConfigException cascading {@see \BootstrapComponents\ImageModal::generateTriggerCalculateImageWidth}
-	 *
-	 * @return array thumbnail handler params
-	 */
-	protected function generateTriggerReevaluateImageDimensions( $file, $sanitizedFrameParams, $handlerParams ) {
-		if ( !isset( $handlerParams['width'] ) ) {
-			$handlerParams = $this->calculateImageWidth( $file, $sanitizedFrameParams, $handlerParams );
-		}
-		if ( $this->amIThumbnailRelated( $sanitizedFrameParams ) ) {
-			if ( empty( $handlerParams['width'] ) && !$sanitizedFrameParams['frameless'] ) {
-				// Reduce width for upright images when parameter 'upright' is used
-				$handlerParams['width'] = isset( $sanitizedFrameParams['upright'] ) ? 130 : 180;
-			}
-			$handlerParams = $this->limitSizeToSourceOnBitmapImages( $file, $sanitizedFrameParams, $handlerParams );
-		}
-
-		return $handlerParams;
-	}
-
-
-	/**
-	 * Envelops the publication trigger img-tag.
-	 *
-	 * @param string $publicationString
-	 * @param array  $sanitizedFrameParams
-	 * @param int    $publicationWidth
-	 *
-	 * @return string
-	 */
-	protected function generateTriggerWrapAndFinalize( $publicationString, $sanitizedFrameParams, $publicationWidth ) {
-		if ( $sanitizedFrameParams['thumbnail'] || isset( $sanitizedFrameParams['manualthumb'] ) || $sanitizedFrameParams['framed'] ) {
-			$ret = $this->buildThumbnailTrigger( $publicationString, $sanitizedFrameParams, $publicationWidth );
-		} elseif ( strlen( $sanitizedFrameParams['align'] ) ) {
-			$class = $sanitizedFrameParams['align'] == 'center' ? 'center' : 'float' . $sanitizedFrameParams['align'];
-			$ret = Html::rawElement(
-				'div',
-				[ 'class' => $class, ],
-				ModalBuilder::wrapTriggerElement( $publicationString, $this->getId() )
-			);
-		} else {
-			$ret = ModalBuilder::wrapTriggerElement( $publicationString, $this->getId() );
-		}
-
-		return str_replace( "\n", ' ', $ret );
-	}
-
-	/**
 	 * @return \DummyLinker
 	 */
 	/** @scrutinizer ignore-unused */
@@ -488,12 +317,14 @@ class ImageModal implements NestableInterface {
 	 * @throws \ConfigException
 	 */
 	protected function turnParamsIntoModal( $sanitizedFrameParams, $handlerParams ) {
-		$trigger = $this->generateTrigger(
-			$this->getFile(),
-			$sanitizedFrameParams,
-			$handlerParams
+		$trigger = new ImageModalTrigger(
+			$this->getId(),
+			$this->getFile()
 		);
-		if ( $trigger === false ) {
+
+		$triggerString = $trigger->generate( $sanitizedFrameParams, $handlerParams );
+
+		if ( $triggerString === false ) {
 			// something wrong with the trigger. Relegating back
 			return '';
 		}
@@ -511,7 +342,7 @@ class ImageModal implements NestableInterface {
 
 		$modal = ApplicationFactory::getInstance()->getModalBuilder(
 			$this->getId(),
-			$trigger,
+			$triggerString,
 			$content
 		);
 		$modal->setHeader(
@@ -532,18 +363,6 @@ class ImageModal implements NestableInterface {
 		}
 
 		return $modal->parse();
-	}
-
-	/**
-	 * @param $sanitizedFrameParams
-	 *
-	 * @return bool
-	 */
-	private function amIThumbnailRelated( $sanitizedFrameParams ) {
-		return $sanitizedFrameParams['thumbnail']
-			|| isset( $sanitizedFrameParams['manualthumb'] )
-			|| $sanitizedFrameParams['framed']
-			|| $sanitizedFrameParams['frameless'];
 	}
 
 	/**
@@ -583,82 +402,6 @@ class ImageModal implements NestableInterface {
 	}
 
 	/**
-	 * Envelops a publication trigger img-tag that is a thumbnail.
-	 *
-	 * @param string $publicationString
-	 * @param array  $sanitizedFrameParams
-	 * @param int    $publicationWidth
-	 *
-	 * @return string
-	 */
-	private function buildThumbnailTrigger( $publicationString, $sanitizedFrameParams, $publicationWidth ) {
-		if ( !strlen( $sanitizedFrameParams['align'] ) ) {
-			$sanitizedFrameParams['align'] = $this->getTitle()->getPageLanguage()->alignEnd();
-		}
-		$zoomIcon = !$sanitizedFrameParams['framed'] ? $this->generateTriggerBuildZoomIcon() : '';
-		$outerWidth = $publicationWidth + 2;
-		$class = 'thumb t' . ($sanitizedFrameParams['align'] == 'center' ? 'none' : $sanitizedFrameParams['align']);
-
-		return Html::rawElement(
-			'div',
-			[
-				'class' => $class,
-			],
-			ModalBuilder::wrapTriggerElement(
-				Html::rawElement(
-					'div',
-					[
-						'class' => 'thumbinner',
-						'style' => 'width:' . $outerWidth . 'px;',
-					],
-					$publicationString . '  ' . Html::rawElement(
-						'div',
-						[ 'class' => 'thumbcaption' ],
-						$zoomIcon . $sanitizedFrameParams['caption']
-					)
-				),
-				$this->getId()
-			)
-		);
-	}
-
-	/**
-	 * Calculates a with from File, $sanitizedFrameParams, and $handlerParams
-	 *
-	 * @param \File $file
-	 * @param array $sanitizedFrameParams
-	 * @param array $handlerParams
-	 *
-	 * @throws \ConfigException cascading {@see ImageModal::getInitialWidthSuggestion} or {@see ImageModal::getPreferredWidth}
-	 *
-	 * @return array thumbnail handler params
-	 */
-	private function calculateImageWidth( $file, $sanitizedFrameParams, $handlerParams ) {
-		$globalConfig = MediaWikiServices::getInstance()->getMainConfig();
-
-		$handlerParams['width'] = $this->getInitialWidthSuggestion( $globalConfig, $file, $handlerParams );
-
-		if ( $this->amIThumbnailRelated( $sanitizedFrameParams ) || !$handlerParams['width'] ) {
-			// Reduce width for upright images when parameter 'upright' is used
-			if ( isset( $sanitizedFrameParams['upright'] ) && $sanitizedFrameParams['upright'] == 0 ) {
-				$sanitizedFrameParams['upright'] = $globalConfig->get( 'ThumbUpright' );
-			}
-
-			// note: the upright calculation above resided originally inside the two blocks in the following method
-			$prefWidth = $this->getPreferredWidth( $globalConfig, $sanitizedFrameParams );
-
-			// Use width which is smaller: real image width or user preference width
-			// Unless image is scalable vector.
-			if ( !isset( $handlerParams['height'] ) &&
-				($handlerParams['width'] <= 0 || $prefWidth < $handlerParams['width'] || $file->isVectorized())
-			) {
-				$handlerParams['width'] = $prefWidth;
-			}
-		}
-		return $handlerParams;
-	}
-
-	/**
 	 * @param Title $title
 	 * @param array $handlerParams
 	 *
@@ -678,100 +421,6 @@ class ImageModal implements NestableInterface {
 			],
 			wfMessage( 'bootstrap-components-image-modal-source-button' )->inContentLanguage()->text()
 		);
-	}
-
-	/**
-	 * @param string $fileTitle
-	 *
-	 * @return bool|\File
-	 */
-	private function getFileFromTitle( $fileTitle ) {
-		$manual_title = Title::makeTitleSafe( NS_FILE, $fileTitle );
-		if ( $manual_title ) {
-			return wfFindFile( $manual_title );
-		}
-		return false;
-	}
-
-	/**
-	 * @param \Config $globalConfig
-	 * @param \File   $file
-	 * @param array   $handlerParams
-	 *
-	 * @throws \ConfigException cascading {@see \Config::get}
-	 *
-	 * @return mixed
-	 */
-	private function getInitialWidthSuggestion( $globalConfig, $file, $handlerParams ) {
-		if ( isset( $handlerParams['height'] ) && $file->isVectorized() ) {
-			// If its a vector image, and user only specifies height
-			// we don't want it to be limited by its "normal" width.
-			return $globalConfig->get( 'SVGMaxSize' );
-		} else {
-			return $file->getWidth( $handlerParams['page'] );
-		}
-	}
-
-	/**
-	 * @param \Config $globalConfig
-	 * @param array   $sanitizedFrameParams
-	 *
-	 * @throws \ConfigException cascading {@see \Config::get}
-	 *
-	 * @return float
-	 */
-	private function getPreferredWidth( $globalConfig, $sanitizedFrameParams ) {
-		$thumbLimits = $globalConfig->get( 'ThumbLimits' );
-		$widthOption = $this->getWidthOptionForThumbLimits( $thumbLimits );
-
-		// For caching health: If width scaled down due to upright
-		// parameter, round to full __0 pixel to avoid the creation of a
-		// lot of odd thumbs.
-		return isset( $sanitizedFrameParams['upright'] )
-			? round( $thumbLimits[$widthOption] * $sanitizedFrameParams['upright'], -1 )
-			: $thumbLimits[$widthOption];
-	}
-
-	/**
-	 * @param array $thumbLimits
-	 *
-	 * @return int|string
-	 */
-	private function getWidthOptionForThumbLimits( $thumbLimits ) {
-
-		$user = RequestContext::getMain()->getUser();
-		$widthOption = $user::getDefaultOption( 'thumbsize' );
-
-		// we have a problem here: the original \Linker::makeImageLink does get a value for $widthOption,
-		// for instance in parser tests. unfortunately, this value is not passed through the hook.
-		// so there are instances, there $thumbLimits[$widthOption] is not defined.
-		// solution: we cheat and take the first one
-		if ( $widthOption !== null && isset( $thumbLimits[$widthOption] ) ) {
-			return $widthOption;
-		}
-		$availableOptions = array_keys( $thumbLimits );
-		return reset( $availableOptions );
-	}
-
-	/**
-	 * Do not present an image bigger than the source, for bitmap-style images
-	 *
-	 * @param \File $file
-	 * @param array $sanitizedFrameParams
-	 * @param array $handlerParams
-	 *
-	 * @return array
-	 */
-	private function limitSizeToSourceOnBitmapImages( $file, $sanitizedFrameParams, $handlerParams ) {
-		if ( $sanitizedFrameParams['frameless']
-			|| (!isset( $sanitizedFrameParams['manualthumb'] ) && !$sanitizedFrameParams['framed'])
-		) {
-			$srcWidth = $file->getWidth( $handlerParams['page'] );
-			if ( $srcWidth && !$file->mustRender() && $handlerParams['width'] > $srcWidth ) {
-				$handlerParams['width'] = $srcWidth;
-			}
-		}
-		return $handlerParams;
 	}
 
 	/**

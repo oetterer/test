@@ -44,41 +44,27 @@ class Modal extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
-		$parser = $parserRequest->getParser();
-
+	public function placeMe( $input ) {
 		list ( $outerClass, $style ) = $this->processCss( [], [] );
 
 		$modal = ApplicationFactory::getInstance()->getModalBuilder(
 			$this->getId(),
-			$this->generateTrigger( $parserRequest ),
-			$parser->recursiveTagParse(
-				$parserRequest->getInput(),
-				$parserRequest->getFrame()
-			)
+			$this->generateTrigger(),
+			$input
 		);
-		$modal->setOuterClass(
+		return $modal->setOuterClass(
 			$this->arrayToString( $outerClass, ' ' )
-		);
-		$modal->setOuterStyle(
+		)->setOuterStyle(
 			$this->arrayToString( $style, ';' )
-		);
-		$modal->setDialogClass(
-			$this->calculateInnerClassFrom()
-		);
-		if ( $header = $this->getValueFor( 'heading' ) ) {
-			$modal->setHeader(
-				$parser->recursiveTagParse( $header )
-			);
-		}
-		if ( $footer = $this->getValueFor( 'footer' ) ) {
-			$modal->setFooter(
-				$parser->recursiveTagParse( $footer )
-			);
-		}
-		return $modal->parse();
+		)->setDialogClass(
+			$this->calculateInnerClass()
+		)->setHeader(
+			$this->getValueFor( 'heading' )
+		)->setFooter(
+			$this->getValueFor( 'footer' )
+		)->parse();
 	}
 
 	/**
@@ -86,7 +72,7 @@ class Modal extends AbstractComponent {
 	 *
 	 * @return false|string
 	 */
-	private function calculateInnerClassFrom() {
+	private function calculateInnerClass() {
 
 		$class = [];
 
@@ -99,13 +85,11 @@ class Modal extends AbstractComponent {
 	/**
 	 * Spawns the button for the modal trigger
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $text
 	 *
 	 * @return string
 	 */
-	private function generateButton( $parserRequest ) {
-		$parser = $parserRequest->getParser();
-
+	private function generateButton( $text ) {
 		return Html::rawElement(
 			'button',
 			[
@@ -114,31 +98,22 @@ class Modal extends AbstractComponent {
 				'data-toggle' => 'modal',
 				'data-target' => '#' . $this->getId(),
 			],
-			$parser->recursiveTagParse(
-				$parserRequest->getAttributes()['text'],
-				$parserRequest->getFrame()
-			)
+			$text
 		);
 	}
 
 	/**
-	 * @param ParserRequest $parserRequest
-	 *
 	 * @return string
 	 */
-	private function generateTrigger( $parserRequest ) {
-		$attributes = $parserRequest->getAttributes();
-		if ( !isset( $attributes['text'] ) || !strlen( trim( $attributes['text'] ) ) ) {
+	private function generateTrigger() {
+		$text = $this->getValueFor( 'text' );
+		if ( empty( $text ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-modal-text-missing' );
 		}
-		$input = $parserRequest->getParser()->recursiveTagParse(
-			$attributes['text'],
-			$parserRequest->getFrame()
-		);
-		if ( !preg_match( '~^(.*)<a.+href=[^>]+>(.+)</a>(.*)$~', $input, $matches )
-			&& !preg_match( '~(^.*<img.*src=.+>.*)$~', $input, $matches )
+		if ( !preg_match( '~^(.*)<a.+href=[^>]+>(.+)</a>(.*)$~', $text, $matches )
+			&& !preg_match( '~(^.*<img.*src=.+>.*)$~', $text, $matches )
 		) {
-			return $this->generateButton( $parserRequest );
+			return $this->generateButton( $text );
 		}
 		array_shift( $matches );
 		return Html::rawElement(

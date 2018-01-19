@@ -42,14 +42,14 @@ class Tooltip extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
-		if ( !$parserRequest->getInput() ) {
+	public function placeMe( $input ) {
+		if ( empty( $input ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-content-missing' );
 		}
 		$tooltip = $this->getValueFor( 'text' );
-		if ( $tooltip === false ) {
+		if ( empty( $tooltip ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-text-missing' );
 		}
 		list ( $class, $style ) = $this->processCss( [], [] );
@@ -61,12 +61,10 @@ class Tooltip extends AbstractComponent {
 				'style'          => $this->arrayToString( $style, ';' ),
 				'id'             => $this->getId(),
 				'data-toggle'    => 'tooltip',
-				'title'          => $parserRequest->getParser()->recursiveTagParse( $tooltip ),
+				'title'          => $tooltip,
 				'data-placement' => $this->getValueFor( 'placement' ),
 			],
-			$parserRequest->getParser()->recursiveTagParse(
-				$parserRequest->getInput()
-			)
+			$input
 		);
 	}
 }

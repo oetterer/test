@@ -94,11 +94,11 @@ abstract class AbstractComponent implements NestableInterface {
 	/**
 	 * Does the actual work in the individual components.
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string   $input
 	 *
 	 * @return string|array
 	 */
-	abstract protected function placeMe( $parserRequest );
+	abstract protected function placeMe( $input );
 
 	/**
 	 * Component constructor.
@@ -165,8 +165,13 @@ abstract class AbstractComponent implements NestableInterface {
 		);
 		$this->augmentParserOutput();
 
+		$input = $parserRequest->getParser()->recursiveTagParse(
+			$parserRequest->getInput(),
+			$parserRequest->getFrame()
+		);
+
 		$this->getNestingController()->open( $this );
-		$ret = $this->placeMe( $parserRequest );
+		$ret = $this->placeMe( $input );
 		$this->getNestingController()->close( $this->getId() );
 		return $ret;
 	}
@@ -229,6 +234,10 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
+	 * Returns the original parser request supplied to this component.
+	 * Note, that none of the attributes nor the input ran through
+	 * {@see \Parser::recursiveTagParse}.
+	 *
 	 * @return ParserRequest
 	 */
 	protected function getParserRequest() {

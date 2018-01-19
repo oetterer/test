@@ -86,6 +86,9 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @throws \ConfigException
+	 */
 	public function testCanCreateParserFirstCallInitCallback() {
 
 		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
@@ -369,6 +372,10 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
 	public function testCanInitializeApplications() {
 		$setup = new Setup();
 		$config = $this->getMockBuilder( 'Config' )
@@ -378,6 +385,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			->method( 'get' )
 			->willReturn( true );
 
+		/** @noinspection PhpParamsInspection */
 		list( $cl, $nc ) = $setup->initializeApplications( $config );
 
 		$this->assertInstanceOf(
@@ -402,7 +410,9 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-/**
+	/**
+	 * @throws \ConfigException
+	 *
 	 * @return array
 	 */
 	public function CanCreateParserHookCallbackProvider() {

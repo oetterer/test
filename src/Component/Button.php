@@ -60,16 +60,16 @@ class Button extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
-		if ( !$parserRequest->getInput() ) {
+	public function placeMe( $input ) {
+		if ( empty( $input ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-button-target-missing' );
 		}
 
-		list( $target, $text ) = $this->getTargetAndText( $parserRequest );
+		list( $target, $text ) = $this->getTargetAndText( $input );
 
-		if ( !$target ) {
+		if ( empty( $target ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-button-target-invalid' );
 		}
 
@@ -119,18 +119,16 @@ class Button extends AbstractComponent {
 	/**
 	 * Generates a valid target a suitable text for the button
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 *
 	 * @return array containing (string|null) target, (string) text. Note that target is null when invalid
 	 */
-	private function getTargetAndText( ParserRequest $parserRequest ) {
-		$parser = $parserRequest->getParser();
-		$input = $parserRequest->getInput();
-		$attributes = $parserRequest->getAttributes();
-		$target = trim( $parser->recursiveTagParse( trim( $input ) ) );
-		$text = (isset( $attributes['text'] ) && strlen( $attributes['text'] ))
-			? $parser->recursiveTagParse( $attributes['text'] )
-			: $target;
+	private function getTargetAndText( $input ) {
+		$target = $input;
+		$text = $this->getValueFor( 'text' );
+		if ( empty( $text ) ) {
+			$text = $target;
+		}
 		if ( strlen( $target ) && !preg_match( '/^#[A-Za-z_0-9-]+/', $target ) ) {
 			// $target is not a fragment (e.g. not #anchor)
 			$targetTitle = Title::newFromText( $target );

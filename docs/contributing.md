@@ -66,6 +66,13 @@ A few points to ease the process:
 5. Document the new component in [components.md]
 6. Add tests for your new class. For guidelines on unit testing see
    information on [mediawiki.org](mw-testing)
+7. Adjust existing tests / prover:
+  * `AbstractComponentTest::allComponentsProvider()`
+  * `ComponentLibraryTest::testCanCompileMagicWordsArray`
+  * `ComponentLibraryTest::compileParserHookStringProvider`
+  * `ComponentLibraryTest::componentNameAndClassProvider`
+  * `ComponentLibraryTest::modulesForComponentsProvider`
+  * `SetupTest::testCanCreateParserFirstCallInitCallback`
 
 #### Format of data array in ComponentLibrary::rawComponentsDefinition
 ```

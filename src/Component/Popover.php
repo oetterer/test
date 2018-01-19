@@ -43,27 +43,19 @@ class Popover extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
-		$attributes = $parserRequest->getAttributes();
-		$parser = $parserRequest->getParser();
-
-		if ( isset( $attributes['heading'] ) && strlen( $attributes['heading'] ) ) {
-			$heading = $parser->recursiveTagParse( $attributes['heading'] );
-		} else {
+	public function placeMe( $input ) {
+		$heading = $this->getValueFor( 'heading' );
+		$text    = $this->getValueFor( 'text' );
+		if ( $heading === false || !strlen( $heading ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-popover-heading-missing' );
 		}
-		if ( isset( $attributes['text'] ) && strlen( $attributes['text'] ) ) {
-			$text = $parser->recursiveTagParse( $attributes['text'] );
-		} else {
+		if ( $text === false || !strlen( $text ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-popover-text-missing' );
 		}
 
-		list ( $class, $style ) = $this->processCss(
-			$this->calculateClassFrom(),
-			[]
-		);
+		list ( $class, $style ) = $this->processCss( $this->calculateClassFrom(), [] );
 
 		return Html::rawElement(
 			'button',
@@ -73,10 +65,7 @@ class Popover extends AbstractComponent {
 				'id'             => $this->getId(),
 				'data-toggle'    => 'popover',
 				'title'          => $heading,
-				'data-content'   => $parser->recursiveTagParse(
-					(string) $parserRequest->getInput(),
-					$parserRequest->getFrame()
-				),
+				'data-content'   => $input,
 				'data-placement' => $this->getValueFor( 'placement' ),
 				'data-trigger'   => $this->getValueFor( 'trigger' ),
 			],

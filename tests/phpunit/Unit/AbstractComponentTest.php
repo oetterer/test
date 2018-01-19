@@ -12,8 +12,8 @@ use \PHPUnit_Framework_MockObject_MockObject;
  *
  * @ingroup Test
  *
- * @group extension-bootstrap-components
- * @group mediawiki-databaseless
+ * @group   extension-bootstrap-components
+ * @group   mediawiki-databaseless
  *
  * @license GNU GPL v3+
  *
@@ -96,7 +96,7 @@ class AbstractComponentTest extends ComponentsTestBase {
 	 */
 	public function testSimpleOutput( $component ) {
 		$parserRequest = $this->buildParserRequest(
-			'',
+			'test input',
 			[ 'class' => 'test-class' ]
 		);
 		$class = $this->getComponentLibrary()->getClassFor( $component );
@@ -118,14 +118,18 @@ class AbstractComponentTest extends ComponentsTestBase {
 	}
 
 	/**
+	 * Only components, not returning an error message on an empty attribute be used here
+	 *
 	 * @return array
 	 */
 	public function allComponentsProvider() {
 		return [
 			'accordion' => [ 'accordion' ],
 			'alert'     => [ 'alert' ],
+			'badge'     => [ 'badge' ],
 			'collapse'  => [ 'collapse' ],
 			'jumbotron' => [ 'jumbotron' ],
+			'label'     => [ 'label' ],
 			'modal'     => [ 'modal' ],
 			'panel'     => [ 'panel' ],
 			'well'      => [ 'well' ],

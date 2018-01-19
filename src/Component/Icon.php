@@ -42,16 +42,16 @@ class Icon extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
-		if ( !$parserRequest->getInput() ) {
+	public function placeMe( $input ) {
+		if ( empty( $input ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-glyph-icon-name-missing' );
 		}
 
 		return Html::rawElement(
 			'span',
-			[ 'class' => 'glyphicon glyphicon-' . trim( $parserRequest->getInput() ) ]
+			[ 'class' => 'glyphicon glyphicon-' . trim( $input ) ]
 		);
 	}
 }

@@ -23,6 +23,9 @@ class PopoverTest extends ComponentsTestBase {
 
 	private $input = 'Popover test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(
@@ -68,7 +71,7 @@ class PopoverTest extends ComponentsTestBase {
 				[ 'heading' => 'heading', 'text' => 'BUTTON' ],
 				'<button class="btn btn-info" id="bsc_popover_NULL" data-toggle="popover" title="heading" data-content="' . $this->input . '" type="submit">BUTTON</button>',
 			],
-			'heading missing' => [
+			'heading empty' => [
 				$this->input,
 				[ 'heading' => '', 'text' => 'BUTTON' ],
 				'bootstrap-components-popover-heading-missing',

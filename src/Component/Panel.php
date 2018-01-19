@@ -78,17 +78,11 @@ class Panel extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
-		$attributes = $parserRequest->getAttributes();
-		$parser = $parserRequest->getParser();
+	public function placeMe( $input ) {
 
 		$this->collapsible = (bool) $this->getValueFor( 'collapsible' ) || $this->isInsideAccordion();
-
-		if ( $this->isInsideAccordion() && (!isset( $attributes['heading'] ) || !strlen( $attributes['heading'] )) ) {
-			$attributes['heading'] = $this->getId();
-		}
 
 		$outerClass = $this->calculateOuterClassFrom();
 		$innerClass = $this->calculateInnerClassFrom();
@@ -101,7 +95,7 @@ class Panel extends AbstractComponent {
 				'class' => $this->arrayToString( $outerClass, ' ' ),
 				'style' => $this->arrayToString( $style, ';' ),
 			],
-			$this->processAdditionToPanel( 'heading', $attributes, $parser )
+			$this->processAdditionToPanel( 'heading' )
 			. Html::rawElement(
 				'div',
 				[
@@ -113,9 +107,9 @@ class Panel extends AbstractComponent {
 					[
 						'class' => 'panel-body',
 					],
-					$parser->recursiveTagParse( $parserRequest->getInput(), $parserRequest->getFrame() )
+					$input
 				)
-				. $this->processAdditionToPanel( 'footer', $attributes, $parser )
+				. $this->processAdditionToPanel( 'footer' )
 			)
 		);
 	}
@@ -190,16 +184,19 @@ class Panel extends AbstractComponent {
 	 * This examines $attributes and produces an appropriate heading or footing if corresponding data is found.
 	 *
 	 * @param string $type
-	 * @param array  $attributes
-	 * @param Parser $parser
 	 *
 	 * @return string
 	 */
-	private function processAdditionToPanel( $type, $attributes, Parser $parser ) {
-		if ( !isset( $attributes[$type] ) ) {
-			return '';
+	private function processAdditionToPanel( $type ) {
+		$inside = $this->getValueFor( $type );
+
+		if ( empty( $inside ) ) {
+			if ( $type == 'heading' && $this->isInsideAccordion() ) {
+				$inside = $this->getId();
+			} else {
+				return '';
+			}
 		}
-		$inside = $parser->recursiveTagParse( $attributes[$type] );
 		$newAttributes = [
 			'class' => 'panel-' . $type,
 		];

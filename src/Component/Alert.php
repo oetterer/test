@@ -31,7 +31,6 @@ use BootstrapComponents\ParserRequest;
 use \Html;
 use \MWException;
 
-
 /**
  * Class Alert
  *
@@ -51,17 +50,14 @@ class Alert extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
+	public function placeMe( $input ) {
 
 		$this->dismissible = $this->getValueFor( 'dismissible' );
 
 		$class = $this->calculateClassFrom();
-		$inside = $parserRequest->getParser()->recursiveTagParse(
-			$parserRequest->getInput(),
-			$parserRequest->getFrame()
-		);
+		$inside = $input;
 		if ( $this->isDismissible() ) {
 			$inside = $this->renderDismissButton() . $inside;
 		}

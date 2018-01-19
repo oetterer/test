@@ -42,11 +42,11 @@ class Accordion extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
+	public function placeMe( $input ) {
 
-		list ( $class, $style ) = $this->processCss( 'panel-group', [], $parserRequest->getAttributes() );
+		list ( $class, $style ) = $this->processCss( 'panel-group', [] );
 
 		return Html::rawElement(
 			'div',
@@ -55,10 +55,7 @@ class Accordion extends AbstractComponent {
 				'style' => $this->arrayToString( $style, ';' ),
 				'id'    => $this->getId(),
 			],
-			$parserRequest->getParser()->recursiveTagParse(
-				$parserRequest->getInput(),
-				$parserRequest->getFrame()
-			)
+			$input
 		);
 	}
 }

@@ -23,6 +23,9 @@ class ModalTest extends ComponentsTestBase {
 
 	private $input = 'Modal test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

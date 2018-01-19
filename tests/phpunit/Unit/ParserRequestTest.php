@@ -2,9 +2,7 @@
 
 namespace BootstrapComponents\Tests\Unit;
 
-use BootstrapComponents\ComponentLibrary;
 use BootstrapComponents\ParserRequest;
-use \MWException;
 use \PHPUnit_Framework_TestCase;
 use \Parser;
 use \PPFrame;
@@ -47,6 +45,8 @@ class ParserRequestTest extends PHPUnit_Framework_TestCase {
 	 * @param array $arguments
 	 * @param bool  $isParserFunction
 	 *
+	 * @throws \MWException
+	 *
 	 * @dataProvider constructionProvider
 	 */
 	public function testCanConstruct( $arguments, $isParserFunction ) {
@@ -80,6 +80,8 @@ class ParserRequestTest extends PHPUnit_Framework_TestCase {
 	 * @param bool   $isParserFunction
 	 * @param string $expectedInput
 	 * @param array  $expectedAttributes
+	 *
+	 * @throws \MWException
 	 *
 	 * @dataProvider constructionProvider
 	 */

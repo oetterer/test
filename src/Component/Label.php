@@ -42,10 +42,10 @@ class Label extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
-		if ( !$parserRequest->getInput() ) {
+	public function placeMe( $input ) {
+		if ( empty( $input ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-label-content-missing' );
 		}
 
@@ -60,9 +60,7 @@ class Label extends AbstractComponent {
 				'style' => $this->arrayToString( $style, ';' ),
 				'id'    => $this->getId(),
 			],
-			$parserRequest->getParser()->recursiveTagParse(
-				$parserRequest->getInput()
-			)
+			$input
 		);
 	}
 }

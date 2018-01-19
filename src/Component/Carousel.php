@@ -23,6 +23,7 @@
  * @ingroup       BootstrapComponents
  * @author        Tobias Oetterer
  */
+
 namespace BootstrapComponents\Component;
 
 use BootstrapComponents\AbstractComponent;
@@ -41,10 +42,12 @@ class Carousel extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
-		$images = $this->extractAndParseImageList( $parserRequest );
+	public function placeMe( $input ) {
+		$images = $this->extractAndParseImageList(
+			$this->getParserRequest()
+		);
 		if ( !count( $images ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
 		}

@@ -270,8 +270,6 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
-	#@todo after refactoring of  \BootstrapComponents\AbstractComponent::sanitizeAttribute, strip components of the parser->recursiveTag() - calls
-	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
 	#@todo fix file header of modules files
 
 	### last steps

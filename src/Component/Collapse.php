@@ -39,16 +39,17 @@ use \MWException;
  *
  * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Collapse
  * @since 1.0
- *
  */
 class Collapse extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
-		$buttonPrintOut = $this->generateButton( clone $parserRequest );
+	public function placeMe( $input ) {
+		$buttonPrintOut = $this->generateButton(
+			clone $this->getParserRequest()
+		);
 
 		list ( $class, $style ) = $this->processCss( 'collapse', [] );
 		return $buttonPrintOut . Html::rawElement(
@@ -58,10 +59,7 @@ class Collapse extends AbstractComponent {
 					'style' => $this->arrayToString( $style, ';' ),
 					'id'    => $this->getId(),
 				],
-				$parserRequest->getParser()->recursiveTagParse(
-					$parserRequest->getInput(),
-					$parserRequest->getFrame()
-				)
+				$input
 			);
 	}
 

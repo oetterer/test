@@ -42,9 +42,9 @@ class Well extends AbstractComponent {
 	/**
 	 * @inheritdoc
 	 *
-	 * @param ParserRequest $parserRequest
+	 * @param string $input
 	 */
-	public function placeMe( $parserRequest ) {
+	public function placeMe( $input ) {
 
 		$class = [ 'well' ];
 		if ( $size = $this->getValueFor( 'size' ) ) {
@@ -58,10 +58,7 @@ class Well extends AbstractComponent {
 				'style' => $this->arrayToString( $style, ';' ),
 				'id'    => $this->getId(),
 			],
-			$parserRequest->getParser()->recursiveTagParse(
-				$parserRequest->getInput(),
-				$parserRequest->getFrame()
-			)
+			$input
 		);
 	}
 }

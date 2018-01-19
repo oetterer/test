@@ -37,7 +37,7 @@ use \MWException;
  *
  * Class for component 'collapse'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Collapse
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Collapse
  * @since 1.0
  *
  */

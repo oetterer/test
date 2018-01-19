@@ -37,7 +37,7 @@ use \MWException;
  *
  * Class for component 'modal'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Modal
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Modal
  * @since 1.0
  */
 class Modal extends AbstractComponent {

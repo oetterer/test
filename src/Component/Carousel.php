@@ -34,7 +34,7 @@ use \Html;
  *
  * Class for component 'carousel'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Carousel
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Carousel
  * @since 1.0
  */
 class Carousel extends AbstractComponent {

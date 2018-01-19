@@ -86,7 +86,7 @@ instead of being referred to the corresponding page in the file namespace,
 a modal opens up showing the image with a possible caption (if you
 provided one) and a link to the source page of the file.
 
-Please see [known issues][KnownIssues] for additional information.
+Please see [known issues][known-issues] for additional information.
 
 Example:
 ```
@@ -109,8 +109,8 @@ galleries, please visit [mediawiki.org][Gallery].
 
 [Composer]: https://getcomposer.org/
 [Git]: https://git-scm.com/
-[GitArchive]: https://github.com/oetterer/BootstapComponents/archive/master.zip
+[GitArchive]: https://github.com/oetterer/BootstrapComponents/archive/master.zip
 [BootstrapExtension]: https://www.mediawiki.org/wiki/Extension:Bootstrap
 [Components]: docs/components.md
-[KnownIssues]: docs/known-issues.md
+[known-issues]: known-issues.md
 [Gallery]: https://www.mediawiki.org/wiki/Help:Images#Rendering_a_gallery_of_images

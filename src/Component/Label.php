@@ -35,7 +35,7 @@ use \Html;
  *
  * Class for component 'label'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Label
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Label
  * @since 1.0
  */
 class Label extends AbstractComponent {

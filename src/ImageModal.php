@@ -162,6 +162,7 @@ class ImageModal implements NestableInterface {
 	 */
 	public function parse( &$frameParams, &$handlerParams, &$time, &$res ) {
 		if ( !$this->assessResponsibility( $this->getFile(), $frameParams ) ) {
+			wfDebugLog( 'BootstrapComponents', 'Image modal relegating image rendering back to Linker.php.' );
 			return true;
 		}
 
@@ -175,7 +176,7 @@ class ImageModal implements NestableInterface {
 		$res = $this->turnParamsIntoModal( $sanitizedFrameParams, $handlerParams );
 
 		if ( $res === '' ) {
-			// \BootstrapComponents\ImageModal::turnParamsIntoModal returns the empty string, when something went wrong
+			// ImageModal::turnParamsIntoModal returns the empty string, when something went wrong
 			return true;
 		}
 
@@ -230,13 +231,11 @@ class ImageModal implements NestableInterface {
 	 */
 	protected function assessResponsibility( $file, $frameParams ) {
 		if ( !$file || !$file->exists() ) {
-			wfDebugLog( 'BootstrapComponents', 'Image modal encountered an invalid file. Relegating back.' );
 			return false;
 		}
 		if ( isset( $frameParams['link-url'] ) || isset( $frameParams['link-title'] )
 			|| isset( $frameParams['link-target'] ) || isset( $frameParams['no-link'] )
 		) {
-			wfDebugLog( 'BootstrapComponents', 'Image modal detected link options. Relegating back.' );
 			return false;
 		}
 		if ( $this->getParentComponent() && in_array( $this->getParentComponent()->getComponentName(), self::PARENTS_PREVENTING_MODAL ) ) {
@@ -246,7 +245,6 @@ class ImageModal implements NestableInterface {
 			// let Linker.php handle these cases as well
 			return false;
 		}
-		wfDebugLog( 'BootstrapComponents', 'Assessment ended. Image modal taking over image handling.' );
 		return true;
 	}
 
@@ -319,8 +317,9 @@ class ImageModal implements NestableInterface {
 	 * @param $sanitizedFrameParams
 	 * @param $handlerParams
 	 *
-	 * @return string
 	 * @throws \ConfigException
+	 *
+	 * @return string   rendered modal on success, empty string on failure.
 	 */
 	protected function turnParamsIntoModal( $sanitizedFrameParams, $handlerParams ) {
 		$trigger = new ImageModalTrigger(

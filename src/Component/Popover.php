@@ -36,7 +36,7 @@ use \MWException;
  *
  * Class for component 'popover'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Popover
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Popover
  * @since 1.0
  */
 class Popover extends AbstractComponent {

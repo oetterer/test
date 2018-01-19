@@ -37,7 +37,7 @@ use \MWException;
  *
  * Class for component 'alert'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Alert
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Alert
  * @since 1.0
  */
 class Alert extends AbstractComponent {

@@ -40,7 +40,7 @@ use \Parser;
  *
  * Class for component 'panel'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Panel
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Panel
  * @since 1.0
  */
 class Panel extends AbstractComponent {

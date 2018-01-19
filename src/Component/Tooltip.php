@@ -35,7 +35,7 @@ use \Html;
  *
  * Class for component 'tooltip'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Tooltip
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Tooltip
  * @since 1.0
  */
 class Tooltip extends AbstractComponent {

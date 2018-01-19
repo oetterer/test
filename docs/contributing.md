@@ -6,7 +6,8 @@ are provided here to keep the workflow and review process most efficient.
 ### Report bugs, ask for features
 
 You may help by reporting bugs and feature requests. Before you do,
-please make sure you run the latest version of BootstrapComponents. Then
+please make sure you run the latest version of BootstrapComponents
+and you are not about to address a [known-issue][known-issues]. Then
 check if a corresponding open bug already exists on the list of
 [open bugs][open bugs] and if you have new information, comment on it.
 If the bug is not yet reported, [open a new bug report][report bugs].
@@ -91,10 +92,9 @@ public function placeMe( ParserRequest $parserRequest ) {
 }
 ```
 
-
-
-[open bugs]: https://github.com/oetterer/BootstapComponents/issues
-[report bugs]: https://github.com/oetterer/BootstapComponents/issues/new
+[known-issues]: known-issues.md
+[open bugs]: https://github.com/oetterer/BootstrapComponents/issues
+[report bugs]: https://github.com/oetterer/BootstrapComponents/issues/new
 [how to report a bug]: https://www.mediawiki.org/wiki/How_to_report_a_bug
 [screenshots]: https://www.mediawiki.org/wiki/Skin:Chameleon#Screenshots
 [twn]: https://translatewiki.net/

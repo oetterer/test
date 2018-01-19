@@ -35,7 +35,7 @@ use \Html;
  *
  * Class for component 'accordion'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Accordion
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Accordion
  * @since 1.0
  */
 class Accordion extends AbstractComponent {

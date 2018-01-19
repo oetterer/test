@@ -35,7 +35,7 @@ use \Html;
  *
  * Class for component 'well'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Well
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Well
  * @since 1.0
  */
 class Well extends AbstractComponent {

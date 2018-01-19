@@ -35,7 +35,7 @@ use \Html;
  *
  * Class for component 'jumbotron'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Jumbotron
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Jumbotron
  * @since 1.0
  */
 class Jumbotron extends AbstractComponent {

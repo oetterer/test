@@ -37,7 +37,7 @@ use \Title;
  *
  * Class for component 'button'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Button
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Button
  * @since 1.0
  */
 class Button extends AbstractComponent {

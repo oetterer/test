@@ -271,13 +271,13 @@ class Setup {
 	### attend before deployment
 	# mandatory
 	#@todo: after refactoring of  \BootstrapComponents\AbstractComponent::sanitizeAttribute, strip components of the parser->recursiveTag() - calls
-
-	#@todo put on github with automatic testing and scrutinizing
-	#@todo create composer package. see https://packagist.org/ and https://packagist.org/about#how-to-update-packages; packet name "bootstrap-components"
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
-	#@todo complete documentation in /doc (installation, configuration, howto, expansion)
+
+	### last steps
 	#@todo change release date in docs/release-notes.md
 	#@todo remove the rest of the comments here. put ### this remains somewhere to keep track of things
+	#@todo create composer package. see https://packagist.org/ and https://packagist.org/about#how-to-update-packages; packet name "bootstrap-components"
+	#@todo put on github with automatic testing and scrutinizing
 
 
 	# code improvement

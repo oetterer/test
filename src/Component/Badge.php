@@ -35,7 +35,7 @@ use \Html;
  *
  * Class for component 'badge'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Badge
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Badge
  * @since 1.0
  */
 class Badge extends AbstractComponent {

@@ -35,7 +35,7 @@ use \Html;
  *
  * Class for component 'icon'
  *
- * @see   https://github.com/oetterer/BootstrapComponents/blob/master/doc/components.md#Icon
+ * @see   https://github.com/oetterer/BootstrapComponents/blob/master/docs/components.md#Icon
  * @since 1.0
  */
 class Icon extends AbstractComponent {

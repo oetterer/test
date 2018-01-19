@@ -2,7 +2,7 @@
 /**
  * Contains the component class for rendering an alert.
  *
- * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @copyright (C) 2018, Tobias Oetterer, Paderborn University
  * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
  *
  * This file is part of the MediaWiki extension BootstrapComponents.
@@ -120,7 +120,7 @@ class Alert extends AbstractComponent {
 				'type'         => 'button',
 				'class'        => 'close',
 				'data-dismiss' => 'alert',
-				'aria-label'   => wfMessage( 'bootstrap-components-close-element' )->inContentLanguage()->parse(),
+				'aria-label'   => wfMessage( 'bootstrap-components-close-element' )->inContentLanguage()->text(),
 			],
 			Html::rawElement(
 				'span',

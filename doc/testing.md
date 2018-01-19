@@ -17,5 +17,5 @@ provided for convenience:
 See [Information on unit testing][mw-testing] if you want to expand the
 tests yourself.
 
-[travis]: https://travis-ci.org/oetterer/bootstrap-components
+[travis]: https://travis-ci.org/oetterer/BootstrapComponents
 [mw-testing]: https://www.mediawiki.org/wiki/Manual:PHP_unit_testing

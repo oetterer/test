@@ -2,7 +2,7 @@
 /**
  * Contains the class holding a modal building kit.
  *
- * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @copyright (C) 2018, Tobias Oetterer, Paderborn University
  * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
  *
  * This file is part of the MediaWiki extension BootstrapComponents.
@@ -389,7 +389,7 @@ class ModalBuilder {
 		if ( empty( $footer ) ) {
 			$footer = '';
 		}
-		$close = wfMessage( 'bootstrap-components-close-element' )->inContentLanguage()->parse();
+		$close = wfMessage( 'bootstrap-components-close-element' )->inContentLanguage()->text();
 		return Html::rawElement(
 				'div',
 				[ 'class' => 'modal-footer' ],
@@ -423,7 +423,7 @@ class ModalBuilder {
 				'type'         => 'button',
 				'class'        => 'close',
 				'data-dismiss' => 'modal',
-				'aria-label'   => wfMessage( 'bootstrap-components-close-element' )->inContentLanguage()->parse(),
+				'aria-label'   => wfMessage( 'bootstrap-components-close-element' )->inContentLanguage()->text(),
 			],
 			Html::rawElement(
 				'span',

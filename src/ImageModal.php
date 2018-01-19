@@ -2,7 +2,7 @@
 /**
  * Contains the class for replacing image normal image display with a modal.
  *
- * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @copyright (C) 2018, Tobias Oetterer, Paderborn University
  * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
  *
  * This file is part of the MediaWiki extension BootstrapComponents.
@@ -246,6 +246,7 @@ class ImageModal implements NestableInterface {
 			// let Linker.php handle these cases as well
 			return false;
 		}
+		wfDebugLog( 'BootstrapComponents', 'Assessment ended. Image modal taking over image handling.' );
 		return true;
 	}
 

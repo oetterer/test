@@ -2,7 +2,7 @@
 /**
  * Contains the class doing all the necessary hook registration and helper object initialization.
  *
- * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @copyright (C) 2018, Tobias Oetterer, Paderborn University
  * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
  *
  * This file is part of the MediaWiki extension BootstrapComponents.
@@ -277,11 +277,12 @@ class Setup {
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
 	#@todo complete documentation in /doc (installation, configuration, howto, expansion)
 	#@todo change release date in docs/release-notes.md
+	#@todo remove the rest of the comments here. put ### this remains somewhere to keep track of things
 
 
 	# code improvement
 	#@todo add more comments
-	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5)
+	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5); if, add to docs/credits.md
 	# or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
 	# 1. adjust composer.json, integration script, create tests/parser/parserTests.txt 2. copy all image related stuff from mw/tests/parser/parserTests.txt
 	# still thinking about integration tests, using smw. increases code coverage report data
@@ -303,4 +304,6 @@ class Setup {
 	#@todo add extensions requirement to extension.json for "Bootstrap": "~ 1.2" as soon as Bootstrap supports new Extension loading (leaving this in breaks 1.31.x)
 	#@todo remove \BootstrapComponents\Setup::registerMyConfiguration when dropping support for mw > 1.31 (assuming T184837 will be fixed)
 	#@todo components like popover, collapse, etc use #button to activate. You can supply an img tag and have an image inside the button. what if you want to have just the image?
+	#@todo in case there are translations from translate wiki, augment /docs/credits with
+	# Translations have been provided by the members of the [Translatewiki.net project](https://translatewiki.net).
 }

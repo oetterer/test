@@ -19,6 +19,12 @@ the following components are available to be used inside the wiki text:
 * [Tooltip](#tooltip)
 * [Well](#well)
 
+Just add the appropriate code inside your wiki text. If your wiki is
+not configured to use this specific component, you will see the code
+on the resulting page. If it is whitelisted you will see either the
+component or a feedback message on your wiki page.
+
+-------------------------------------------------------------------------
 ### Accordion
 An accordion groups collapsible [panels](#panel) together to a single
 unit in a way, that opening one panel closes all others.
@@ -206,7 +212,6 @@ background with button color.
 -------------------------------------------------------------------------
 ### Carousel
 The Carousel component is for cycling through elements, like a carousel (slide show).
-
 
 #### Example usage
 ```xml

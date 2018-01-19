@@ -25,4 +25,5 @@ Provides
 * A new gallery mode: _carousel_
 * Option to have images in wiki text to be replaced by modals
 * Tests
-* Installation option mw default or composer
+* Installation options: mw default or composer
+* Documentation

@@ -2,7 +2,7 @@
 /**
  * Contains class holding and distributing information about all available components.
  *
- * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @copyright (C) 2018, Tobias Oetterer, Paderborn University
  * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
  *
  * This file is part of the MediaWiki extension BootstrapComponents.
@@ -85,13 +85,6 @@ class ComponentLibrary {
 	private $componentNamesByClass;
 
 	/**
-	 * If array, holds the names of the component that are allowed through config. If bool is true for all and false for none.
-	 *
-	 * @var bool|array $componentWhiteList
-	 */
-	private $componentWhiteList;
-
-	/**
 	 * The list of available bootstrap components
 	 *
 	 * @var string[] $registeredComponents
@@ -128,9 +121,9 @@ class ComponentLibrary {
 				? $myConfig->get( 'BootstrapComponentsWhitelist' )
 				: true;
 		}
-		$this->componentWhiteList = $componentWhiteList;
+		$componentWhiteList = $this->mangle( $componentWhiteList );
 		list ( $this->registeredComponents, $this->componentNamesByClass, $this->componentDataStore )
-			= $this->registerComponents( $this->componentWhiteList );
+			= $this->registerComponents( $componentWhiteList );
 	}
 
 	/**
@@ -279,6 +272,22 @@ class ComponentLibrary {
 	 */
 	public function isTagExtension( $componentName ) {
 		return $this->getHandlerTypeFor( $componentName ) == self::HANDLER_TYPE_TAG_EXTENSION;
+	}
+
+	/**
+	 * @param bool|array $componentWhiteList
+	 *
+	 * @return bool|array
+	 */
+	private function mangle( $componentWhiteList ) {
+		if ( !is_array( $componentWhiteList ) ) {
+			return $componentWhiteList;
+		}
+		$newWhiteList = [];
+		foreach ( $componentWhiteList as $element ) {
+			$newWhiteList[] = strtolower( $element );
+		}
+		return $newWhiteList;
 	}
 
 	/**

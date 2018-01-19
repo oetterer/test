@@ -1,6 +1,6 @@
 ## Licenses
 
-Copyright 2018, Tobias Oetterer, University of Paderborn
+Copyright 2018, Tobias Oetterer, Paderborn University
 
 You can use the BootstrapComponents extension under the [GNU General Public
 License, version 3](https://www.gnu.org/copyleft/gpl.html) (or any later

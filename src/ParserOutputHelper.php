@@ -2,7 +2,7 @@
 /**
  * Contains the class augmenting the parser output.
  *
- * @copyright (C) 2018, Tobias Oetterer, University of Paderborn
+ * @copyright (C) 2018, Tobias Oetterer, Paderborn University
  * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
  *
  * This file is part of the MediaWiki extension BootstrapComponents.
@@ -145,7 +145,7 @@ class ParserOutputHelper {
 		return Html::rawElement(
 			'span',
 			[ 'class' => 'error' ],
-			wfMessage( trim( $errorMessageName ) )->inContentLanguage()->parse()
+			wfMessage( trim( $errorMessageName ) )->inContentLanguage()->title( $this->parser->getTitle() )->parse()
 		);
 	}
 

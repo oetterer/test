@@ -431,12 +431,12 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 				[ 'ImageBeforeProduceHTML' ],
 			],
 			'image replacement activated' => [
-				[ 'BootstrapComponentsModalReplaceImageThumbnail' ],
+				[ 'BootstrapComponentsModalReplaceImageTag' ],
 				[ 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ],
 				[ 'GalleryGetModes' ],
 			],
 			'both activated' => [
-				[ 'BootstrapComponentsEnableCarouselGalleryMode', 'BootstrapComponentsModalReplaceImageThumbnail' ],
+				[ 'BootstrapComponentsEnableCarouselGalleryMode', 'BootstrapComponentsModalReplaceImageTag' ],
 				[ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ],
 				[],
 			],

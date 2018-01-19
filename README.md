@@ -27,9 +27,9 @@ configuration it can add a new [gallery][Gallery] mode, and replace normal
 - [Testing](docs/testing.md)
 - [Contributing](docs/contributing.md)
 - [Credits](docs/credits.md)
-- [License](md/licensing.md)
+- [License](docs/licensing.md)
 
-Please also see the [known problems](docs/kown-problems.md) section.
+Please also see the [known issues][known-issues] section.
 
 ## Contact
 For bug reports and feature requests please see, if it is already reported on

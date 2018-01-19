@@ -48,16 +48,19 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the tag:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_collapse.asp
@@ -78,34 +81,39 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the tag:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Color
-Sets the color for this component.
+<dt>Color</dt>
+<dd>Sets the color for this component.
 
 Allowed Values are
-* default
-* primary
-* success
-* info
-* warning
-* danger
+<ul>
+<li>default</li>
+<li>primary</li>
+<li>success</li>
+<li>info</li>
+<li>warning</li>
+<li>danger</li>
+</ul></dd>
 
-##### Dismissible
-If present or set to any value, the alert will get a dismiss-button.
-If you set dismissible to _fade_, the alert will fade out when dismissed.
+<dt>Dismissible</dt>
+<dd>If present or set to any value, the alert will get a dismiss-button.
+If you set dismissible to <em>fade</em>, the alert will fade out when dismissed.
 
 You can also set this attribute to any [_no_ value](#no-values), in which case
-it is ignored[(?)](#why-use-no-values).
+it is ignored [(?)](#why-use-no-values).</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_alerts.asp
@@ -128,16 +136,19 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the parser function:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_badges_labels.asp
@@ -155,56 +166,64 @@ Bootstrap provides different styles of buttons that can link to any target.
 #### Allowed Attributes
 The following attributes can be used inside the parser function:
 
-##### Active
-Having this attribute simply present or set to a non-[_no value_](#no-values)
+<dl>
+<dt>Active</dt>
+<dd>Having this attribute simply present or set to a non-[_no value_](#no-values)
 makes a button appear pressed.
 
-You can also set this attribute to any _no value_, in which case
-it is ignored[(?)](#why-use-no-values).
+You can also set this attribute to any <em>no value</em>, in which case
+it is ignored [(?)](#why-use-no-values).</dd>
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Color
-Sets the color for this component.
+<dt>Color</dt>
+<dd>Sets the color for this component.
 
 Allowed Values are
-* default
-* primary
-* success
-* info
-* warning
-* danger
+<ul>
+<li>default</li>
+<li>primary</li>
+<li>success</li>
+<li>info</li>
+<li>warning</li>
+<li>danger</li>
+</ul></dd>
 
-##### Disabled
-Having this attribute simply present or set to a non-[_no value_](#no-values)
+<dt>Disabled</dt>
+<dd>Having this attribute simply present or set to a non-[_no value_](#no-values)
 disables the button.
 
-You can also set this attribute to any _no value_, in which case
-it is ignored[(?)](#why-use-no-values).
+You can also set this attribute to any <em>no value</em>, in which case
+it is ignored [(?)](#why-use-no-values).</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Size
-You can choose a size for your button. Possible options are:
-* xs
-* sm
-* md (default)
-* lg
+<dt>Size</dt>
+<dd>You can choose a size for your button. Possible options are:
+<ul>
+<li>xs</li>
+<li>sm</li>
+<li>md (default)</li>
+<li>lg</li>
+</ul></dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
 
-##### Text
-This text will be displayed on the button. If omitted, the target is
+<dt>Text</dt>
+<dd>This text will be displayed on the button. If omitted, the target is
 used.
 
 If you supply an image tag, it is stripped of any link tags and then
 be used inside the button. Best use a transparent image or match image
-background with button color.
+background with button color.</dd>
+</dl>
+
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_buttons.asp
@@ -221,16 +240,19 @@ The Carousel component is for cycling through elements, like a carousel (slide s
 #### Allowed Attributes
 The following attributes can be used inside the parser function:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_carousel.asp
@@ -253,15 +275,17 @@ See also:
 This uses all the allowed attributes of the [button](#button)
 and they will be used in the same manner. Exceptions follow:
 
-##### Text
-This is a __mandatory__ field.
+<dl>
+<dt>Text</dt>
+<dd>This is a <b>mandatory</b> field.
 
 If you supply text, a [button](#button) will be generated and used
 as the trigger for the collapse.
 
 If you supply an image tag, it is stripped of any link tags and then
 be used as the trigger element. In this case, all but the attributes
-_class_, _style_, and _id_ will be ignored.
+<em>class</em>, <em>style</em>, and <em>id</em> will be ignored.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_collapse.asp
@@ -308,16 +332,19 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the tag:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_jumbotron_header.asp
@@ -338,27 +365,32 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the parser function:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Color
-Sets the color for this component.
+<dt>Color</dt>
+<dd>Sets the color for this component.
 
 Allowed Values are
-* default
-* primary
-* success
-* info
-* warning
-* danger
+<ul>
+<li>default</li>
+<li>primary</li>
+<li>success</li>
+<li>info</li>
+<li>warning</li>
+<li>danger</li>
+</ul></dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_badges_labels.asp
@@ -385,48 +417,55 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the tag:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Color
-Sets the color for this component.
+<dt>Color</dt>
+<dd>Sets the color for this component.
 
 Allowed Values are
-* default
-* primary
-* success
-* info
-* warning
-* danger
+<ul>
+<li>default</li>
+<li>primary</li>
+<li>success</li>
+<li>info</li>
+<li>warning</li>
+<li>danger</li>
+</ul></dd>
 
-##### Footer
-All you supply here will be inserted into the footer area of the modal.
+<dt>Footer</dt>
+<dd>All you supply here will be inserted into the footer area of the modal.</dd>
 
-##### Heading
-All you supply here will be inserted into the header area of the modal.
+<dt>Heading</dt>
+<dd>All you supply here will be inserted into the header area of the modal.</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Size
-You can choose a size for your button. Possible options are:
-* sm
-* md (default)
-* lg
+<dt>Size</dt>
+<dd>You can choose a size for your modal. Possible options are:
+<ul>
+<li>sm</li>
+<li>md (default)</li>
+<li>lg</li>
+</ul></dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
 
-##### Text
-This is a __mandatory__ field.
+<dt>Text</dt>
+<dd>This is a <b>mandatory</b> field.
 
 If you supply text, a [button](#button) will be generated and used
 as the trigger for the collapse.
 
 If you supply an image tag, it is stripped of any link tags and then
-be used as the trigger element.
+be used as the trigger element.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_modal.asp
@@ -448,49 +487,54 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the tag:
 
-##### Active
-When uses inside an [accordion](#accordion), having this attribute
+<dl>
+<dt>Active</dt>
+<dd>When uses inside an [accordion](#accordion), having this attribute
 simply present or set to a non-[_no value_](#no-values) expands this
 panel.
 
-You can also set this attribute to any _no value_, in which case
-it is ignored[(?)](#why-use-no-values).
+You can also set this attribute to any <em>no value</em>, in which case
+it is ignored [(?)](#why-use-no-values).</dd>
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Collapsible
-Even not inside an accordion, a panel can be made collapsible. Simply
+<dt>Collapsible</dt>
+<dd>Even when not inside an accordion, a panel can be made collapsible. Simply
 having this attribute present or set to a non-[_no value_](#no-values)
 accomplishes this.
 
-You can also set this attribute to any _no value_, in which case
-it is ignored[(?)](#why-use-no-values).
+You can also set this attribute to any <em>no value</em>, in which case
+it is ignored [(?)](#why-use-no-values).</dd>
 
-##### Color
-Sets the color for this component.
+<dt>Color</dt>
+<dd>Sets the color for this component.
 
 Allowed Values are
-* default
-* primary
-* success
-* info
-* warning
-* danger
+<ul>
+<li>default</li>
+<li>primary</li>
+<li>success</li>
+<li>info</li>
+<li>warning</li>
+<li>danger</li>
+</ul></dd>
 
-##### Footer
-All you supply here will be inserted into the footer area of the panel.
+<dt>Footer</dt>
+<dd>All you supply here will be inserted into the footer area of the panel.</dd>
 
-##### Heading
-All you supply here will be inserted into the header area of the panel.
+<dt>Heading</dt>
+<dd>All you supply here will be inserted into the header area of the panel.</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_panels.asp
@@ -514,66 +558,78 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the tag:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Color
-Sets the color for this component.
+<dt>Color</dt>
+<dd>Sets the color for this component.
 
 Allowed Values are
-* default
-* primary
-* success
-* info
-* warning
-* danger
+<ul>
+<li>default</li>
+<li>primary</li>
+<li>success</li>
+<li>info</li>
+<li>warning</li>
+<li>danger</li>
+</ul></dd>
 
-##### Heading
-This is a __mandatory__ field.
+<dt>Heading</dt>
+<dd>This is a <b>mandatory</b> field.
 
-This will be inserted into the header area of the popover.
+This will be inserted into the header area of the popover.</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Placement
-By default, the popover will appear on the right side of the trigger
+<dt>Placement</dt>
+<dd>By default, the popover will appear on the right side of the trigger
 element. With this, you can place it somewhere else:
-* top
-* left
-* bottom
-* right (default)
+<ul>
+<li>top</li>
+<li>left</li>
+<li>bottom</li>
+<li>right (default)</li>
+</ul></dd>
 
-##### Size
-You can choose a size for your trigger button. Possible options are:
-* xs
-* sm
-* md (default)
-* lg
+<dt>Size</dt>
+<dd>You can choose a size for your trigger button. Possible options are:
+<ul>
+<li>xs</li>
+<li>sm</li>
+<li>md (default)</li>
+<li>lg</li>
+</ul></dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
 
-##### Text
-This is a __mandatory__ field.
+<dt>Text</dt>
+<dd>This is a <b>mandatory</b> field.
 
 This will be used as the text for the popover button.
 
 If you supply an image tag, it is stripped of any link tags and then
 be used inside the button. Best use a transparent image or match image
-background with button color.
+background with button color.</dd>
 
-##### Trigger
-By default, the popover is opened when you click on the trigger element,
+<dt>Trigger</dt>
+<dd>By default, the popover is opened when you click on the trigger element,
 and closes when you click on the element again. You can change his
 behaviour with:
-* default
-* focus: the popup is closed, when you click somewhere outside the
-    element.
-* hover: the popover is displayed as long as the mouse pointer hovers
-    over the trigger element.
+<ul>
+<li>default</li>
+<li>focus: the popup is closed, when you click somewhere outside the
+    element.</li>
+<li>hover: the popover is displayed as long as the mouse pointer hovers
+    over the trigger element.</li>
+</ul></dd>
+</dl>
+
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_popover.asp
@@ -593,29 +649,35 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the parser function:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Placement
-By default, the tooltip will appear on top of the element. With this,
+<dt>Placement</dt>
+<dd>By default, the popover will appear on top of the element. With this,
 you can place it somewhere else:
-* top (default)
-* left
-* bottom
-* right
+<ul>
+<li>top (default)</li>
+<li>left</li>
+<li>bottom</li>
+<li>right</li>
+</ul></dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
 
-##### Text
-This is a __mandatory__ field.
+<dt>Text</dt>
+<dd>This is a <b>mandatory</b> field.
 
-This will be used as the element, the tooltip will be displayed for.
+This will be used as the element, the tooltip will be displayed for.</dd>
+</dl>
+
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_tooltip.asp
@@ -637,22 +699,27 @@ See also:
 #### Allowed Attributes
 The following attributes can be used inside the tag:
 
-##### Class
-Adds this string to the class attribute of the component. If you want to
-add multiple classes, separate them by a space.
+<dl>
+<dt>Class</dt>
+<dd>Adds this string to the class attribute of the component. If you want to
+add multiple classes, separate them by a space.</dd>
 
-##### Id
-Sets the id of the component to this value. See to it, that it is unique.
+<dt>Id</dt>
+<dd>Sets the id of the component to this value. See to it, that it is
+unique.</dd>
 
-##### Size
-You can choose a size for your well. Possible options are:
-* sm
-* md (default)
-* lg
+<dt>Size</dt>
+<dd>You can choose a size for your well. Possible options are:
+<ul>
+<li>sm</li>
+<li>md (default)</li>
+<li>lg</li>
+</ul></dd>
 
-##### Style
-Adds this string to the style attribute of the component. If you want to
-add multiple css styles, separate them by a semicolon.
+<dt>Style</dt>
+<dd>Adds this string to the style attribute of the component. If you want to
+add multiple css styles, separate them by a semicolon.</dd>
+</dl>
 
 #### Links
 * https://www.w3schools.com/bootstrap/bootstrap_wells.asp

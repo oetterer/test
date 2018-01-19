@@ -192,8 +192,8 @@ class Setup {
 		) {
 			$hooks['GalleryGetModes'] = $this->createGalleryGetModes();
 		}
-		if ( $myConfig->has( 'BootstrapComponentsModalReplaceImageThumbnail' )
-			&& $myConfig->get( 'BootstrapComponentsModalReplaceImageThumbnail' )
+		if ( $myConfig->has( 'BootstrapComponentsModalReplaceImageTag' )
+			&& $myConfig->get( 'BootstrapComponentsModalReplaceImageTag' )
 		) {
 			$hooks['ImageBeforeProduceHTML'] = $this->createImageBeforeProduceHTML( $nestingController, $myConfig );
 		}
@@ -270,8 +270,9 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
-	#@todo: after refactoring of  \BootstrapComponents\AbstractComponent::sanitizeAttribute, strip components of the parser->recursiveTag() - calls
+	#@todo after refactoring of  \BootstrapComponents\AbstractComponent::sanitizeAttribute, strip components of the parser->recursiveTag() - calls
 	#@todo recheck code for https://www.mediawiki.org/wiki/Security_checklist_for_developers#Dynamic_code_generation > Any user input: no isset!
+	#@todo fix file header of modules files
 
 	### last steps
 	#@todo change release date in docs/release-notes.md

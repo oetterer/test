@@ -48,10 +48,10 @@ following settings inside your wiki's configuration. Just add the
 corresponding line to your `LocalSettings.php`.
 
 Available settings:
-* [$wgBootstrapComponentsWhitelist](#$wgBootstrapComponentsWhitelist)
-* [$wgBootstrapComponentsModalReplaceImageThumbnail](#$wgBootstrapComponentsModalReplaceImageThumbnail)
-* [$wgBootstrapComponentsDisableSourceLinkOnImageModal](#$wgBootstrapComponentsDisableSourceLinkOnImageModal)
-* [$wgBootstrapComponentsEnableCarouselGalleryMode](#$wgBootstrapComponentsEnableCarouselGalleryMode)
+* [$wgBootstrapComponentsWhitelist](#wgBootstrapComponentsWhitelist)
+* [$wgBootstrapComponentsModalReplaceImageTag](#wgBootstrapComponentsModalReplaceImageTag)
+* [$wgBootstrapComponentsDisableSourceLinkOnImageModal](#wgBootstrapComponentsDisableSourceLinkOnImageModal)
+* [$wgBootstrapComponentsEnableCarouselGalleryMode](#wgBootstrapComponentsEnableCarouselGalleryMode)
 
 ### `$wgBootstrapComponentsWhitelist`
 Default setting is `true`.
@@ -76,7 +76,7 @@ When using modals, you might want to disable popovers. See
 
 To disable all components simply set this to `false`.
 
-### `$wgBootstrapComponentsModalReplaceImageThumbnail`
+### `$wgBootstrapComponentsModalReplaceImageTag`
 Default setting is `false`.
 
 You can have this extension change the normal image handling in your
@@ -90,14 +90,14 @@ Please see [known issues][known-issues] for additional information.
 
 Example:
 ```
-$wgBootstrapComponentsModalReplaceImageThumbnail = true;
+$wgBootstrapComponentsModalReplaceImageTag = true;
 ```
 
 ### `$wgBootstrapComponentsDisableSourceLinkOnImageModal`
 Default setting is `false`.
 
 When using image modals (thus having
-`$wgBootstrapComponentsModalReplaceImageThumbnail` set to true) enabling
+`$wgBootstrapComponentsModalReplaceImageTag` set to true) enabling
 this suppresses the source link in the footer section of the modal.
 
 ### `$wgBootstrapComponentsEnableCarouselGalleryMode`
@@ -111,6 +111,6 @@ galleries, please visit [mediawiki.org][Gallery].
 [Git]: https://git-scm.com/
 [GitArchive]: https://github.com/oetterer/BootstrapComponents/archive/master.zip
 [BootstrapExtension]: https://www.mediawiki.org/wiki/Extension:Bootstrap
-[Components]: docs/components.md
+[Components]: components.md
 [known-issues]: known-issues.md
 [Gallery]: https://www.mediawiki.org/wiki/Help:Images#Rendering_a_gallery_of_images

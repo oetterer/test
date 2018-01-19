@@ -63,7 +63,8 @@ A few points to ease the process:
    method `rawComponentsDefinition()` and add all necessary data
    for the new component
 4. Create all necessary message entries in [qqq.json] and [en.json].
-5. Add tests for your new class. For guidelines on unit testing see
+5. Document the new component in [components.md]
+6. Add tests for your new class. For guidelines on unit testing see
    information on [mediawiki.org](mw-testing)
 
 #### Format of data array in ComponentLibrary::rawComponentsDefinition
@@ -83,7 +84,7 @@ A few points to ease the process:
         ],
     ];
 ```
-#### abstract methods to implement in new class
+#### Abstract method to implement in new class
 ```
 public function placeMe( ParserRequest $parserRequest ) {
     ...
@@ -96,9 +97,9 @@ public function placeMe( ParserRequest $parserRequest ) {
 [open bugs]: https://github.com/oetterer/BootstrapComponents/issues
 [report bugs]: https://github.com/oetterer/BootstrapComponents/issues/new
 [how to report a bug]: https://www.mediawiki.org/wiki/How_to_report_a_bug
-[screenshots]: https://www.mediawiki.org/wiki/Skin:Chameleon#Screenshots
+[screenshots]: https://www.mediawiki.org/wiki/Extension:BootstrapComponents#Screenshots
 [twn]: https://translatewiki.net/
-[twn-stats]: https://translatewiki.net/w/i.php?title=Special%3AMessageGroupStats&x=D&group=mediawiki-skin-chameleon&suppressempty=1
+[twn-stats]: https://translatewiki.net/w/i.php?title=Special%3AMessageGroupStats&x=D&group=mwgithub-bootstrapcomponents&suppressempty=1
 [coding]: https://www.mediawiki.org/wiki/Manual:Coding_conventions
 [mw-testing]: https://www.mediawiki.org/wiki/Manual:PHP_unit_testing
 [ClassAbstractComponent]: ../src/AbstractComponent.php
@@ -106,3 +107,4 @@ public function placeMe( ParserRequest $parserRequest ) {
 [classComponentLibrary]: ../src/ComponentLibrary.php
 [qqq.json]: ../i18n/qqq.json
 [en.json]: ../i18n/en.json
+[components.md]: components.md

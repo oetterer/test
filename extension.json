@@ -51,7 +51,7 @@
 		"BootstrapComponentsDisableIdsForTestsEnvironment": false,
 		"BootstrapComponentsDisableSourceLinkOnImageModal": false,
 		"BootstrapComponentsEnableCarouselGalleryMode": true,
-		"BootstrapComponentsModalReplaceImageThumbnail": false,
+		"BootstrapComponentsModalReplaceImageTag": false,
 		"BootstrapComponentsWhitelist": true
 	},
 	"callback": "BootstrapComponents\\Setup::onExtensionLoad",

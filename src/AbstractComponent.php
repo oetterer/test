@@ -315,6 +315,11 @@ abstract class AbstractComponent implements NestableInterface {
 			$value = $parser->recursiveTagParse( $value );
 		}
 		if ( $this->getAttributeManager()->verifyValueFor( $attribute, $value ) ) {
+			if ( empty( $value ) && $this->getAttributeManager()->getAllowedValuesFor( $attribute ) === false ) {
+				// user provided a flag attribute without a value
+				// returning $value here would evaluate to false alter, so we return true instead
+				return true;
+			}
 			return $value;
 		}
 		return false;

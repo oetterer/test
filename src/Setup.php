@@ -271,6 +271,10 @@ class Setup {
 	### attend before deployment
 	# mandatory
 	#@todo fix file header of modules files
+	#@todo add more comments
+	#@fixme tests/parser/parserTests.txt (after previous todo)
+	# remove most of the image tags
+	# add two or three examples for gallery and the other components
 
 	### last steps
 	#@todo change release date in docs/release-notes.md
@@ -280,7 +284,6 @@ class Setup {
 
 
 	# code improvement
-	#@todo add more comments
 	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5); if, add to docs/credits.md
 	# or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
 	# 1. adjust composer.json, integration script, create tests/parser/parserTests.txt 2. copy all image related stuff from mw/tests/parser/parserTests.txt
@@ -292,7 +295,6 @@ class Setup {
 		],
 	in composer does not work, because mw >= 1.29 has parserTests.php moved to tests/parser/parserTests.php; need test script...
 	 */
-	#@fixme tests/parser/parserTests.txt (after previous todo)
 	#@todo you can increase code coverage by testing private and protected methods directly
 	# see https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
 	# when starting to use this, revert some previously exposed methods to protected/private again.

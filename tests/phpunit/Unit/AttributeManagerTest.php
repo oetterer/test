@@ -10,8 +10,8 @@ use \PHPUnit_Framework_TestCase;
  *
  * @ingroup Test
  *
- * @group extension-bootstrap-components
- * @group mediawiki-databaseless
+ * @group   extension-bootstrap-components
+ * @group   mediawiki-databaseless
  *
  * @license GNU GPL v3+
  *
@@ -53,6 +53,42 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @param string    $newAttribute
+	 * @param int|array $allowedValue
+	 *
+	 * @dataProvider canRegisterNewAttributesProver
+	 */
+	public function testCanRegisterNewAttributes( $newAttribute, $allowedValue ) {
+		$instance = new AttributeManager();
+		$this->assertTrue(
+			!$instance->isRegistered( $newAttribute )
+		);
+		$this->assertTrue(
+			$instance->register( $newAttribute, $allowedValue )
+		);
+		$this->assertTrue(
+			$instance->isRegistered( $newAttribute )
+		);
+		$this->assertEquals(
+			$allowedValue,
+			$instance->getAllowedValuesFor( $newAttribute )
+		);
+	}
+
+	public function testFailRegister() {
+		$instance = new AttributeManager();
+		$this->assertTrue(
+			!$instance->register( "", 1 )
+		);
+		$this->assertTrue(
+			!$instance->register( false, 1 )
+		);
+		$this->assertTrue(
+			!$instance->register( 'empty_array_fail', [] )
+		);
+	}
+
+	/**
 	 * @param string $attribute
 	 * @param array  $valuesToTest
 	 *
@@ -61,7 +97,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	public function testVerifyValueFor( $attribute, $valuesToTest ) {
 		$instance = new AttributeManager();
 		foreach ( $valuesToTest as $value ) {
-			$verificationResult = $instance->verifiedValueFor( $attribute, $value );
+			$verificationResult = $instance->verifyValueFor( $attribute, $value );
 			$this->assertInternalType(
 				'bool',
 				$verificationResult
@@ -82,7 +118,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	public function testFailToVerifyValueFor( $attribute, $valuesToTest ) {
 		$instance = new AttributeManager();
 		foreach ( $valuesToTest as $value ) {
-			$verificationResult = $instance->verifiedValueFor( $attribute, $value );
+			$verificationResult = $instance->verifyValueFor( $attribute, $value );
 			$this->assertInternalType(
 				'boolean',
 				$verificationResult
@@ -119,12 +155,23 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function canRegisterNewAttributesProver() {
+		return [
+			'any_value' => [ 'any_value', AttributeManager::ANY_VALUE ],
+			'no_value'  => [ 'no_value', AttributeManager::NO_FALSE_VALUE ],
+			'array'     => [ 'array_value', [ 'yes', 'no' ] ],
+		];
+	}
+
+	/**
 	 * @return array[]
 	 */
 	public function verifyValueProvider() {
 		return [
 			'active' => [ 'active', [ md5( microtime() ), md5( microtime() . microtime() ) ] ],
-			'class'  => [ 'class', [  md5( microtime() ), md5( microtime() . microtime() ) ] ],
+			'class'  => [ 'class', [ md5( microtime() ), md5( microtime() . microtime() ) ] ],
 			'color'  => [ 'color', [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ] ],
 		];
 	}

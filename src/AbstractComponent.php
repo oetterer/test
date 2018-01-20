@@ -123,8 +123,6 @@ abstract class AbstractComponent implements NestableInterface {
 		$this->setParentComponent(
 			$this->getNestingController()->getCurrentElement()
 		);
-		$this->parserRequest = false;
-		$this->sanitizedAttributes = [];
 	}
 
 	/**
@@ -229,7 +227,7 @@ abstract class AbstractComponent implements NestableInterface {
 
 	/**
 	 * Returns the original parser request supplied to this component.
-	 * Note, that none of the attributes nor the input ran through
+	 * Note, that none of the attributes nor the input were parsed with
 	 * {@see \Parser::recursiveTagParse}.
 	 *
 	 * @return ParserRequest
@@ -301,7 +299,7 @@ abstract class AbstractComponent implements NestableInterface {
 			$parserRequest->getAttributes()
 		);
 		$this->id = $this->getValueFor( 'id' ) !== false
-			? $this->getValueFor( 'id' )
+			? (string) $this->getValueFor( 'id' )
 			: $this->getNestingController()->generateUniqueId( $this->getComponentName() );
 		$this->augmentParserOutput();
 	}
@@ -317,15 +315,15 @@ abstract class AbstractComponent implements NestableInterface {
 		if ( is_string( $value ) ) {
 			$value = $parser->recursiveTagParse( $value );
 		}
-		if ( $this->getAttributeManager()->verifiedValueFor( $attribute, $value ) ) {
+		if ( $this->getAttributeManager()->verifyValueFor( $attribute, $value ) ) {
 			return $value;
 		}
 		return false;
 	}
 
 	/**
-	 * @param \Parser $parser
-	 * @param array   $attributes
+	 * @param \Parser  $parser
+	 * @param string[] $attributes
 	 *
 	 * @throws \MWException cascading {@see ComponentLibrary::getAttributesFor}
 	 * @return array

@@ -102,6 +102,35 @@ class AttributeManager {
 	}
 
 	/**
+	 * Registers `attribute` with a description and allowed values
+	 *
+	 * notes on attribute registering:
+	 * * AttributeManager::ANY_VALUE: every non empty string is allowed
+	 * * AttributeManager::NO_FALSE_VALUE: as along as the attribute is present and NOT set to a value contained in $this->noValues,
+	 *      the attribute is considered valid. note that flag attributes will be set to the empty string, thus having <tag active></tag> will have
+	 *      active set to "". Handle accordingly in your component. See {@see \BootstrapComponents\Component\Button::calculateClassFrom} for example.
+	 * * array: attribute must be present and contain a value in the array to be valid
+	 *
+	 * Note also, that values will be converted to lower case before checking, you therefore should only put lower case values in your
+	 * allowed-values array.
+	 *
+	 * @param string     $attribute
+	 * @param array|int  $allowedValues
+	 *
+	 * @return bool
+	 */
+	public function register( $attribute, $allowedValues ) {
+		if ( !is_string( $attribute ) || !strlen( trim( $attribute ) ) ) {
+			return false;
+		}
+		if ( !is_int( $allowedValues ) && ( !is_array( $allowedValues ) || !count( $allowedValues ) ) ) {
+			return false;
+		}
+		$this->allowedValuesForAttribute[trim( $attribute )] = $allowedValues;
+		return true;
+	}
+
+	/**
 	 * For a given attribute, this verifies, if value is allowed.
 	 *
 	 * Note that every value for an unregistered attribute fails verification automatically
@@ -111,7 +140,7 @@ class AttributeManager {
 	 *
 	 * @return bool
 	 */
-	public function verifiedValueFor( $attribute, $value ) {
+	public function verifyValueFor( $attribute, $value ) {
 		$allowedValues = $this->getAllowedValuesFor( $attribute );
 		if ( is_null( $allowedValues ) ) {
 			return false;
@@ -127,27 +156,6 @@ class AttributeManager {
 		}
 		// $allowedValues could have been null, bool or an array. since the first two have been handled before, we can safely assume the array; so we can do:
 		return in_array( strtolower( $value ), $allowedValues, true );
-	}
-
-	/**
-	 * Registers `attribute` with a description and allowed values
-	 *
-	 * notes on attribute registering:
-	 * * `true`: every non empty string is allowed
-	 * * `false`: as along as the attribute is present and NOT set to a value contained in $this->noValues, the attribute is considered valid
-	 * * array: attribute must be present and contain a value in the array to be valid
-	 *
-	 * note also, that values will be converted to lower case before checking, you therefore should only put lower case values in your
-	 * allowed-values array.
-	 *
-	 * @param string     $attribute
-	 * @param array|bool $allowedValues
-	 */
-	protected function register( $attribute, $allowedValues ) {
-		if ( !is_string( $attribute ) || !strlen( trim( $attribute ) ) ) {
-			return;
-		}
-		$this->allowedValuesForAttribute[trim( $attribute )] = $allowedValues;
 	}
 
 	/**

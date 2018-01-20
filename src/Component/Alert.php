@@ -54,7 +54,7 @@ class Alert extends AbstractComponent {
 	 */
 	public function placeMe( $input ) {
 
-		$this->dismissible = $this->getValueFor( 'dismissible' );
+		$this->dismissible = $this->getValueFor( 'dismissible' ) !== false;
 
 		$class = $this->calculateClassFrom();
 		$inside = $input;
@@ -84,8 +84,8 @@ class Alert extends AbstractComponent {
 		$class = [ 'alert' ];
 		$class[] = 'alert-' . $this->getValueFor( 'color', 'info' );
 
-		if ( $dismiss = $this->getValueFor( 'dismissible' ) ) {
-			if ( $dismiss === 'fade' ) {
+		if ( $this->isDismissible() ) {
+			if ( $this->getValueFor( 'dismissible' ) === 'fade' ) {
 				$class = array_merge( $class, [ 'fade', 'in' ] );
 			} else {
 				$class[] = 'alert-dismissible';

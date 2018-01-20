@@ -61,7 +61,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	public function testVerifyValueFor( $attribute, $valuesToTest ) {
 		$instance = new AttributeManager();
 		foreach ( $valuesToTest as $value ) {
-			$verificationResult = $instance->verifyValueFor( $attribute, $value );
+			$verificationResult = $instance->verifiedValueFor( $attribute, $value );
 			$this->assertInternalType(
 				'bool',
 				$verificationResult
@@ -82,7 +82,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	public function testFailToVerifyValueFor( $attribute, $valuesToTest ) {
 		$instance = new AttributeManager();
 		foreach ( $valuesToTest as $value ) {
-			$verificationResult = $instance->verifyValueFor( $attribute, $value );
+			$verificationResult = $instance->verifiedValueFor( $attribute, $value );
 			$this->assertInternalType(
 				'boolean',
 				$verificationResult

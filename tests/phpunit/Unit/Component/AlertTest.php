@@ -11,8 +11,8 @@ use \MWException;
  *
  * @ingroup Test
  *
- * @group extension-bootstrap-components
- * @group mediawiki-databaseless
+ * @group   extension-bootstrap-components
+ * @group   mediawiki-databaseless
  *
  * @license GNU GPL v3+
  *
@@ -64,37 +64,37 @@ class AlertTest extends ComponentsTestBase {
 	 */
 	public function placeMeArgumentsProvider() {
 		return [
-			'simple'          => [
+			'simple'                => [
 				$this->input,
 				[],
 				'<div class="alert alert-info" id="bsc_alert_NULL" role="alert">' . $this->input . '</div>',
 			],
-			'color_unknown'   => [
+			'color_unknown'         => [
 				$this->input,
 				[ 'color' => 'unknown' ],
 				'<div class="alert alert-info" id="bsc_alert_NULL" role="alert">' . $this->input . '</div>',
 			],
-			'dismiss_invalid' => [
+			'dismiss_invalid'       => [
 				$this->input,
 				[ 'dismissible' => 'bla' ],
 				'<div class="alert alert-info alert-dismissible" id="bsc_alert_NULL" role="alert"><div type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></div>' . $this->input . '</div>',
 			],
-			'dismiss'         => [
+			'dismiss'               => [
 				$this->input,
 				[ 'dismissible' => true ],
 				'<div class="alert alert-info alert-dismissible" id="bsc_alert_NULL" role="alert"><div type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></div>' . $this->input . '</div>',
 			],
-			'fading'          => [
+			'fading'                => [
 				$this->input,
 				[ 'dismissible' => 'fade', 'color' => 'warning' ],
 				'<div class="alert alert-warning fade in" id="bsc_alert_NULL" role="alert"><div type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></div>' . $this->input . '</div>',
 			],
-			'manual id'       => [
+			'manual id, no dismiss' => [
 				$this->input,
-				[ 'color' => 'danger', 'id' => 'hms_dortmunder' ],
+				[ 'color' => 'danger', 'id' => 'hms_dortmunder', 'dismissible' => 'false' ],
 				'<div class="alert alert-danger" id="hms_dortmunder" role="alert">' . $this->input . '</div>',
 			],
-			'style and class' => [
+			'style and class'       => [
 				$this->input,
 				[ 'class' => 'dummy nice', 'style' => 'float:right;background-color:green' ],
 				'<div class="alert alert-info dummy nice" style="float:right;background-color:green" id="bsc_alert_NULL" role="alert">' . $this->input . '</div>',

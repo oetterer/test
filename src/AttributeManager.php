@@ -23,6 +23,7 @@
  * @ingroup       BootstrapComponents
  * @author        Tobias Oetterer
  */
+
 namespace BootstrapComponents;
 
 /**
@@ -34,14 +35,19 @@ namespace BootstrapComponents;
  */
 class AttributeManager {
 
+	const NO_FALSE_VALUE = 0;
+	const ANY_VALUE = 1;
+
 	/**
 	 * Holds the register for allowed attributes per component
+	 *
 	 * @var array $allowedValuesForAttribute
 	 */
 	private $allowedValuesForAttribute;
 
 	/**
 	 * Holds all values indicating a "no". Can be used to ignore "enable"-fields.
+	 *
 	 * @var array $noValues
 	 */
 	private $noValues;
@@ -105,18 +111,18 @@ class AttributeManager {
 	 *
 	 * @return bool
 	 */
-	public function verifyValueFor( $attribute, $value ) {
+	public function verifiedValueFor( $attribute, $value ) {
 		$allowedValues = $this->getAllowedValuesFor( $attribute );
 		if ( is_null( $allowedValues ) ) {
 			return false;
 		}
-		if ( ($allowedValues === false) && in_array( $value, $this->noValues, true ) ) {
+		if ( ($allowedValues === self::NO_FALSE_VALUE) && in_array( $value, $this->noValues, true ) ) {
 			return false;
 		}
-		if ( is_bool( $allowedValues ) ) {
-			// prerequisites: value is set and (if $allowedValues was set to false), not in $this->noValues
-			// here we check for $allowedValues to be bool, so $allowedValues is either true (any value) or
-			// false and not in $allowedValues
+		if ( !is_array( $allowedValues ) ) {
+			// prerequisites: value is set and (if $allowedValues was set to NO_FALSE_VALUE), not in $this->noValues
+			// here we check for $allowedValues to be not an array, so $allowedValues is either ANY_VALUE or NO_FALSE_VALUE
+			// false and not in noValues
 			return true;
 		}
 		// $allowedValues could have been null, bool or an array. since the first two have been handled before, we can safely assume the array; so we can do:
@@ -141,7 +147,7 @@ class AttributeManager {
 		if ( !is_string( $attribute ) || !strlen( trim( $attribute ) ) ) {
 			return;
 		}
-		$this->allowedValuesForAttribute[trim($attribute)] = $allowedValues;
+		$this->allowedValuesForAttribute[trim( $attribute )] = $allowedValues;
 	}
 
 	/**
@@ -149,21 +155,21 @@ class AttributeManager {
 	 */
 	private function getInitialAttributeRegister() {
 		return [
-			'active' => false,
-			'class' => true,
-			'color' => [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ],
-			'collapsible' => false,
-			'disabled' => false,
-			'dismissible' => false,
-			'footer' => true,
-			'heading' => true,
-			'id' => true,
-			'link' => true,
-			'placement' => [ 'top', 'bottom', 'left', 'right' ],
-			'size' => [ 'xs', 'sm', 'md', 'lg' ],
-			'style' => true,
-			'text' => true,
-			'trigger' => [ 'default', 'focus', 'hover' ],
+			'active'      => self::NO_FALSE_VALUE,
+			'class'       => self::ANY_VALUE,
+			'color'       => [ 'default', 'primary', 'success', 'info', 'warning', 'danger' ],
+			'collapsible' => self::NO_FALSE_VALUE,
+			'disabled'    => self::NO_FALSE_VALUE,
+			'dismissible' => self::NO_FALSE_VALUE,
+			'footer'      => self::ANY_VALUE,
+			'heading'     => self::ANY_VALUE,
+			'id'          => self::ANY_VALUE,
+			'link'        => self::ANY_VALUE,
+			'placement'   => [ 'top', 'bottom', 'left', 'right' ],
+			'size'        => [ 'xs', 'sm', 'md', 'lg' ],
+			'style'       => self::ANY_VALUE,
+			'text'        => self::ANY_VALUE,
+			'trigger'     => [ 'default', 'focus', 'hover' ],
 		];
 
 	}

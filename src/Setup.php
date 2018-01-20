@@ -270,6 +270,7 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
+	#@fixme all switch values have to be checked correctly. supplying them as flag sets an empty string. which is evaluated as false.
 	#@todo fix file header of modules files
 	#@todo add more comments
 	#@fixme tests/parser/parserTests.txt (after previous todo)

@@ -11,8 +11,8 @@ use \MWException;
  *
  * @ingroup Test
  *
- * @group extension-bootstrap-components
- * @group mediawiki-databaseless
+ * @group   extension-bootstrap-components
+ * @group   mediawiki-databaseless
  *
  * @license GNU GPL v3+
  *
@@ -63,24 +63,34 @@ class PanelTest extends ComponentsTestBase {
 	 */
 	public function placeMeArgumentsProvider() {
 		return [
-			'simple'         => [
+			'simple'            => [
 				$this->input,
 				[],
 				'<div class="panel panel-default"><div id="bsc_panel_NULL"><div class="panel-body">' . $this->input . '</div></div></div>',
 			],
-			'text missing'   => [
+			'text missing'      => [
 				'',
-				[ 'heading' => 'watch this', 'footer' => 'watch what?' ],
+				[ 'heading' => 'watch this', 'footer' => 'watch what?', 'collapsible' => 'false', ],
 				'<div class="panel panel-default"><div class="panel-heading"><h4 class="panel-title" style="margin-top:0;padding-top:0;">watch this</h4></div><div id="bsc_panel_NULL"><div class="panel-body"></div><div class="panel-footer">watch what?</div></div></div>',
 			],
-			'all attributes' => [
+			'all attributes'    => [
 				$this->input,
 				[
-					'class'       => 'dummy nice', 'style' => 'float:right;background-color:green', 'id' => 'badgers_bowler', 'active' => true,
+					'class'       => 'dummy nice',
+					'style'       => 'float:right;background-color:green',
+					'id'          => 'badgers_bowler',
+					'active'      => 'yes',
 					'color'       => 'info',
-					'collapsible' => true, 'heading' => 'HEADING TEXT', 'footer' => 'FOOTER TEXT',
+					'collapsible' => '',
+					'heading'     => 'HEADING TEXT',
+					'footer'      => 'FOOTER TEXT',
 				],
 				'<div class="panel panel-info dummy nice" style="float:right;background-color:green"><div class="panel-heading" data-toggle="collapse" href="#badgers_bowler"><h4 class="panel-title" style="margin-top:0;padding-top:0;">HEADING TEXT</h4></div><div id="badgers_bowler" class="panel-collapse collapse fade in"><div class="panel-body">' . $this->input . '</div><div class="panel-footer">FOOTER TEXT</div></div></div>',
+			],
+			'callapsible false' => [
+				$this->input,
+				[ 'collapsible' => 'false', ],
+				'<div class="panel panel-default"><div id="bsc_panel_NULL"><div class="panel-body">' . $this->input . '</div></div></div>',
 			],
 		];
 	}

@@ -82,7 +82,7 @@ class Panel extends AbstractComponent {
 	 */
 	public function placeMe( $input ) {
 
-		$this->collapsible = (bool) $this->getValueFor( 'collapsible' ) || $this->isInsideAccordion();
+		$this->collapsible = $this->getValueFor( 'collapsible' ) !== false || $this->isInsideAccordion();
 
 		$outerClass = $this->calculateOuterClassFrom();
 		$innerClass = $this->calculateInnerClassFrom();

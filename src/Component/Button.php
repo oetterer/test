@@ -107,10 +107,10 @@ class Button extends AbstractComponent {
 		if ( $size = $this->getValueFor( 'size' ) ) {
 			$class[] = "btn-" . $size;
 		}
-		if ( $this->getValueFor( 'active' ) !== false ) {
+		if ( $this->getValueFor( 'active' ) ) {
 			$class[] = 'active';
 		}
-		if ( $this->getValueFor( 'disabled' ) !== false ) {
+		if ( $this->getValueFor( 'disabled' ) ) {
 			$class[] = 'disabled';
 		}
 		return $class;

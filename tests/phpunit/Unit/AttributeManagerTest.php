@@ -56,7 +56,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	 * @param string    $newAttribute
 	 * @param int|array $allowedValue
 	 *
-	 * @dataProvider canRegisterNewAttributesProver
+	 * @dataProvider canRegisterNewAttributesProvider
 	 */
 	public function testCanRegisterNewAttributes( $newAttribute, $allowedValue ) {
 		$instance = new AttributeManager();
@@ -94,15 +94,12 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @dataProvider verifyValueProvider
 	 */
-	public function testVerifyValueFor( $attribute, $valuesToTest ) {
+	public function testVerifyValueForAttribute( $attribute, $valuesToTest ) {
 		$instance = new AttributeManager();
 		foreach ( $valuesToTest as $value ) {
-			$verificationResult = $instance->verifyValueFor( $attribute, $value );
-			$this->assertInternalType(
-				'bool',
-				$verificationResult
-			);
-			$this->assertTrue(
+			$verificationResult = $instance->verifyValueForAttribute( $attribute, $value );
+			$this->assertEquals(
+				$value,
 				$verificationResult,
 				'failed with value (' . gettype( $value ) . ') ' . $value
 			);
@@ -115,10 +112,10 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @dataProvider failToVerifyValueProvider
 	 */
-	public function testFailToVerifyValueFor( $attribute, $valuesToTest ) {
+	public function testFailToVerifyValueForAttribute( $attribute, $valuesToTest ) {
 		$instance = new AttributeManager();
 		foreach ( $valuesToTest as $value ) {
-			$verificationResult = $instance->verifyValueFor( $attribute, $value );
+			$verificationResult = $instance->verifyValueForAttribute( $attribute, $value );
 			$this->assertInternalType(
 				'boolean',
 				$verificationResult
@@ -157,7 +154,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @return array
 	 */
-	public function canRegisterNewAttributesProver() {
+	public function canRegisterNewAttributesProvider() {
 		return [
 			'any_value' => [ 'any_value', AttributeManager::ANY_VALUE ],
 			'no_value'  => [ 'no_value', AttributeManager::NO_FALSE_VALUE ],
@@ -181,12 +178,12 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function failToVerifyValueProvider() {
 		return [
-			'active'      => [ 'active', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
-			'collapsible' => [ 'collapsible', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
-			'color'       => [ 'color', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
-			'disabled'    => [ 'disabled', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
-			'dismissible' => [ 'dismissible', [ 0, false, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
-			'rnd_fail'    => [ md5( microtime() ), [ md5( microtime() ) ] ],
+			'active'      => [ 'active', [ 0, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'collapsible' => [ 'collapsible', [ 0, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'color'       => [ 'color', [ 0, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'disabled'    => [ 'disabled', [ 0, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'dismissible' => [ 'dismissible', [ 0, 'no', 'false', 'off', '0', 'disabled', 'ignored' ] ],
+			'rnd_fail'    => [ 'rnd_fail', [ md5( microtime() ) ] ],
 		];
 	}
 }

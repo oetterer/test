@@ -131,31 +131,28 @@ class AttributeManager {
 	}
 
 	/**
-	 * For a given attribute, this verifies, if value is allowed.
+	 * For a given attribute, this verifies, if value is allowed. If verification succeeds, lowercase value will be returned, false otherwise.
+	 * If an attribute is registered as NO_FALSE_VALUE and value is the empty string, it gets converted to true.
 	 *
 	 * Note that every value for an unregistered attribute fails verification automatically
 	 *
 	 * @param string $attribute
 	 * @param string $value
 	 *
-	 * @return bool
+	 * @return bool|string
 	 */
-	public function verifyValueFor( $attribute, $value ) {
+	public function verifyValueForAttribute( $attribute, $value ) {
 		$allowedValues = $this->getAllowedValuesFor( $attribute );
-		if ( is_null( $allowedValues ) ) {
-			return false;
+		if ( $allowedValues === self::NO_FALSE_VALUE ) {
+			return $this->verifyValueForNoValueAttribute( $value );
+		} elseif ( $allowedValues === self::ANY_VALUE ) {
+			return $value;
 		}
-		if ( ($allowedValues === self::NO_FALSE_VALUE) && in_array( $value, $this->noValues, true ) ) {
-			return false;
+		$value = strtolower( $value );
+		if ( is_array( $allowedValues ) && in_array( $value, $allowedValues, true ) ) {
+			return $value;
 		}
-		if ( !is_array( $allowedValues ) ) {
-			// prerequisites: value is set and (if $allowedValues was set to NO_FALSE_VALUE), not in $this->noValues
-			// here we check for $allowedValues to be not an array, so $allowedValues is either ANY_VALUE or NO_FALSE_VALUE
-			// false and not in noValues
-			return true;
-		}
-		// $allowedValues could have been null, bool or an array. since the first two have been handled before, we can safely assume the array; so we can do:
-		return in_array( strtolower( $value ), $allowedValues, true );
+		return false;
 	}
 
 	/**
@@ -180,5 +177,18 @@ class AttributeManager {
 			'trigger'     => [ 'default', 'focus', 'hover' ],
 		];
 
+	}
+
+	/**
+	 * @param string $value
+	 *
+	 * @return bool|string
+	 */
+	private function verifyValueForNoValueAttribute( $value ) {
+		$value = strtolower( $value );
+		if ( !in_array( $value, $this->noValues, true ) ) {
+			return empty( $value ) ? true : $value;
+		}
+		return false;
 	}
 }

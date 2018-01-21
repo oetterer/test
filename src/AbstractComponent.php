@@ -259,12 +259,8 @@ abstract class AbstractComponent implements NestableInterface {
 	 * @return array[] containing (array)$class and (array)$style
 	 */
 	protected function processCss( $class, $style  ) {
-		if ( !is_array( $class ) ) {
-			$class = [ $class ];
-		}
-		if ( !is_array( $style ) ) {
-			$style = [ $style ];
-		}
+		$class = (array)$class;
+		$style = (array)$style;
 		if ( $newClass = $this->getValueFor( 'class' ) ) {
 			$class[] = $newClass;
 		}
@@ -298,8 +294,8 @@ abstract class AbstractComponent implements NestableInterface {
 			$parserRequest->getParser(),
 			$parserRequest->getAttributes()
 		);
-		$this->id = $this->getValueFor( 'id' ) !== false
-			? (string) $this->getValueFor( 'id' )
+		$this->id = $this->getValueFor( 'id' ) != false
+			? (string)$this->getValueFor( 'id' )
 			: $this->getNestingController()->generateUniqueId( $this->getComponentName() );
 		$this->augmentParserOutput();
 	}
@@ -315,10 +311,7 @@ abstract class AbstractComponent implements NestableInterface {
 		if ( is_string( $value ) ) {
 			$value = $parser->recursiveTagParse( $value );
 		}
-		if ( $this->getAttributeManager()->verifyValueFor( $attribute, $value ) ) {
-			return $value;
-		}
-		return false;
+		return $this->getAttributeManager()->verifyValueForAttribute( $attribute, $value );
 	}
 
 	/**

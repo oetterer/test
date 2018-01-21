@@ -125,7 +125,7 @@ class Button extends AbstractComponent {
 	 */
 	private function getTargetAndText( $input ) {
 		$target = $input;
-		$text = $this->getValueFor( 'text' );
+		$text = (string)$this->getValueFor( 'text' );
 		if ( empty( $text ) ) {
 			$text = $target;
 		}

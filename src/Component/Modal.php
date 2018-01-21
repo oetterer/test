@@ -61,9 +61,9 @@ class Modal extends AbstractComponent {
 		)->setDialogClass(
 			$this->calculateInnerClass()
 		)->setHeader(
-			$this->getValueFor( 'heading' )
+			(string)$this->getValueFor( 'heading' )
 		)->setFooter(
-			$this->getValueFor( 'footer' )
+			(string)$this->getValueFor( 'footer' )
 		)->parse();
 	}
 
@@ -106,7 +106,7 @@ class Modal extends AbstractComponent {
 	 * @return string
 	 */
 	private function generateTrigger() {
-		$text = $this->getValueFor( 'text' );
+		$text = (string)$this->getValueFor( 'text' );
 		if ( empty( $text ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-modal-text-missing' );
 		}

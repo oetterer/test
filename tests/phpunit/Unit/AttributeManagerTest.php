@@ -78,10 +78,7 @@ class AttributeManagerTest extends PHPUnit_Framework_TestCase {
 	public function testFailRegister() {
 		$instance = new AttributeManager();
 		$this->assertTrue(
-			!$instance->register( "", 1 )
-		);
-		$this->assertTrue(
-			!$instance->register( false, 1 )
+			!$instance->register( '', 1 )
 		);
 		$this->assertTrue(
 			!$instance->register( 'empty_array_fail', [] )

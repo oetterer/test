@@ -87,10 +87,8 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @param array $arguments
 	 * @param bool  $isParserFunction
-
 	 *
 	 * @expectedException \MWException
-	 *
 	 * @dataProvider parserRequestFailureProvider
 	 */
 	public function testFailingGetNewParserRequest( $arguments, $isParserFunction ) {
@@ -101,6 +99,9 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		$instance->getNewParserRequest( $arguments, $isParserFunction );
 	}
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanRegisterApplication() {
 		$instance = new ApplicationFactory();
 		$this->assertTrue(
@@ -108,13 +109,13 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanNotRegisterApplicationOnInvalidName() {
 		$instance = new ApplicationFactory();
 		$this->assertTrue(
 			!$instance->registerApplication( '', 'ReflectionClass' )
-		);
-		$this->assertTrue(
-			!$instance->registerApplication( false, 'ReflectionClass' )
 		);
 		$this->assertTrue(
 			!$instance->registerApplication( '   ', 'ReflectionClass' )

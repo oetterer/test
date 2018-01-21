@@ -29,6 +29,7 @@ namespace BootstrapComponents;
 use \Bootstrap\BootstrapManager;
 use \Hooks;
 use \MediaWiki\MediaWikiServices;
+use \MWException;
 use \Parser;
 use \ReflectionClass;
 
@@ -250,12 +251,14 @@ class Setup {
 		$configFactory->register( 'BootstrapComponents', 'GlobalVarConfig::newInstance' );
 	}
 
+	/**
+	 * @throws \MWException
+	 */
 	private function bootstrapExtensionPresent() {
 		if ( !defined( 'BS_VERSION' ) ) {
-			die(
-				'This extension requires Extension Bootstrap to be installed. '
-				. 'Please check <a href="https://github.com/oetterer/BootstrapComponents/">the online help</a>' . PHP_EOL
-			);
+			echo 'The BootstrapComponents extension requires Extension Bootstrap to be installed. '
+				. 'Please check <a href="https://github.com/oetterer/BootstrapComponents/">the online help</a>' . PHP_EOL;
+			throw new MWException( 'BootstrapComponents needs extension Bootstrap present.' );
 		}
 	}
 

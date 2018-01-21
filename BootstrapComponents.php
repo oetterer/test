@@ -41,6 +41,8 @@
 
 namespace BootstrapComponents;
 
+use \MWException;
+
 /**
  * Provides methods to register, when installed by composer
  *
@@ -50,6 +52,9 @@ namespace BootstrapComponents;
  */
 class BootstrapComponents {
 
+	/**
+	 * @throws \MWException
+	 */
 	public static function load() {
 
 		if ( self::doCheckRequirements() ) {
@@ -58,19 +63,21 @@ class BootstrapComponents {
 	}
 
 	/**
+	 * @throws \MWException
+	 *
 	 * @return bool
 	 */
 	public static function doCheckRequirements() {
 
 		if ( !defined( 'MEDIAWIKI' ) ) {
-			die( 'This file is part of a Mediawiki Extension, it is not a valid entry point.' . PHP_EOL );
+			echo 'This file is part of the Mediawiki extension BootstrapComponents, it is not a valid entry point.' . PHP_EOL;
+			throw new MWException( 'This file is part of a Mediawiki Extension, it is not a valid entry point.' );
 		}
 
 		if ( version_compare( $GLOBALS[ 'wgVersion' ], '1.27', 'lt' ) ) {
-			die(
-				'<b>Error:</b> <a href="https://github.com/oetterer/BootstrapComponents/">Bootstrap Components</a> '
-				. 'is only compatible with MediaWiki 1.27 or above. You need to upgrade MediaWiki first.' . PHP_EOL
-			);
+			echo '<b>Error:</b> <a href="https://github.com/oetterer/BootstrapComponents/">Bootstrap Components</a> '
+				. 'is only compatible with MediaWiki 1.27 or above. You need to upgrade MediaWiki first.' . PHP_EOL;
+			throw new MWException( 'BootstrapComponents detected an incompatible MediaWiki version. Exiting.' );
 		}
 
 		if ( defined( 'BOOTSTRAP_COMPONENTS_VERSION' ) ) {

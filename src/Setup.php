@@ -127,7 +127,7 @@ class Setup {
 				} else {
 					wfDebugLog(
 						'BootstrapComponents', 'Unknown handler type ('
-							. $componentLibrary->getHandlerTypeFor( $componentName ) . ') detected for component ' . $parserHookString
+						. $componentLibrary->getHandlerTypeFor( $componentName ) . ') detected for component ' . $parserHookString
 					);
 				}
 			}

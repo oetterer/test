@@ -74,6 +74,14 @@ class ModalTest extends ComponentsTestBase {
 <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
 </div></div></div>',
 			],
+			'text missing'        => [
+				$this->input,
+				[ 'text' => '' ],
+				'<span class="modal-trigger" data-toggle="modal" data-target="#bsc_modal_NULL">bootstrap-components-modal-text-missing</span><div class="modal fade" role="dialog" id="bsc_modal_NULL" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+<div class="modal-body">' . $this->input . '</div>
+<div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Close</button></div>
+</div></div></div>',
+			],
 			'image, size invalid' => [
 				$this->input,
 				[

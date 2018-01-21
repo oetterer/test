@@ -97,7 +97,7 @@ class AbstractComponentTest extends ComponentsTestBase {
 	public function testSimpleOutput( $component ) {
 		$parserRequest = $this->buildParserRequest(
 			'test input',
-			[ 'class' => 'test-class' ]
+			[ 'class' => 'test-class', 'style' => 'color:black' ]
 		);
 		$class = $this->getComponentLibrary()->getClassFor( $component );
 		/** @var AbstractComponent $instance */
@@ -114,6 +114,31 @@ class AbstractComponentTest extends ComponentsTestBase {
 		$this->assertRegExp(
 			'/class="[^"]*test-class"/',
 			$parsedString
+		);
+		$this->assertRegExp(
+			'/style="[^"]*color:black"/',
+			$parsedString
+		);
+	}
+
+	/**
+	 * @param string $component
+	 *
+	 * @throws MWException
+	 * @dataProvider allComponentsProvider
+	 */
+	public function testInvalidParserRequest( $component ) {
+		$class = $this->getComponentLibrary()->getClassFor( $component );
+		/** @var AbstractComponent $instance */
+		$instance = new $class(
+			$this->getComponentLibrary(),
+			$this->getParserOutputHelper(),
+			$this->getNestingController()
+		);
+		$this->setExpectedException( 'MWException' );
+		/** @noinspection PhpParamsInspection */
+		$parsedString = $instance->parseComponent(
+			'noParser'
 		);
 	}
 

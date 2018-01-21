@@ -70,11 +70,9 @@ class ParserRequest {
 	 * @throws MWException
 	 */
 	public function __construct( $argumentsPassedByParser, $isParserFunction, $componentName = 'unknown' ) {
-		list( $this->input, $this->attributes, $this->parser, $this->frame ) =
+		list( $this->input, $attributes, $this->parser, $this->frame ) =
 			$this->processArguments( $argumentsPassedByParser, $isParserFunction, $componentName );
-		if ( !is_array( $this->attributes ) ) {
-			$this->attributes = [ $this->attributes ];
-		}
+		$this->attributes = (array)$attributes;
 		if ( !$this->parser || !is_a( $this->parser, 'Parser' ) ) {
 			throw new MWException( 'Invalid parser object passed to component ' . $componentName . '!' );
 		}

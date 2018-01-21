@@ -23,9 +23,6 @@ class PopoverTest extends ComponentsTestBase {
 
 	private $input = 'Popover test text';
 
-	/**
-	 * @throws \MWException
-	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(
@@ -85,9 +82,9 @@ class PopoverTest extends ComponentsTestBase {
 				$this->input,
 				[
 					'heading'   => 'heading', 'text' => 'BUTTON', 'class' => 'dummy nice', 'style' => 'float:right;background-color:green',
-					'placement' => 'right', 'trigger' => 'hover', 'id' => 'cudgel',
+					'placement' => 'right', 'trigger' => 'hover', 'id' => 'cudgel', 'size' => 'sm'
 				],
-				'<button class="btn btn-info dummy nice" style="float:right;background-color:green" id="cudgel" data-toggle="popover" title="heading" data-content="' . $this->input . '" data-placement="right" data-trigger="hover" type="submit">BUTTON</button>',
+				'<button class="btn btn-info btn-sm dummy nice" style="float:right;background-color:green" id="cudgel" data-toggle="popover" title="heading" data-content="' . $this->input . '" data-placement="right" data-trigger="hover" type="submit">BUTTON</button>',
 			],
 		];
 	}

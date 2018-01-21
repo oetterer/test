@@ -132,14 +132,14 @@ class NestingController {
 	/**
 	 * Signals the opening of a bootstrap component (thus letting the nc put the nestable component on its stack)
 	 *
-	 * @param NestableInterface $component
+	 * @param NestableInterface $nestable
 	 *
 	 * @throws MWException when open is called with an invalid object
 	 */
-	public function open( &$component ) {
-		if ( !$component instanceof NestableInterface ) {
+	public function open( &$nestable ) {
+		if ( !$nestable instanceof NestableInterface ) {
 			throw new MWException( 'Nesting error. Trying to put an object other than a Component an the nesting stack.' );
 		}
-		array_push( $this->componentStack, $component );
+		array_push( $this->componentStack, $nestable );
 	}
 }

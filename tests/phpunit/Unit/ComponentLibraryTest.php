@@ -10,8 +10,8 @@ use \PHPUnit_Framework_TestCase;
  *
  * @ingroup Test
  *
- * @group extension-bootstrap-components
- * @group mediawiki-databaseless
+ * @group   extension-bootstrap-components
+ * @group   mediawiki-databaseless
  *
  * @license GNU GPL v3+
  *
@@ -38,14 +38,6 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(
 			$expectedParserHookString,
 			ComponentLibrary::compileParserHookStringFor( $componentName )
-		);
-	}
-
-	public function testGetAllRegisteredComponents() {
-		$instance = new ComponentLibrary();
-		$this->assertEquals(
-			array_keys( $this->componentNameAndClassProvider() ),
-			$instance->getRegisteredComponents()
 		);
 	}
 
@@ -78,6 +70,23 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @param string   $component
+	 * @param string[] $expectedAttributes
+	 *
+	 * @throws \MWException
+	 *
+	 * @dataProvider componentAttributesProvider
+	 */
+	public function testCanGetAttributesFor( $component, $expectedAttributes ) {
+		$instance = new ComponentLibrary();
+		$this->assertEquals(
+			$expectedAttributes,
+			$instance->getAttributesFor( $component )
+		);
+	}
+
+
+	/**
 	 * @param string $componentName
 	 * @param string $componentClass
 	 *
@@ -93,6 +102,13 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testGetAllRegisteredComponents() {
+		$instance = new ComponentLibrary();
+		$this->assertEquals(
+			array_keys( $this->componentNameAndClassProvider() ),
+			$instance->getRegisteredComponents()
+		);
+	}
 
 	/**
 	 * @param string $componentName
@@ -105,6 +121,32 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 		$this->assertContains(
 			$instance->getHandlerTypeFor( $componentName ),
 			[ ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION, ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ]
+		);
+	}
+
+	public function testGetHandlerTypeForUnknownComponent() {
+		$instance = new ComponentLibrary();
+
+		$this->assertEquals(
+			'UNKNOWN',
+			$instance->getHandlerTypeFor( 'unknown' )
+		);
+	}
+
+	/**
+	 * @param string $componentName
+	 * @param bool   $isParserFunction
+	 *
+	 * @dataProvider handlerTypeProvider
+	 */
+	public function testIsHandlerType( $componentName, $isParserFunction ) {
+		$instance = new ComponentLibrary();
+
+		$this->assertTrue(
+			!$isParserFunction xor $instance->isParserFunction( $componentName )
+		);
+		$this->assertTrue(
+			$isParserFunction xor $instance->isTagExtension( $componentName )
 		);
 	}
 
@@ -244,12 +286,38 @@ class ComponentLibraryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function componentAttributesProvider() {
+		return [
+			'accordion' => [ 'accordion', [ 'class', 'id', 'style' ] ],
+			'alert'     => [ 'alert', [ 'color', 'dismissible', 'class', 'id', 'style' ] ],
+			'modal'     => [ 'modal', [ 'color', 'footer', 'heading', 'size', 'text', 'class', 'id', 'style' ] ],
+		];
+	}
+
+	/**
 	 * @return array[]
 	 */
 	public function exceptionThrowingMethodsProvider() {
 		return [
-			'getClassFor'       => [ 'getClassFor' ],
-			'getNameFor'        => [ 'getNameFor' ],
+			'getAttributesFor' => [ 'getAttributesFor' ],
+			'getClassFor'      => [ 'getClassFor' ],
+			'getNameFor'       => [ 'getNameFor' ],
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function handlerTypeProvider() {
+		return [
+			'accordion' => [ 'accordion', false ],
+			'panel'     => [ 'panel', false ],
+			'popover'   => [ 'popover', false ],
+			'button'    => [ 'button', true ],
+			'icon'      => [ 'icon', true ],
+			'tooltip'   => [ 'tooltip', true ],
 		];
 	}
 

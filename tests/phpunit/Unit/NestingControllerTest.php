@@ -104,6 +104,21 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @expectedException \MWException
 	 */
+	public function testOpenFail() {
+		$instance = new NestingController( false );
+
+		$this->setExpectedException( 'MWException' );
+
+		$component = 'invalid';
+		/** @noinspection PhpParamsInspection */
+		$instance->open( $component );
+	}
+
+	/**
+	 * @throws MWException
+	 *
+	 * @expectedException \MWException
+	 */
 	public function testCloseFailOnInvalidId() {
 		$instance = new NestingController( false );
 

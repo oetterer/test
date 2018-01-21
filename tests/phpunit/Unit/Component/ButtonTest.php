@@ -111,6 +111,11 @@ class ButtonTest extends ComponentsTestBase {
 				[],
 				'~bootstrap-components-button-target-missing~', // because getParserOutputHelper-mock returns the message key instead of parsing it.
 			],
+			'invalid'            => [
+				'     ',
+				[],
+				'~bootstrap-components-button-target-invalid~', // because getParserOutputHelper-mock returns the message key instead of parsing it.
+			],
 			'disabled, color, text and id' => [
 				$this->input,
 				[ 'disabled' => true, 'color' => 'danger', 'text' => 'BUTTON', 'id' => 'red' ],

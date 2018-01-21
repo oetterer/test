@@ -136,6 +136,9 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(
 			$instance->resetLookup()
 		);
+		$this->assertTrue(
+			!$instance->resetLookup( 'hasBeenReset' )
+		);
 	}
 
 	/**

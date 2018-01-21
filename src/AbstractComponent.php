@@ -153,7 +153,7 @@ abstract class AbstractComponent implements NestableInterface {
 	 */
 	public function parseComponent( $parserRequest ) {
 		if ( !is_a( $parserRequest, 'BootstrapComponents\ParserRequest' )  ) {
-			throw new MWException( 'Invalid ParserRequest supplied to component ' . $this->getComponentName() . '! Got class ' . get_class( $parserRequest ) );
+			throw new MWException( 'Invalid ParserRequest supplied to component ' . $this->getComponentName() . '!' );
 		}
 		$this->initComponentData( $parserRequest );
 

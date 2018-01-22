@@ -23,6 +23,9 @@ class PanelTest extends ComponentsTestBase {
 
 	private $input = 'Panel test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(
@@ -150,12 +153,12 @@ class PanelTest extends ComponentsTestBase {
 			'simple'            => [
 				$this->input,
 				[],
-				'<div class="panel panel-default"><div class="panel-heading" data-toggle="collapse" href="#bsc_panel_NULL" data-parent="#accordion0"><h4 class="panel-title" style="margin-top:0;padding-top:0;">bsc_panel_NULL</h4></div><div id="bsc_panel_NULL" class="panel-collapse collapse fade"><div class="panel-body">' . $this->input . '</div></div></div>',
+				'<div class="panel panel-default"><div class="panel-heading" data-parent="#accordion0" data-toggle="collapse" href="#bsc_panel_NULL"><h4 class="panel-title" style="margin-top:0;padding-top:0;">bsc_panel_NULL</h4></div><div id="bsc_panel_NULL" class="panel-collapse collapse fade"><div class="panel-body">' . $this->input . '</div></div></div>',
 			],
 			'text missing'      => [
 				'',
 				[ 'heading' => 'watch this', 'footer' => 'watch what?', 'collapsible' => 'false', ],
-				'<div class="panel panel-default"><div class="panel-heading" data-toggle="collapse" href="#bsc_panel_NULL" data-parent="#accordion0"><h4 class="panel-title" style="margin-top:0;padding-top:0;">watch this</h4></div><div id="bsc_panel_NULL" class="panel-collapse collapse fade"><div class="panel-body"></div><div class="panel-footer">watch what?</div></div></div>',
+				'<div class="panel panel-default"><div class="panel-heading" data-parent="#accordion0" data-toggle="collapse" href="#bsc_panel_NULL"><h4 class="panel-title" style="margin-top:0;padding-top:0;">watch this</h4></div><div id="bsc_panel_NULL" class="panel-collapse collapse fade"><div class="panel-body"></div><div class="panel-footer">watch what?</div></div></div>',
 			],
 			'all attributes'    => [
 				$this->input,
@@ -169,12 +172,12 @@ class PanelTest extends ComponentsTestBase {
 					'heading'     => 'HEADING TEXT',
 					'footer'      => 'FOOTER TEXT',
 				],
-				'<div class="panel panel-info dummy nice" style="float:right;background-color:green"><div class="panel-heading" data-toggle="collapse" href="#badgers_bowler" data-parent="#accordion0"><h4 class="panel-title" style="margin-top:0;padding-top:0;">HEADING TEXT</h4></div><div id="badgers_bowler" class="panel-collapse collapse fade in"><div class="panel-body">' . $this->input . '</div><div class="panel-footer">FOOTER TEXT</div></div></div>',
+				'<div class="panel panel-info dummy nice" style="float:right;background-color:green"><div class="panel-heading" data-parent="#accordion0" data-toggle="collapse" href="#badgers_bowler"><h4 class="panel-title" style="margin-top:0;padding-top:0;">HEADING TEXT</h4></div><div id="badgers_bowler" class="panel-collapse collapse fade in"><div class="panel-body">' . $this->input . '</div><div class="panel-footer">FOOTER TEXT</div></div></div>',
 			],
 			'collapsible false' => [
 				$this->input,
 				[ 'collapsible' => 'false', ],
-				'<div class="panel panel-default"><div class="panel-heading" data-toggle="collapse" href="#bsc_panel_NULL" data-parent="#accordion0"><h4 class="panel-title" style="margin-top:0;padding-top:0;">bsc_panel_NULL</h4></div><div id="bsc_panel_NULL" class="panel-collapse collapse fade"><div class="panel-body">' . $this->input . '</div></div></div>',
+				'<div class="panel panel-default"><div class="panel-heading" data-parent="#accordion0" data-toggle="collapse" href="#bsc_panel_NULL"><h4 class="panel-title" style="margin-top:0;padding-top:0;">bsc_panel_NULL</h4></div><div id="bsc_panel_NULL" class="panel-collapse collapse fade"><div class="panel-body">' . $this->input . '</div></div></div>',
 			],
 		];
 	}

@@ -45,7 +45,7 @@ class Setup {
 	 * Callback function when extension is loaded via extension.json or composer.
 	 *
 	 * Note: With this we omit hook registration in extension.json and define our own here
-	 * to increase compatibility with composer loading
+	 * to better allow for unit testing.
 	 *
 	 * @param array $info
 	 *
@@ -59,7 +59,7 @@ class Setup {
 		if ( !empty( $info ) ) {
 			$setup->prepareEnvironment( $info );
 		}
-		$setup->bootstrapExtensionPresent();
+		$setup->assertExtensionBootstrapPresent();
 		$configFactory = MediaWikiServices::getInstance()->getConfigFactory();
 		$setup->registerMyConfiguration( $configFactory );
 
@@ -72,7 +72,7 @@ class Setup {
 	/**
 	 * @return \Closure
 	 */
-	public function createGalleryGetModes() {
+	public function createGalleryGetModesCallback() {
 		return function( &$modeArray ) {
 			$modeArray['carousel'] = 'BootstrapComponents\\CarouselGallery';
 			return true;
@@ -85,7 +85,7 @@ class Setup {
 	 *
 	 * @return \Closure
 	 */
-	public function createImageBeforeProduceHTML( $nestingController, $myConfig ) {
+	public function createImageBeforeProduceHTMLCallback( $nestingController, $myConfig ) {
 		return function( &$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
 		) use ( $nestingController, $myConfig ) {
 
@@ -163,7 +163,7 @@ class Setup {
 	/**
 	 * @return \Closure
 	 */
-	public function createSetupAfterCache() {
+	public function createSetupAfterCacheCallback() {
 		return function() {
 			BootstrapManager::getInstance()->addAllBootstrapModules();
 			return true;
@@ -185,18 +185,18 @@ class Setup {
 		list( $componentLibrary, $nestingController ) = $this->initializeApplications( $myConfig );
 		$hooks = [
 			'ParserFirstCallInit' => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
-			'SetupAfterCache'     => $this->createSetupAfterCache(),
+			'SetupAfterCache'     => $this->createSetupAfterCacheCallback(),
 		];
 
 		if ( $myConfig->has( 'BootstrapComponentsEnableCarouselGalleryMode' )
 			&& $myConfig->get( 'BootstrapComponentsEnableCarouselGalleryMode' )
 		) {
-			$hooks['GalleryGetModes'] = $this->createGalleryGetModes();
+			$hooks['GalleryGetModes'] = $this->createGalleryGetModesCallback();
 		}
 		if ( $myConfig->has( 'BootstrapComponentsModalReplaceImageTag' )
 			&& $myConfig->get( 'BootstrapComponentsModalReplaceImageTag' )
 		) {
-			$hooks['ImageBeforeProduceHTML'] = $this->createImageBeforeProduceHTML( $nestingController, $myConfig );
+			$hooks['ImageBeforeProduceHTML'] = $this->createImageBeforeProduceHTMLCallback( $nestingController, $myConfig );
 		}
 
 		return $hooks;
@@ -206,14 +206,14 @@ class Setup {
 	 * @param \Config $myConfig
 	 *
 	 * @return array
-	 * @throws \MWException cascading {@see \BootstrapComponents\applicationFactory} calls
+	 * @throws \MWException cascading {@see \BootstrapComponents\ApplicationFactory} calls
 	 * @throws \ConfigException cascading {@see \Config::get}
 	 */
 	public function initializeApplications( $myConfig ) {
 		$applicationFactory = ApplicationFactory::getInstance();
 		$componentLibrary = $applicationFactory->getComponentLibrary();
 		$nestingController = $applicationFactory->getNestingController(
-			$myConfig->get( 'BootstrapComponentsDisableIdsForTestsEnvironment' )
+			$myConfig->get( 'BootstrapComponentsDisableIdsForTestEnvironment' )
 		);
 		return [ $componentLibrary, $nestingController ];
 	}
@@ -245,7 +245,7 @@ class Setup {
 	 * @param \ConfigFactory $configFactory
 	 * Registers my own configuration, so that it is present during onLoad. See phabricator issue T184837
 	 *
-	 * @link https://phabricator.wikimedia.org/T184837
+	 * @see https://phabricator.wikimedia.org/T184837
 	 */
 	public function registerMyConfiguration( $configFactory ) {
 		$configFactory->register( 'BootstrapComponents', 'GlobalVarConfig::newInstance' );
@@ -254,7 +254,7 @@ class Setup {
 	/**
 	 * @throws \MWException
 	 */
-	private function bootstrapExtensionPresent() {
+	private function assertExtensionBootstrapPresent() {
 		if ( !defined( 'BS_VERSION' ) ) {
 			echo 'The BootstrapComponents extension requires Extension Bootstrap to be installed. '
 				. 'Please check <a href="https://github.com/oetterer/BootstrapComponents/">the online help</a>' . PHP_EOL;
@@ -273,9 +273,6 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
-	#@fixme all switch values have to be checked correctly. supplying them as flag sets an empty string. which is evaluated as false.
-	#@todo fix file header of modules files
-	#@todo add more comments
 	#@fixme tests/parser/parserTests.txt (after previous todo)
 	# remove most of the image tags
 	# add two or three examples for gallery and the other components
@@ -294,7 +291,7 @@ class Setup {
 	# still thinking about integration tests, using smw. increases code coverage report data
 	/*
 	 * 	"parser":[
-			"echo '$wgBootstrapComponentsDisableIdsForTestsEnvironment = true;' >> ../../LocalSettings.php",
+			"echo '$wgBootstrapComponentsDisableIdsForTestEnvironment = true;' >> ../../LocalSettings.php",
 			"php ../../tests/parserTests.php --quiet --file tests/parser/parserTests.txt --quiet"
 		],
 	in composer does not work, because mw >= 1.29 has parserTests.php moved to tests/parser/parserTests.php; need test script...

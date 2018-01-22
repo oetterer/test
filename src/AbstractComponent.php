@@ -120,7 +120,7 @@ abstract class AbstractComponent implements NestableInterface {
 		$this->name = $componentLibrary->getNameFor(
 			get_class( $this )
 		);
-		$this->setParentComponent(
+		$this->storeParentComponent(
 			$this->getNestingController()->getCurrentElement()
 		);
 	}
@@ -135,8 +135,7 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
-	 * Note that id is only present, if component requested one (in constructor) and the component has been opened in
-	 * {@see \BootstrapComponents\Component::renderComponent}.
+	 * Note that id is only present after {@see AbstractComponent::parseComponent} starts execution.
 	 *
 	 * @return string
 	 */
@@ -157,12 +156,13 @@ abstract class AbstractComponent implements NestableInterface {
 		}
 		$this->initComponentData( $parserRequest );
 
+		$this->getNestingController()->open( $this );
+
 		$input = $parserRequest->getParser()->recursiveTagParse(
 			$parserRequest->getInput(),
 			$parserRequest->getFrame()
 		);
 
-		$this->getNestingController()->open( $this );
 		$ret = $this->placeMe( $input );
 		$this->getNestingController()->close( $this->getId() );
 		return $ret;
@@ -189,7 +189,7 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
-	 * Returns the classes reference to the component library.
+	 * Returns the class' reference to the component library.
 	 *
 	 * @return AttributeManager
 	 */
@@ -237,6 +237,9 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
+	 * If attribute is registered, this returns the verified and parsed value for it. If not, or the
+	 * verified value is false, this returns the fallback.
+	 *
 	 * @param string      $attribute
 	 * @param bool|string $fallback
 	 *
@@ -271,7 +274,7 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
-	 * Performs all the mandatory actions on the parser output for the component class
+	 * Performs all the mandatory actions on the parser output for the component class.
 	 */
 	private function augmentParserOutput() {
 		$this->getParserOutputHelper()->addTrackingCategory();
@@ -284,6 +287,8 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
+	 * Initializes the attributes, id and stores the original parser request.
+	 *
 	 * @param ParserRequest $parserRequest
 	 *
 	 * @throws \MWException cascading {@see ComponentLibrary::sanitizeAttributes}
@@ -301,6 +306,8 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
+	 * Parses and verifies one value for a given attribute.
+	 *
 	 * @param \Parser $parser
 	 * @param string  $attribute
 	 * @param string  $value
@@ -315,6 +322,8 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
+	 * For every registered attribute, sanitizes (parses and verifies) the corresponding value in supplied attributes.
+	 *
 	 * @param \Parser  $parser
 	 * @param string[] $attributes
 	 *
@@ -343,7 +352,7 @@ abstract class AbstractComponent implements NestableInterface {
 	/**
 	 * @param NestableInterface|false $parentComponent
 	 */
-	private function setParentComponent( $parentComponent ) {
+	private function storeParentComponent( $parentComponent ) {
 		$this->parentComponent = $parentComponent;
 	}
 }

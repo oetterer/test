@@ -35,7 +35,21 @@ namespace BootstrapComponents;
  */
 class AttributeManager {
 
+	/**
+	 * For attributes that can be set to false by supplying one of certain values.
+	 * Usually uses for flag-attributes like "active", "collapsible", etc.
+	 *
+	 * @see \BootstrapComponents\AttributeManager::$noValues
+	 *
+	 * @var int
+	 */
 	const NO_FALSE_VALUE = 0;
+
+	/**
+	 * For attributes that take any value.
+	 *
+	 * @var int
+	 */
 	const ANY_VALUE = 1;
 
 	/**
@@ -76,8 +90,10 @@ class AttributeManager {
 	}
 
 	/**
-	 * Returns the allowed values for a given attribute or NULL if invalid attribute
-	 * Note that allowed values can be true (for any) or false (for none)
+	 * Returns the allowed values for a given attribute or NULL if invalid attribute.
+	 *
+	 * Note that allowed values can be an array, {@see AttributeManager::NO_FALSE_VALUE},
+	 * or {@see AttributeManager::ANY_VALUE}.
 	 *
 	 * @param string $attribute
 	 *
@@ -91,7 +107,7 @@ class AttributeManager {
 	}
 
 	/**
-	 * Checks if given `attribute` is registered with the manager
+	 * Checks if given $attribute is registered with the manager.
 	 *
 	 * @param string $attribute
 	 *
@@ -102,13 +118,13 @@ class AttributeManager {
 	}
 
 	/**
-	 * Registers `attribute` with a description and allowed values
+	 * Registers $attribute with and its allowed values.
 	 *
-	 * notes on attribute registering:
-	 * * AttributeManager::ANY_VALUE: every non empty string is allowed
-	 * * AttributeManager::NO_FALSE_VALUE: as along as the attribute is present and NOT set to a value contained in $this->noValues,
-	 *      the attribute is considered valid. note that flag attributes will be set to the empty string, thus having <tag active></tag> will have
-	 *      active set to "". Handle accordingly in your component. See {@see \BootstrapComponents\Component\Button::calculateClassFrom} for example.
+	 * Notes on attribute registering:
+	 * * {@see AttributeManager::ANY_VALUE}: every non empty string is allowed
+	 * * {@see AttributeManager::NO_FALSE_VALUE}: as along as the attribute is present and NOT set to a value contained in {@see AttributeManager::$noValues},
+	 *      the attribute is considered valid. Note that flag attributes will be set to the empty string by the parser, e.g. having <tag active></tag> will have
+	 *      active set to "". {@see AttributeManager::verifyValueForAttribute} returns those as true.
 	 * * array: attribute must be present and contain a value in the array to be valid
 	 *
 	 * Note also, that values will be converted to lower case before checking, you therefore should only put lower case values in your
@@ -131,10 +147,11 @@ class AttributeManager {
 	}
 
 	/**
-	 * For a given attribute, this verifies, if value is allowed. If verification succeeds, lowercase value will be returned, false otherwise.
+	 * For a given attribute, this verifies, if value is allowed. If verification succeeds, the value will be returned, false otherwise.
 	 * If an attribute is registered as NO_FALSE_VALUE and value is the empty string, it gets converted to true.
 	 *
-	 * Note that every value for an unregistered attribute fails verification automatically
+	 * Note: an ANY_VALUE attribute can still be the empty string.
+	 * Note: that every value for an unregistered attribute fails verification automatically.
 	 *
 	 * @param string $attribute
 	 * @param string $value
@@ -146,10 +163,9 @@ class AttributeManager {
 		if ( $allowedValues === self::NO_FALSE_VALUE ) {
 			return $this->verifyValueForNoValueAttribute( $value );
 		} elseif ( $allowedValues === self::ANY_VALUE ) {
+			// here, the component deals the empty strings its way
 			return $value;
-		}
-		$value = strtolower( $value );
-		if ( is_array( $allowedValues ) && in_array( $value, $allowedValues, true ) ) {
+		} elseif ( is_array( $allowedValues ) && in_array( strtolower( $value ), $allowedValues, true ) ) {
 			return $value;
 		}
 		return false;
@@ -185,10 +201,9 @@ class AttributeManager {
 	 * @return bool|string
 	 */
 	private function verifyValueForNoValueAttribute( $value ) {
-		$value = strtolower( $value );
-		if ( !in_array( $value, $this->noValues, true ) ) {
-			return empty( $value ) ? true : $value;
+		if ( in_array( strtolower( $value ), $this->noValues, true ) ) {
+			return false;
 		}
-		return false;
+		return empty( $value ) ? true : $value;
 	}
 }

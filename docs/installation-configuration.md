@@ -48,10 +48,10 @@ following settings inside your wiki's configuration. Just add the
 corresponding line to your `LocalSettings.php`.
 
 Available settings:
-* [$wgBootstrapComponentsWhitelist](#wgBootstrapComponentsWhitelist)
-* [$wgBootstrapComponentsModalReplaceImageTag](#wgBootstrapComponentsModalReplaceImageTag)
-* [$wgBootstrapComponentsDisableSourceLinkOnImageModal](#wgBootstrapComponentsDisableSourceLinkOnImageModal)
-* [$wgBootstrapComponentsEnableCarouselGalleryMode](#wgBootstrapComponentsEnableCarouselGalleryMode)
+* [$wgBootstrapComponentsWhitelist](#wgbootstrapcomponentswhitelist)
+* [$wgBootstrapComponentsModalReplaceImageTag](#wgbootstrapcomponentsmodalreplaceimagetag)
+* [$wgBootstrapComponentsDisableSourceLinkOnImageModal](#wgbootstrapcomponentsdisablesourcelinkonimagemodal)
+* [$wgBootstrapComponentsEnableCarouselGalleryMode](#wgbootstrapcomponentsenablecarouselgallerymode)
 
 ### `$wgBootstrapComponentsWhitelist`
 Default setting is `true`.

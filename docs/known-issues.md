@@ -1,4 +1,4 @@
-## The following are knows problems
+## The following are known issues
 Some components cause problems with other components or "external"
 elements.
 

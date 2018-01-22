@@ -48,7 +48,7 @@
 	"@note2": "hooks are registered in BootstrapComponents\\Setup",
 	"Hooks": { },
 	"config": {
-		"BootstrapComponentsDisableIdsForTestsEnvironment": false,
+		"BootstrapComponentsDisableIdsForTestEnvironment": false,
 		"BootstrapComponentsDisableSourceLinkOnImageModal": false,
 		"BootstrapComponentsEnableCarouselGalleryMode": true,
 		"BootstrapComponentsModalReplaceImageTag": false,

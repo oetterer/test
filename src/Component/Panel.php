@@ -71,7 +71,6 @@ class Panel extends AbstractComponent {
 	public function __construct( $componentLibrary, $parserOutputHelper, $nestingController ) {
 		parent::__construct( $componentLibrary, $parserOutputHelper, $nestingController );
 		$this->collapsible = false;
-		$this->insideAccordion = null;
 		$this->insideAccordion = $this->isInsideAccordion();
 	}
 
@@ -84,8 +83,8 @@ class Panel extends AbstractComponent {
 
 		$this->collapsible = $this->getValueFor( 'collapsible' ) || $this->isInsideAccordion();
 
-		$outerClass = $this->calculateOuterClassFrom();
-		$innerClass = $this->calculateInnerClassFrom();
+		$outerClass = $this->calculateOuterClassAttribute();
+		$innerClass = $this->calculateInnerClassAttribute();
 
 		list ( $outerClass, $style ) = $this->processCss( $outerClass, [] );
 
@@ -119,7 +118,7 @@ class Panel extends AbstractComponent {
 	 *
 	 * @return string[]
 	 */
-	private function calculateOuterClassFrom() {
+	private function calculateOuterClassAttribute() {
 
 		$class = [ 'panel' ];
 		$class[] = 'panel-' . $this->getValueFor( 'color', 'default' );
@@ -131,7 +130,7 @@ class Panel extends AbstractComponent {
 	 *
 	 * @return bool|array
 	 */
-	private function calculateInnerClassFrom() {
+	private function calculateInnerClassAttribute() {
 
 		$class = false;
 		if ( $this->isCollapsible() ) {
@@ -144,20 +143,20 @@ class Panel extends AbstractComponent {
 	}
 
 	/**
-	 * Returns my data parent string (the one to put in the heading toggle when collapsible
+	 * Returns my data parent attribute (the one to put in the heading toggle when inside an accordion).
 	 *
-	 * @return array
+	 * @return string
 	 */
 	private function getDataParent() {
 		$parent = $this->getParentComponent();
 		if ( $parent && $this->isInsideAccordion() && $parent->getId() ) {
-			return [ 'data-parent' => '#' . $parent->getId() ];
+			return '#' . $parent->getId();
 		}
-		return [];
+		return false;
 	}
 
 	/**
-	 * Indicates, whether this panel is collapsible or not
+	 * Indicates, whether this panel is collapsible or not.
 	 *
 	 * @return bool
 	 */
@@ -166,7 +165,7 @@ class Panel extends AbstractComponent {
 	}
 
 	/**
-	 * Checks, whether this panel is directly inside an accordion
+	 * Checks, whether this panel is directly inside an accordion.
 	 *
 	 * @return bool
 	 */
@@ -203,9 +202,10 @@ class Panel extends AbstractComponent {
 		if ( $type == 'heading' ) {
 			if ( $this->isCollapsible() ) {
 				$newAttributes += [
+						'data-parent' => $this->getDataParent(),
 						'data-toggle' => 'collapse',
 						'href'        => '#' . $this->getId(),
-					] + $this->getDataParent();
+					];
 			}
 			$inside = Html::rawElement(
 				'h4',

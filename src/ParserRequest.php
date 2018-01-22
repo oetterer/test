@@ -79,13 +79,23 @@ class ParserRequest {
 	}
 
 	/**
-	 * @return string[]
+	 * Returns the tag attributes / parser function options supplies by the parser.
+	 *
+	 * @return string[] associative array `attribute => value`
 	 */
 	public function getAttributes() {
 		return $this->attributes;
 	}
 
 	/**
+	 * Gets the input supplied by the parser. For tag extensions this is the string between opening and closing tag. For
+	 * parser functions this is the first option after the double colon.
+	 *
+	 * <code>
+	 *  <bootstrap_panel>This is the input</bootstrap_panel>
+	 *  {{#bootstrap_icon:This is the input}}
+	 * </code>
+	 *
 	 * @return string
 	 */
 	public function getInput() {
@@ -93,6 +103,8 @@ class ParserRequest {
 	}
 
 	/**
+	 * Tag extensions supply a frame.
+	 *
 	 * @return \PPFrame
 	 */
 	public function getFrame() {
@@ -100,6 +112,8 @@ class ParserRequest {
 	}
 
 	/**
+	 * This is the parser object passed to the parser function or the tag extension.
+	 *
 	 * @return \Parser
 	 */
 	public function getParser() {

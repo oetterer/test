@@ -56,7 +56,7 @@ class Alert extends AbstractComponent {
 
 		$this->dismissible = (bool)$this->getValueFor( 'dismissible' );
 
-		$class = $this->calculateClassFrom();
+		$class = $this->calculateAlertClassAttribute();
 		$inside = $input;
 		if ( $this->isDismissible() ) {
 			$inside = $this->renderDismissButton() . $inside;
@@ -80,7 +80,7 @@ class Alert extends AbstractComponent {
 	 *
 	 * @return string[]
 	 */
-	private function calculateClassFrom() {
+	private function calculateAlertClassAttribute() {
 		$class = [ 'alert' ];
 		$class[] = 'alert-' . $this->getValueFor( 'color', 'info' );
 

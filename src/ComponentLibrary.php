@@ -103,8 +103,7 @@ class ComponentLibrary {
 	/**
 	 * ComponentLibrary constructor.
 	 *
-	 * Do not instantiate directly, but use {@see ApplicationFactory::getComponentLibrary}
-	 * instead.
+	 * Do not instantiate directly, but use {@see ApplicationFactory::getComponentLibrary} instead.
 	 *
 	 * @param bool|array $componentWhiteList (see {@see \BootstrapComponents\ComponentLibrary::$componentWhiteList})
 	 *
@@ -127,7 +126,7 @@ class ComponentLibrary {
 	}
 
 	/**
-	 * Compiles an array for all bootstrap component parser functions to be uses in the i18n.magic file
+	 * Compiles an array for all bootstrap component parser functions to be uses in the BootstrapComponents.magic.php file.
 	 *
 	 * @return array
 	 */
@@ -143,7 +142,7 @@ class ComponentLibrary {
 	}
 
 	/**
-	 * Checks, if component '$component' is registered with the tag manager
+	 * Checks, if component $component is registered with the tag manager
 	 *
 	 * @param string $component
 	 *
@@ -198,7 +197,7 @@ class ComponentLibrary {
 	}
 
 	/**
-	 * Returns an array of all the known component's names.
+	 * Returns an array of all the known components' names.
 	 *
 	 * @return array
 	 */
@@ -229,7 +228,7 @@ class ComponentLibrary {
 	}
 
 	/**
-	 * Returns the component name for a given class
+	 * Returns the component name for a given class.
 	 *
 	 * @param string $componentClass
 	 *
@@ -253,7 +252,7 @@ class ComponentLibrary {
 	}
 
 	/**
-	 * True, if referenced component is marked as parser function
+	 * True, if referenced component is registered as parser function.
 	 *
 	 * @param string $componentName
 	 *
@@ -264,7 +263,7 @@ class ComponentLibrary {
 	}
 
 	/**
-	 * True, if referenced component is marked as tag extension
+	 * True, if referenced component is registered as tag extension.
 	 *
 	 * @param string $componentName
 	 *
@@ -275,6 +274,8 @@ class ComponentLibrary {
 	}
 
 	/**
+	 * Sees to it, that the whitelist (if it is an array) contains only lowercase strings.
+	 *
 	 * @param bool|array $componentWhiteList
 	 *
 	 * @return bool|array
@@ -291,6 +292,9 @@ class ComponentLibrary {
 	}
 
 	/**
+	 * The attribute array in the register can contain an `default => true` entry. This adds the
+	 * appropriate default attributes.
+	 *
 	 * @param array $componentAttributes
 	 *
 	 * @return array

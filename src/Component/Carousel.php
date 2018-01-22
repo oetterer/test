@@ -68,7 +68,7 @@ class Carousel extends AbstractComponent {
 				. Html::rawElement(
 					'div',
 					[ 'class' => 'carousel-inner' ],
-					$this->itemize( $images )
+					$this->convertImagesIntoSlides( $images )
 				)
 				. $this->buildControls()
 			),
@@ -78,7 +78,7 @@ class Carousel extends AbstractComponent {
 	}
 
 	/**
-	 * Responsible for generating the a tags that make up the prev and next controls
+	 * Responsible for generating the a tags that make up the prev and next controls.
 	 *
 	 * @return string
 	 */
@@ -103,7 +103,7 @@ class Carousel extends AbstractComponent {
 	}
 
 	/**
-	 * Extracts and parsed all images for the carousel
+	 * Extracts and parses all images for the carousel.
 	 *
 	 * @param ParserRequest $parserRequest
 	 *
@@ -130,6 +130,8 @@ class Carousel extends AbstractComponent {
 	}
 
 	/**
+	 * Generates the dots in the bottom section that let you jump to a specific image.
+	 *
 	 * @param int $num
 	 *
 	 * @return string
@@ -156,11 +158,13 @@ class Carousel extends AbstractComponent {
 	}
 
 	/**
+	 * Converts the carousel image into slides.
+	 *
 	 * @param string[] $images
 	 *
 	 * @return string
 	 */
-	private function itemize( $images ) {
+	private function convertImagesIntoSlides( $images ) {
 		$slides = PHP_EOL;
 		$active = ' active';
 		foreach ( $images as $image ) {

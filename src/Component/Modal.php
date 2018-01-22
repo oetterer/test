@@ -28,6 +28,7 @@ namespace BootstrapComponents\Component;
 
 use BootstrapComponents\AbstractComponent;
 use BootstrapComponents\ApplicationFactory;
+use BootstrapComponents\ModalBuilder;
 use BootstrapComponents\ParserRequest;
 use \Html;
 use \MWException;
@@ -68,7 +69,7 @@ class Modal extends AbstractComponent {
 	}
 
 	/**
-	 * Calculates the css class string from the attributes array for the "inner" section (div around body and heading)
+	 * Calculates the css class string from the attributes array for the "inner" section (div around body and heading).
 	 *
 	 * @return false|string
 	 */
@@ -83,7 +84,7 @@ class Modal extends AbstractComponent {
 	}
 
 	/**
-	 * Spawns the button for the modal trigger
+	 * Spawns the button for the modal trigger.
 	 *
 	 * @param string $text
 	 *
@@ -103,6 +104,8 @@ class Modal extends AbstractComponent {
 	}
 
 	/**
+	 * Generate the trigger element (button or image).
+	 *
 	 * @return string
 	 */
 	private function generateTrigger() {
@@ -116,14 +119,6 @@ class Modal extends AbstractComponent {
 			return $this->generateButton( $text );
 		}
 		array_shift( $matches );
-		return Html::rawElement(
-			'span',
-			[
-				'class'       => 'modal-trigger',
-				'data-toggle' => 'modal',
-				'data-target' => '#' . $this->getId(),
-			],
-			implode( '', $matches )
-		);
+		return ModalBuilder::wrapTriggerElement( implode( '', $matches ), $this->getId() );
 	}
 }

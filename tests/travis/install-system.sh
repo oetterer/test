@@ -95,7 +95,7 @@ function augmentConfiguration {
   echo '$wgLanguageCode = "'${SITELANG}'";' >> LocalSettings.php
  fi
  echo '$wgBootstrapComponentsModalReplaceImageTag = true;' >> LocalSettings.php
- #echo '$wgBootstrapComponentsDisableIdsForTestsEnvironment = true;' >> LocalSettings.php
+ #echo '$wgBootstrapComponentsDisableIdsForTestEnvironment = true;' >> LocalSettings.php
  echo '$wgEnableUploads = true;' >> LocalSettings.php
  echo 'wfLoadSkin( "Vector" );' >> LocalSettings.php
  echo 'error_reporting(E_ALL| E_STRICT);' >> LocalSettings.php

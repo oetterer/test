@@ -39,15 +39,16 @@ class NestingController {
 
 	/**
 	 * List of ids already in use in the context of the bootstrap components.
-	 * Key is of this array is the component name, value is the next usable id
+	 * Key is of this array is the component name, value is the next usable id.
 	 *
 	 * @var array $autoincrementPerComponent
 	 */
 	private $autoincrementPerComponent;
 
 	/**
-	 * Holds information about the bootstrap component stack,
-	 * so that components can be called within components.
+	 * Holds information about the bootstrap component stack, so that components
+	 * can get information about their parent "nest".
+	 *
 	 * Consists of elements of type {@see Nestable}.
 	 *
 	 * @var array $componentStack
@@ -56,6 +57,7 @@ class NestingController {
 
 	/**
 	 * When in testing mode, unique ids tend to make things very difficult. So this knows, when not to generate them.
+	 *
 	 * @var bool $disableUniqueIds
 	 */
 	private $disableUniqueIds;
@@ -63,8 +65,7 @@ class NestingController {
 	/**
 	 * NestingController constructor.
 	 *
-	 * Do not instantiate directly, but use {@see ApplicationFactory::getNestingController}
-	 * instead.
+	 * Do not instantiate directly, but use {@see ApplicationFactory::getNestingController} instead.
 	 *
 	 * @param bool $disableUniqueIds defaults to false
 	 *
@@ -77,9 +78,9 @@ class NestingController {
 	}
 
 	/**
-	 * Signals the closing of a bootstrap component
+	 * Signals the closing of a bootstrap component.
 	 *
-	 * @param string|false $id if of the current object we are trying to close
+	 * @param string|false $id id of the current object we are trying to close
 	 *
 	 * @throws MWException if current and closing component is different
 	 */
@@ -95,7 +96,7 @@ class NestingController {
 	}
 
 	/**
-	 * Generates an id not in use within any bootstrap component yet.
+	 * Generates an id not in use within any bootstrap component on this page yet.
 	 *
 	 * @param string $componentName
 	 *
@@ -112,7 +113,7 @@ class NestingController {
 	}
 
 	/**
-	 * Returns a reference to the last opened component
+	 * Returns a reference to the last opened component.
 	 *
 	 * @return false|NestableInterface
 	 */
@@ -130,7 +131,7 @@ class NestingController {
 	}
 
 	/**
-	 * Signals the opening of a bootstrap component (thus letting the nc put the nestable component on its stack)
+	 * Signals the opening of a bootstrap component (thus letting the nc put the nestable component on its stack).
 	 *
 	 * @param NestableInterface $nestable
 	 *

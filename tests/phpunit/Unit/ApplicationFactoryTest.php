@@ -43,6 +43,16 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(
 			$instance->resetLookup( $application )
 		);
+		// again
+		$this->assertInstanceOf(
+			'BootstrapComponents\\' . $application,
+			call_user_func( [ $instance, 'get' . $application ] )
+		);
+		// and again
+		$this->assertInstanceOf(
+			'BootstrapComponents\\' . $application,
+			call_user_func( [ $instance, 'get' . $application ] )
+		);
 	}
 
 	public function testGetModalBuilder() {

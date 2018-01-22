@@ -39,21 +39,21 @@ use \Title;
  */
 class ParserOutputHelper {
 	/**
-	 * To make sure, we only add the tracking category once
+	 * To make sure, we only add the tracking category once.
 	 *
 	 * @var bool $articleTracked
 	 */
 	private $articleTracked;
 
 	/**
-	 * To make sure, we only add the error tracking category once
+	 * To make sure, we only add the error tracking category once.
 	 *
 	 * @var bool $articleTrackedOnError
 	 */
 	private $articleTrackedOnError;
 
 	/**
-	 * Holds the name of the skin we use (or false, if there is no skin)
+	 * Holds the name of the skin we use (or false, if there is no skin).
 	 *
 	 * @var string $nameOfActiveSkin
 	 */
@@ -67,8 +67,7 @@ class ParserOutputHelper {
 	/**
 	 * ParserOutputHelper constructor.
 	 *
-	 * Do not instantiate directly, but use {@see ApplicationFactory::getParserOutputHelper}
-	 * instead.
+	 * Do not instantiate directly, but use {@see ApplicationFactory::getParserOutputHelper} instead.
 	 *
 	 * @param \Parser $parser
 	 *
@@ -93,7 +92,7 @@ class ParserOutputHelper {
 	}
 
 	/**
-	 * Adds the supplied modules to the parser output
+	 * Adds the supplied modules to the parser output.
 	 *
 	 * @param array $modulesToAdd
 	 */
@@ -131,7 +130,7 @@ class ParserOutputHelper {
 	}
 
 	/**
-	 * Formats a text as error text to be added to the output
+	 * Formats a text as error text so it can be added to the output.
 	 *
 	 * @param string $errorMessageName
 	 *
@@ -167,7 +166,7 @@ class ParserOutputHelper {
 	}
 
 	/**
-	 * Adds current page to the indicated tracking category, if not done already
+	 * Adds current page to the indicated tracking category, if not done already.
 	 *
 	 * @param String $trackingCategoryMessageName name of the message, containing the tracking category
 	 */

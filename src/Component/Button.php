@@ -47,7 +47,8 @@ class Button extends AbstractComponent {
 	private $rawAttributes = [];
 
 	/**
-	 * Allows spawning objects (like {@see \BootstrapComponents\Collapse}) to insert additional data inside the button tag.
+	 * Allows spawning objects (like {@see \BootstrapComponents\Collapse}) to insert additional data into the button tag.
+	 * These attributes and their values will neither be parsed or verified. It is assumed, that you know what you are doing.
 	 *
 	 * @param array $rawAttributes of form attribute => value
 	 */
@@ -74,7 +75,7 @@ class Button extends AbstractComponent {
 		}
 
 		list ( $class, $style ) = $this->processCss(
-			$this->calculateClassFrom(),
+			$this->calculateButtonClassAttribute(),
 			[]
 		);
 
@@ -100,7 +101,7 @@ class Button extends AbstractComponent {
 	 *
 	 * @return string[]
 	 */
-	private function calculateClassFrom() {
+	private function calculateButtonClassAttribute() {
 
 		$class = [ "btn" ];
 		$class[] = 'btn-' . $this->getValueFor( 'color', 'default' );

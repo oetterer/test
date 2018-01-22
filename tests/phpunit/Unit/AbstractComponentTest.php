@@ -137,7 +137,7 @@ class AbstractComponentTest extends ComponentsTestBase {
 		);
 		$this->setExpectedException( 'MWException' );
 		/** @noinspection PhpParamsInspection */
-		$parsedString = $instance->parseComponent(
+		$instance->parseComponent(
 			'noParser'
 		);
 	}

@@ -55,7 +55,7 @@ class Popover extends AbstractComponent {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-popover-text-missing' );
 		}
 
-		list ( $class, $style ) = $this->processCss( $this->calculateClassFrom(), [] );
+		list ( $class, $style ) = $this->processCss( $this->calculatePopoverClassAttribute(), [] );
 
 		return Html::rawElement(
 			'button',
@@ -78,7 +78,7 @@ class Popover extends AbstractComponent {
 	 *
 	 * @return array
 	 */
-	private function calculateClassFrom() {
+	private function calculatePopoverClassAttribute() {
 		$class = [ 'btn', 'btn-' . $this->getValueFor( 'color', 'info' ) ];
 		if ( $size = $this->getValueFor( 'size' ) ) {
 			$class[] = 'btn-' . $size;

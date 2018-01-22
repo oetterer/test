@@ -66,7 +66,7 @@ A few points to ease the process:
 5. Document the new component in [components.md]
 6. Add tests for your new class. For guidelines on unit testing see
    information on [mediawiki.org](mw-testing)
-7. Adjust existing tests / prover:
+7. Adjust existing tests / provider:
   * `AbstractComponentTest::allComponentsProvider()`
   * `ComponentLibraryTest::testCanCompileMagicWordsArray`
   * `ComponentLibraryTest::compileParserHookStringProvider`
@@ -93,7 +93,7 @@ A few points to ease the process:
 ```
 #### Abstract method to implement in new class
 ```
-public function placeMe( ParserRequest $parserRequest ) {
+public function placeMe( $input ) {
     ...
     return <(array|string) your component html code>
     // see also https://www.mediawiki.org/wiki/Manual:Parser_functions#Controlling_the_parsing_of_output

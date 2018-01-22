@@ -128,6 +128,8 @@ class ApplicationFactory {
 	 * @param bool   $isParserFunction
 	 * @param string $componentName
 	 *
+	 * @throws \MWException cascading {@see \BootstrapComponents\ParserRequest::__construct}
+	 *
 	 * @return ParserRequest
 	 */
 	public function getNewParserRequest( $argumentsPassedByParser, $isParserFunction, $componentName = 'unknown' ) {
@@ -179,8 +181,9 @@ class ApplicationFactory {
 	 *
 	 * @param string $name
 	 *
+	 * @throws MWException  when no class is registered for the requested application or the creation of the object fails.
+	 *
 	 * @return mixed|object
-	 * @throws MWException  when no class is registered for the requested application
 	 */
 	protected function getApplication( $name ) {
 		if ( isset( $this->applicationStore[$name] ) ) {
@@ -192,7 +195,12 @@ class ApplicationFactory {
 		$args = func_get_args();
 		array_shift( $args ); # because, we already used the first argument $name
 
-		$objectReflection = new ReflectionClass( $this->applicationClassRegister[$name] );
+		try {
+			$objectReflection = new ReflectionClass( $this->applicationClassRegister[$name] );
+		}
+		catch ( \ReflectionException $e ) {
+			throw new MWException( 'Error while trying to build application with class ' . $this->applicationClassRegister[$name] );
+		}
 		return $this->applicationStore[$name] = $objectReflection->newInstanceArgs( $args );
 	}
 

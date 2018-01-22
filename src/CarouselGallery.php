@@ -37,15 +37,19 @@ use \ImageGalleryBase;
 class CarouselGallery extends ImageGalleryBase {
 
 	/**
+	 * Renders the carousel gallery.
+	 *
 	 * @param ParserOutputHelper $parserOutputHelper used for unit tests
 	 *
-	 * @throws \MWException cascading {@see \BootstrapComponents\Component::parseComponent}
+	 * @throws \MWException cascading {@see CarouselGallery::constructCarouselParserRequest} and  {@see AbstractComponent::parseComponent}
 	 * @return string
 	 */
 	public function toHTML( $parserOutputHelper = null ) {
 		$parserOutputHelper = is_null( $parserOutputHelper )
 			? ApplicationFactory::getInstance()->getParserOutputHelper( $this->mParser )
 			: $parserOutputHelper;
+
+		// if there were no images registered with the gallery, display error message and exit.
 		if ( $this->isEmpty() ) {
 			return $parserOutputHelper->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
 		}
@@ -57,6 +61,7 @@ class CarouselGallery extends ImageGalleryBase {
 		);
 		$carouselParserRequest = $this->constructCarouselParserRequest();
 
+		// if there were no valid images found in the list of registered images, display error message and exit.
 		if ( $carouselParserRequest === false ) {
 			return $parserOutputHelper->renderErrorMessage( 'bootstrap-components-carousel-images-missing' );
 		}
@@ -64,23 +69,27 @@ class CarouselGallery extends ImageGalleryBase {
 	}
 
 	/**
+	 * This merges two different kind of attributes, so that the merger can later be treated as parser function attributes.
+	 *
 	 * @param array $origAttributes
-	 * @param array $localAttributes
+	 * @param array $newAttributes
 	 *
 	 * @return array
 	 */
-	private function addAttributes( $origAttributes, $localAttributes ) {
-		if ( empty( $localAttributes ) ) {
+	private function addParserFunctionAttributes( $origAttributes, $newAttributes ) {
+		if ( empty( $newAttributes ) ) {
 			return $origAttributes;
 		}
-		// add $localAttributes to $origAttributes's attributes. note the difference in parameter handling
-		foreach ( $localAttributes as $key => $val ) {
+		// add $newAttributes to $origAttributes's attributes. note the difference in parameter handling
+		foreach ( $newAttributes as $key => $val ) {
 			$origAttributes[] = $key . '=' . $val;
 		}
 		return $origAttributes;
 	}
 
 	/**
+	 * Builds an image tag like it is normally used in wiki text.
+	 *
 	 * @param array $imageData
 	 *
 	 * @return string
@@ -114,6 +123,8 @@ class CarouselGallery extends ImageGalleryBase {
 	}
 
 	/**
+	 * Extracts the gallery images and builds image tags for every valid image.
+	 *
 	 * @param         $imageList
 	 * @param \Parser $parser
 	 * @param bool    $hideBadImages
@@ -143,7 +154,12 @@ class CarouselGallery extends ImageGalleryBase {
 	}
 
 	/**
-	 * @return false|ParserRequest
+	 * From array of supplies images and some other object properties, this constructs a parser request object,
+	 * to be used in the carousel component.
+	 *
+	 * @throws \MWException cascading {@see ApplicationFactory::getNewParserRequest}
+	 *
+	 * @return false|ParserRequest  returns false, if no valid images were detected
 	 */
 	private function constructCarouselParserRequest() {
 		$carouselAttributes = $this->convertImages(
@@ -155,7 +171,7 @@ class CarouselGallery extends ImageGalleryBase {
 		if ( !count( $carouselAttributes ) ) {
 			return false;
 		}
-		$carouselAttributes = $this->addAttributes( $carouselAttributes, $this->mAttribs );
+		$carouselAttributes = $this->addParserFunctionAttributes( $carouselAttributes, $this->mAttribs );
 		array_unshift( $carouselAttributes, $this->mParser );
 
 		return ApplicationFactory::getInstance()->getNewParserRequest(

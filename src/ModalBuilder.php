@@ -142,6 +142,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Parses the modal.
+	 *
 	 * @return string
 	 */
 	public function parse() {
@@ -185,6 +187,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Lets you set the class attribute for the modal body. The body is the element holding the content.
+	 *
 	 * @param string|false $bodyClass
 	 *
 	 * @return ModalBuilder
@@ -195,6 +199,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Lets you set the style attribute for the modal body. The body is the element holding the content.
+	 *
 	 * @param string|false $bodyStyle
 	 *
 	 * @return ModalBuilder
@@ -205,6 +211,9 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Lets you set the class attribute for the dialog part. The dialog is the container, holding header, body, and footer.
+	 * The dialog is surrounded by the outer modal. See {@see ModalBuilder::setOuterClass}.
+	 *
 	 * @param string|false $dialogClass
 	 *
 	 * @return ModalBuilder
@@ -215,6 +224,9 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Lets you set the style attribute for the dialog part. The dialog is the container, holding header, body, and footer.
+	 * The dialog is surrounded by the outer modal. See {@see ModalBuilder::setOuterClass}.
+	 *
 	 * @param string|false $dialogStyle
 	 *
 	 * @return ModalBuilder
@@ -225,6 +237,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Sets the content for the footer section.
+	 *
 	 * @param string|false $footer must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
 	 * @return ModalBuilder
@@ -235,6 +249,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Sets the content for the header section.
+	 *
 	 * @param string|false $header must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
 	 * @return ModalBuilder
@@ -245,6 +261,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Lets you set the class attribute for the outermost modal container.
+	 *
 	 * @param string|false $outerClass
 	 *
 	 * @return ModalBuilder
@@ -255,6 +273,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Lets you set the style attribute for the outermost modal container.
+	 *
 	 * @param string|false $outerStyle
 	 *
 	 * @return ModalBuilder
@@ -265,6 +285,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Used to merge different class attributes.
+	 *
 	 * @param string $baseClass
 	 * @param string|false $additionalClass
 	 *
@@ -348,6 +370,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Returns the supplied trigger. Wraps it with {@see ModalBuilder::wrapTriggerElement} if certain attributes are not detected.
+	 *
 	 * @return string
 	 */
 	protected function getTrigger() {
@@ -361,7 +385,7 @@ class ModalBuilder {
 	}
 
 	/**
-	 * Generates the body section
+	 * Generates the body section.
 	 *
 	 * @param string $content must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
@@ -379,7 +403,7 @@ class ModalBuilder {
 	}
 
 	/**
-	 * Generates the footer section
+	 * Generates the footer section.
 	 *
 	 * @param string|false $footer must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
@@ -407,7 +431,7 @@ class ModalBuilder {
 	}
 
 	/**
-	 * Generates the header section together with the dismiss X and the heading, if provided
+	 * Generates the header section together with the dismiss X and the heading, if provided.
 	 *
 	 * @param string|false $header must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *

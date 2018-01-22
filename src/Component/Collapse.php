@@ -65,7 +65,7 @@ class Collapse extends AbstractComponent {
 
 
 	/**
-	 * Spawns the button for our collapse component
+	 * Spawns the button for our collapse component.
 	 *
 	 * @param ParserRequest $parserRequest
 	 *

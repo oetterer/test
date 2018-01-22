@@ -42,7 +42,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	public function testCanCreateGalleryGetModes() {
 		$setup = new Setup();
 
-		$closure = $setup->createGalleryGetModes();
+		$closure = $setup->createGalleryGetModesCallback();
 
 		$this->assertTrue(
 			is_callable( $closure )
@@ -73,7 +73,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			->getMock();
 
 		/** @noinspection PhpParamsInspection */
-		$closure = $setup->createImageBeforeProduceHTML( $nestingController, $myConfig );
+		$closure = $setup->createImageBeforeProduceHTMLCallback( $nestingController, $myConfig );
 
 		$this->assertTrue(
 			is_callable( $closure )
@@ -170,7 +170,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	public function testCanCreateSetupAfterCache() {
 		$setup = new Setup();
 
-		$closure = $setup->createSetupAfterCache();
+		$closure = $setup->createSetupAfterCacheCallback();
 
 		$this->assertTrue(
 			is_callable( $closure )

@@ -32,6 +32,7 @@ use \MediaWiki\MediaWikiServices;
 use \MWException;
 use \Parser;
 use \ReflectionClass;
+
 /**
  * Class Setup
  *

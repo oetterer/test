@@ -1,0 +1,96 @@
+{
+	"description": "Test button component",
+	"setup": [
+		{
+			"namespace": "NS_MAIN",
+			"page": "Target",
+			"contents": "This is a target for the button"
+		},
+		{
+			"page": "Button/01/1",
+			"contents": "{{#bootstrap_button: Target }}"
+		},
+		{
+			"page": "Button/01/2",
+			"contents": "{{#bootstrap_button: target | class=emergency | id=out_of_gas_item | style=margin-top:50px | color=danger | active | disabled=no | size=lg | text=Big red Callback Button}}"
+		},
+		{
+			"page": "Button/01/3",
+			"contents": "{{#bootstrap_button: Button text | foo=bar | disabled=YeS | size=big | color=nope}}"
+		},
+		{
+			"page": "Button/01/4",
+			"contents": "{{#bootstrap_button:}}"
+		}
+	],
+	"tests": [
+		{
+			"type": "parser",
+			"about": "#0 verify output for component button with no attributes",
+			"subject": "Button/01/1",
+			"assert-output": {
+				"to-contain": [
+					"<a class=\"btn btn-default\"",
+					"role=\"button\"",
+					"href=\"",
+					"Target",
+					">Target</a>"
+				]
+			}
+		},
+		{
+			"type": "parser",
+			"about": "#1 verify output for component button with all attributes set",
+			"subject": "Button/01/2",
+			"assert-output": {
+				"to-contain": [
+					"<a class=\"btn btn-danger btn-lg active emergency\"",
+					"role=\"button\"",
+					"id=\"out_of_gas_item\"",
+					"style=\"margin-top:50px\"",
+					"/Target\">",
+					">Big red Callback Button</a>"
+				],
+				"not-contain": [
+					"disabled"
+				]
+			}
+		},
+		{
+			"type": "parser",
+			"about": "#2 verify output for component button with invalid attributes and disable set",
+			"subject": "Button/01/3",
+			"assert-output": {
+				"to-contain": [
+					"class=\"btn btn-default disabled\"",
+					"role=\"button\"",
+					"/Button_text\">Button text</a>"
+				],
+				"not-contain": [
+					"foo=\"bar\"",
+					"big",
+					"nope"
+				]
+			}
+		},
+		{
+			"type": "parser",
+			"about": "#3 verify output for component button with no input text",
+			"subject": "Button/01/4",
+			"assert-output": {
+				"to-contain": [
+					"<span class=\"error\">You must specify a target for this button.</span>"
+				]
+			}
+		}
+	],
+	"settings": {
+		"wgContLang": "en",
+		"wgLang": "en"
+	},
+	"meta": {
+		"version": "1",
+		"is-incomplete": false,
+		"debug": false
+	}
+}

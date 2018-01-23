@@ -1,6 +1,6 @@
 <?php
 /**
- * Contains the class doing all the necessary hook registration and helper object initialization.
+ * Contains the class doing preparing the environment and registering the needed/wanted hooks.
  *
  * @copyright (C) 2018, Tobias Oetterer, Paderborn University
  * @license       https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 (or later)
@@ -32,7 +32,6 @@ use \MediaWiki\MediaWikiServices;
 use \MWException;
 use \Parser;
 use \ReflectionClass;
-
 /**
  * Class Setup
  *
@@ -41,6 +40,27 @@ use \ReflectionClass;
  * @since 1.0
  */
 class Setup {
+
+	/**
+	 * @var array
+	 */
+	const AVAILABLE_HOOKS = [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ];
+
+	/**
+	 * @var ComponentLibrary
+	 */
+	private $componentLibrary;
+
+	/**
+	 * @var \Config
+	 */
+	private $myConfig;
+
+	/**
+	 * @var NestingController
+	 */
+	private $nestingController;
+
 	/**
 	 * Callback function when extension is loaded via extension.json or composer.
 	 *
@@ -49,56 +69,147 @@ class Setup {
 	 *
 	 * @param array $info
 	 *
-	 * @throws \ConfigException cascading {@see \ConfigFactory::makeConfig} and {@see \BootstrapComponents\Setup::registerHooks}
-	 * @throws \MWException cascading {@see \BootstrapComponents\Setup::registerHooks}
+	 * @throws \ConfigException cascading {@see Setup::run}
+	 * @throws \MWException cascading {@see Setup::__construct()} and {@see Setup::run}
 	 *
 	 * @return bool
 	 */
 	public static function onExtensionLoad( $info ) {
-		$setup = new self();
-		if ( !empty( $info ) ) {
-			$setup->prepareEnvironment( $info );
-		}
-		$setup->assertExtensionBootstrapPresent();
-		$configFactory = MediaWikiServices::getInstance()->getConfigFactory();
-		$setup->registerMyConfiguration( $configFactory );
+		$setup = new self( $info );
 
-		$setup->registerHooks(
-			$configFactory->makeConfig( 'BootstrapComponents' )
-		);
+		$setup->run();
 		return true;
 	}
 
 	/**
-	 * @return \Closure
+	 * Setup constructor.
+	 *
+	 * @param $info
+	 *
+	 * @throws \ConfigException cascading {@see \BootstrapComponents\Setup::getHooksToRegister}
+	 * @throws \MWException cascading {@see \BootstrapComponents\Setup::getHooksToRegister}
+	 *
 	 */
-	public function createGalleryGetModesCallback() {
-		return function( &$modeArray ) {
-			$modeArray['carousel'] = 'BootstrapComponents\\CarouselGallery';
-			return true;
-		};
+	public function __construct( $info ) {
+
+		$this->assertExtensionBootstrapPresent();
+
+		if ( !empty( $info['version'] ) ) {
+			$this->prepareEnvironment( $info['version'] );
+		}
+
+		$configFactory = MediaWikiServices::getInstance()->getConfigFactory();
+		$this->registerMyConfiguration( $configFactory );
+		$this->myConfig = $configFactory->makeConfig( 'BootstrapComponents' );
+
+		list( $this->componentLibrary, $this->nestingController ) = $this->initializeApplications( $this->myConfig );
 	}
 
 	/**
-	 * @param NestingController $nestingController
-	 * @param \Config           $myConfig
+	 * @param array $hooksToRegister
 	 *
-	 * @return \Closure
+	 * @return array
 	 */
-	public function createImageBeforeProduceHTMLCallback( $nestingController, $myConfig ) {
-		return function( &$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
-		) use ( $nestingController, $myConfig ) {
-
-			$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
-
-			if ( $myConfig->has( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
-				&& $myConfig->get( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
-			) {
-				$imageModal->disableSourceLink();
+	public function buildHookCallbackListFor( $hooksToRegister ) {
+		$hookList = [];
+		$allHookList = $this->getHookList( $this->myConfig, $this->componentLibrary, $this->nestingController );
+		foreach ( self::AVAILABLE_HOOKS as $hook ) {
+			if ( in_array( $hook, $hooksToRegister ) && isset( $allHookList[$hook] ) ) {
+				$hookList[$hook] = $allHookList[$hook];
 			}
+		}
+		return $hookList;
+	}
 
-			return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
-		};
+	/**
+	 * @throws \MWException cascading {@see \Hooks::clear}
+	 */
+	public function clear() {
+		foreach ( self::AVAILABLE_HOOKS as $name ) {
+			Hooks::clear( $name );
+		}
+	}
+
+	/**
+	 * @param \Config $myConfig
+	 *
+	 * @throws \ConfigException cascading {@see \Config::get}
+	 *
+	 * @return array
+	 */
+	public function compileRequestedHooksListFor( $myConfig ) {
+		$requestedHookList = [ 'ParserFirstCallInit', 'SetupAfterCache' ];
+		if ( $myConfig->has( 'BootstrapComponentsEnableCarouselGalleryMode' )
+			&& $myConfig->get( 'BootstrapComponentsEnableCarouselGalleryMode' )
+		) {
+			$requestedHookList[] = 'GalleryGetModes';
+		}
+		if ( $myConfig->has( 'BootstrapComponentsModalReplaceImageTag' )
+			&& $myConfig->get( 'BootstrapComponentsModalReplaceImageTag' )
+		) {
+			$requestedHookList[] = 'ImageBeforeProduceHTML';
+		}
+		return $requestedHookList;
+	}
+
+	/**
+	 * @param string $hook
+	 *
+	 * @return boolean
+	 */
+	public function isRegistered( $hook ) {
+		return Hooks::isRegistered( $hook );
+	}
+
+	/**
+	 * @param array $hookList
+	 *
+	 * @return int
+	 */
+	public function register( $hookList ) {
+		foreach ( $hookList as $hook => $callback ) {
+			Hooks::register( $hook, $callback );
+		}
+		return count( $hookList );
+	}
+
+	/**
+	 * @param \ConfigFactory $configFactory
+	 * Registers my own configuration, so that it is present during onLoad. See phabricator issue T184837
+	 *
+	 * @see https://phabricator.wikimedia.org/T184837
+	 */
+	public function registerMyConfiguration( $configFactory ) {
+		$configFactory->register( 'BootstrapComponents', 'GlobalVarConfig::newInstance' );
+	}
+
+	/**
+	 * Executes the setup process.
+	 *
+	 * @throws \ConfigException
+	 *
+	 * @return int
+	 */
+	public function run() {
+		$requestedHooks = $this->compileRequestedHooksListFor(
+			$this->myConfig
+		);
+		$hookCallbackList = $this->buildHookCallbackListFor(
+			$requestedHooks
+		);
+
+		return $this->register( $hookCallbackList );
+	}
+
+	/**
+	 * @throws \MWException
+	 */
+	private function assertExtensionBootstrapPresent() {
+		if ( !defined( 'BS_VERSION' ) ) {
+			echo 'The BootstrapComponents extension requires Extension Bootstrap to be installed. '
+				. 'Please check <a href="https://github.com/oetterer/BootstrapComponents/">the online help</a>' . PHP_EOL;
+			throw new MWException( 'BootstrapComponents needs extension Bootstrap present.' );
+		}
 	}
 
 	/**
@@ -107,7 +218,7 @@ class Setup {
 	 *
 	 * @return \Closure
 	 */
-	public function createParserFirstCallInitCallback( $componentLibrary, $nestingController ) {
+	private function createParserFirstCallInitCallback( $componentLibrary, $nestingController ) {
 
 		return function( Parser $parser ) use ( $componentLibrary, $nestingController ) {
 
@@ -127,7 +238,7 @@ class Setup {
 				} else {
 					wfDebugLog(
 						'BootstrapComponents', 'Unknown handler type ('
-						. $componentLibrary->getHandlerTypeFor( $componentName ) . ') detected for component ' . $parserHookString
+						                     . $componentLibrary->getHandlerTypeFor( $componentName ) . ') detected for component ' . $parserHookString
 					);
 				}
 			}
@@ -142,7 +253,7 @@ class Setup {
 	 *
 	 * @return \Closure
 	 */
-	public function createParserHookCallbackFor( $componentName, $componentLibrary, $nestingController, $parserOutputHelper ) {
+	private function createParserHookCallbackFor( $componentName, $componentLibrary, $nestingController, $parserOutputHelper ) {
 
 		return function() use ( $componentName, $componentLibrary, $nestingController, $parserOutputHelper ) {
 
@@ -161,121 +272,70 @@ class Setup {
 	}
 
 	/**
-	 * @return \Closure
-	 */
-	public function createSetupAfterCacheCallback() {
-		return function() {
-			BootstrapManager::getInstance()->addAllBootstrapModules();
-			return true;
-		};
-	}
-
-	/**
-	 * Defines all hooks and the corresponding callbacks
-	 *
-	 * @param  \Config $myConfig
-	 *
-	 * @throws \ConfigException cascading {@see \BootstrapComponents\Setup::initializeApplications}
-	 * @throws \MWException cascading {@see \BootstrapComponents\Setup::initializeApplications}
+	 * @param \Config           $myConfig
+	 * @param ComponentLibrary  $componentLibrary
+	 * @param NestingController $nestingController
 	 *
 	 * @return \Closure[]
 	 */
-	public function getHooksToRegister( $myConfig ) {
+	private function getHookList( $myConfig, $componentLibrary, $nestingController ) {
+		return [
+			'GalleryGetModes' => function( &$modeArray ) {
+				$modeArray['carousel'] = 'BootstrapComponents\\CarouselGallery';
+				return true;
+			},
+			'ImageBeforeProduceHTML' => function( &$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
+			) use ( $nestingController, $myConfig ) {
 
-		list( $componentLibrary, $nestingController ) = $this->initializeApplications( $myConfig );
-		$hooks = [
+				$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
+
+				if ( $myConfig->has( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+					&& $myConfig->get( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+				) {
+					$imageModal->disableSourceLink();
+				}
+
+				return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
+			},
 			'ParserFirstCallInit' => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
-			'SetupAfterCache'     => $this->createSetupAfterCacheCallback(),
+			'SetupAfterCache' => function() {
+				BootstrapManager::getInstance()->addAllBootstrapModules();
+				return true;
+			},
 		];
-
-		if ( $myConfig->has( 'BootstrapComponentsEnableCarouselGalleryMode' )
-			&& $myConfig->get( 'BootstrapComponentsEnableCarouselGalleryMode' )
-		) {
-			$hooks['GalleryGetModes'] = $this->createGalleryGetModesCallback();
-		}
-		if ( $myConfig->has( 'BootstrapComponentsModalReplaceImageTag' )
-			&& $myConfig->get( 'BootstrapComponentsModalReplaceImageTag' )
-		) {
-			$hooks['ImageBeforeProduceHTML'] = $this->createImageBeforeProduceHTMLCallback( $nestingController, $myConfig );
-		}
-
-		return $hooks;
 	}
 
 	/**
-	 * @param \Config $myConfig
+     * @param \Config $myConfig
+     *
+     * @throws \MWException cascading {@see \BootstrapComponents\ApplicationFactory} calls
+     * @throws \ConfigException cascading {@see \Config::get}
 	 *
 	 * @return array
-	 * @throws \MWException cascading {@see \BootstrapComponents\ApplicationFactory} calls
-	 * @throws \ConfigException cascading {@see \Config::get}
-	 */
+     */
 	public function initializeApplications( $myConfig ) {
 		$applicationFactory = ApplicationFactory::getInstance();
-		$componentLibrary = $applicationFactory->getComponentLibrary();
-		$nestingController = $applicationFactory->getNestingController(
-			$myConfig->get( 'BootstrapComponentsDisableIdsForTestEnvironment' )
+		$componentLibrary = $applicationFactory->getComponentLibrary(
+			$this->myConfig->get( 'BootstrapComponentsWhitelist' )
 		);
+		$nestingController = $applicationFactory->getNestingController();
 		return [ $componentLibrary, $nestingController ];
 	}
 
 	/**
-	 * @param string $hook
+	 * Version number retrieved from extension info array.
 	 *
-	 * @return boolean
+	 * @param string $version
 	 */
-	public function isRegistered( $hook ) {
-		return Hooks::isRegistered( $hook );
-	}
-
-	/**
-	 * Does the actual registration of hooks and components
-	 *
-	 * @param  \Config $myConfig
-	 *
-	 * @throws \ConfigException cascading {@see \BootstrapComponents\Setup::getHooksToRegister}
-	 * @throws \MWException cascading {@see \BootstrapComponents\Setup::getHooksToRegister}
-	 */
-	public function registerHooks( $myConfig ) {
-		foreach ( $this->getHooksToRegister( $myConfig ) as $hook => $callback ) {
-			Hooks::register( $hook, $callback );
-		}
-	}
-
-	/**
-	 * @param \ConfigFactory $configFactory
-	 * Registers my own configuration, so that it is present during onLoad. See phabricator issue T184837
-	 *
-	 * @see https://phabricator.wikimedia.org/T184837
-	 */
-	public function registerMyConfiguration( $configFactory ) {
-		$configFactory->register( 'BootstrapComponents', 'GlobalVarConfig::newInstance' );
-	}
-
-	/**
-	 * @throws \MWException
-	 */
-	private function assertExtensionBootstrapPresent() {
-		if ( !defined( 'BS_VERSION' ) ) {
-			echo 'The BootstrapComponents extension requires Extension Bootstrap to be installed. '
-				. 'Please check <a href="https://github.com/oetterer/BootstrapComponents/">the online help</a>' . PHP_EOL;
-			throw new MWException( 'BootstrapComponents needs extension Bootstrap present.' );
-		}
-	}
-
-	/**
-	 * Information array created on extension registration.
-	 * Note: this array also resides as from ExtensionRegistry::getInstance()->getAllThings()['BootstrapComponents']
-	 *
-	 * @param array $info
-	 */
-	private function prepareEnvironment( $info ) {
-		define( 'BOOTSTRAP_COMPONENTS_VERSION', (string) $info['version'] );
+	private function prepareEnvironment( $version ) {
+		@define( 'BOOTSTRAP_COMPONENTS_VERSION', (string) $version );
 	}
 	### attend before deployment
 	# mandatory
 	#@fixme tests/parser/parserTests.txt (after previous todo)
 	# remove most of the image tags
 	# add two or three examples for gallery and the other components
+	#@fixme vertical alignment in image modal has no effect. see https://www.mediawiki.org/wiki/Help:Images#Vertical_alignment
 
 	### last steps
 	#@todo change release date in docs/release-notes.md

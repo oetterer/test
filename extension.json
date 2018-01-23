@@ -22,9 +22,9 @@
 		"BootstrapComponents\\AttributeManager": "src/AttributeManager.php",
 		"BootstrapComponents\\CarouselGallery": "src/CarouselGallery.php",
 		"BootstrapComponents\\ComponentLibrary": "src/ComponentLibrary.php",
-		"BootstrapComponents\\ModalBuilder": "src/ModalBuilder.php",
 		"BootstrapComponents\\ImageModal": "src/ImageModal.php",
 		"BootstrapComponents\\ImageModalTrigger": "src/ImageModalTrigger.php",
+		"BootstrapComponents\\ModalBuilder": "src/ModalBuilder.php",
 		"BootstrapComponents\\NestableInterface": "src/NestableInterface.php",
 		"BootstrapComponents\\ParserOutputHelper": "src/ParserOutputHelper.php",
 		"BootstrapComponents\\ParserRequest": "src/ParserRequest.php",
@@ -48,7 +48,6 @@
 	"@note2": "hooks are registered in BootstrapComponents\\Setup",
 	"Hooks": { },
 	"config": {
-		"BootstrapComponentsDisableIdsForTestEnvironment": false,
 		"BootstrapComponentsDisableSourceLinkOnImageModal": false,
 		"BootstrapComponentsEnableCarouselGalleryMode": true,
 		"BootstrapComponentsModalReplaceImageTag": false,

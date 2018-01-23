@@ -2,9 +2,7 @@
 
 namespace BootstrapComponents\Tests\Unit;
 
-use BootstrapComponents\ComponentLibrary;
 use BootstrapComponents\Setup as Setup;
-use \Parser;
 use \PHPUnit_Framework_TestCase;
 
 /**
@@ -12,8 +10,8 @@ use \PHPUnit_Framework_TestCase;
  *
  * @ingroup Test
  *
- * @group extension-bootstrap-components
- * @group mediawiki-databaseless
+ * @group   extension-bootstrap-components
+ * @group   mediawiki-databaseless
  *
  * @license GNU GPL v3+
  *
@@ -21,11 +19,15 @@ use \PHPUnit_Framework_TestCase;
  * @author  Tobias Oetterer
  */
 class SetupTest extends PHPUnit_Framework_TestCase {
+	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(
 			'BootstrapComponents\\Setup',
-			new Setup()
+			new Setup( [] )
 		);
 	}
 
@@ -35,286 +37,123 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testOnExtensionLoad() {
 		$this->assertTrue(
-			Setup::onExtensionLoad( [] )
-		);
-	}
-
-	public function testCanCreateGalleryGetModes() {
-		$setup = new Setup();
-
-		$closure = $setup->createGalleryGetModesCallback();
-
-		$this->assertTrue(
-			is_callable( $closure )
-		);
-
-		$galleryModes = [];
-		$this->assertTrue(
-			$closure( $galleryModes )
-		);
-
-		$this->assertArrayHasKey(
-			'carousel', $galleryModes
-		);
-
-		$this->assertTrue(
-			is_subclass_of( $galleryModes['carousel'], 'ImageGalleryBase' )
-		);
-	}
-
-	public function testCreateImageBeforeProduceHTML() {
-		$setup = new Setup();
-
-		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
-			->disableOriginalConstructor()
-			->getMock();
-		$myConfig = $this->getMockBuilder( 'Config' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		/** @noinspection PhpParamsInspection */
-		$closure = $setup->createImageBeforeProduceHTMLCallback( $nestingController, $myConfig );
-
-		$this->assertTrue(
-			is_callable( $closure )
-		);
-
-		$linker = $title = $file = $frameParams = $handlerParams = $time = $res = false;
-
-		$this->assertTrue(
-			$closure( $linker, $title, $file, $frameParams, $handlerParams, $time, $res )
+			Setup::onExtensionLoad( [ 'version' => 'test' ] )
 		);
 	}
 
 	/**
+	 * @param string[] $hookList
+	 *
 	 * @throws \ConfigException
+	 * @throws \MWException
+	 *
+	 * @dataProvider buildHookCallbackListForProvider
 	 */
-	public function testCanCreateParserFirstCallInitCallback() {
+	public function testCanBuildHookCallbackListFor( $hookList ) {
 
-		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$setup = new Setup();
-		$prefix = ComponentLibrary::PARSER_HOOK_PREFIX;
+		$instance = new Setup( [] );
 
 		/** @noinspection PhpParamsInspection */
-		$closure = $setup->createParserFirstCallInitCallback(
-			new ComponentLibrary( true ),
-			$nestingController
-		);
+		$hookCallbackList = $instance->buildHookCallbackListFor( $hookList );
+		$invertedHookList = [];
+		$expectedHookList = [];
+		foreach ( Setup::AVAILABLE_HOOKS as $availableHook ) {
+			if ( !in_array( $availableHook, $hookList ) ) {
+				$invertedHookList[] = $availableHook;
+			}
+		}
+		foreach ( $hookList as $hook ) {
+			if ( in_array( $hook, Setup::AVAILABLE_HOOKS ) ) {
+				$expectedHookList[] = $hook;
+			}
+		}
 
-		$observerParser = $this->getMockBuilder(Parser::class )
-			->disableOriginalConstructor()
-			->setMethods( [ 'setFunctionHook', 'setHook' ] )
-			->getMock();
-		$observerParser->expects( $this->exactly( 6 ) )
-			->method( 'setFunctionHook' )
-			->withConsecutive(
-				[ $this->equalTo( $prefix . 'badge' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'button' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'carousel' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'icon' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'label' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'tooltip' ), $this->callback( 'is_callable' ) ]
+		foreach ( $expectedHookList as $hook ) {
+			$this->assertArrayHasKey(
+				$hook,
+				$hookCallbackList
 			);
-		$observerParser->expects( $this->exactly( 8 ) )
-			->method( 'setHook' )
-			->withConsecutive(
-				[ $this->equalTo( $prefix . 'accordion' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'alert' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'collapse' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'jumbotron' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'modal' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'panel' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'popover' ), $this->callback( 'is_callable' ) ],
-				[ $this->equalTo( $prefix . 'well' ), $this->callback( 'is_callable' ) ]
+			$this->assertTrue(
+				is_callable( $hookCallbackList[$hook] )
 			);
-		$closure( $observerParser );
-		# we have to call $closure with an observer (of type parser)
-		# see to it, that functions setHook() and setFunctionHook() get called the right amount of times with the correct parameters
-	}
-
-	/**
-	 * @param string $componentName
-	 *
-	 * @expectedException \ReflectionException
-	 *
-	 * @dataProvider CanCreateParserHookCallbackProvider
-	 */
-	public function testCanCreateParserHookCallbackFor( $componentName ) {
-
-		$componentLibrary = $this->getMockBuilder( 'BootstrapComponents\\ComponentLibrary' )
-			->disableOriginalConstructor()
-			->getMock();
-		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
-			->disableOriginalConstructor()
-			->getMock();
-		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$instance = new Setup();
-
-		/** @noinspection PhpParamsInspection */
-		$callback = $instance->createParserHookCallbackFor( $componentName, $componentLibrary, $nestingController, $parserOutputHelper );
-
-		$this->assertTrue(
-			is_callable( $callback )
-		);
-
-		$this->setExpectedException( 'ReflectionException' );
-		$callback();
-	}
-
-	public function testCanCreateSetupAfterCache() {
-		$setup = new Setup();
-
-		$closure = $setup->createSetupAfterCacheCallback();
-
-		$this->assertTrue(
-			is_callable( $closure )
-		);
-
-		$this->assertTrue(
-			$closure()
-		);
+		}
+		foreach ( $invertedHookList as $hook ) {
+			$this->assertArrayNotHasKey(
+				$hook,
+				$hookCallbackList
+			);
+		}
 	}
 
 	/**
 	 * @throws \ConfigException
 	 * @throws \MWException
 	 */
-	public function testHookSetupAfterCache() {
+	public function testCanClear() {
 
-		$myConfig = $this->getMockBuilder( 'Config' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$setup = new Setup();
-		/** @noinspection PhpParamsInspection */
-		$setup->registerHooks( $myConfig );
-		/** @noinspection PhpParamsInspection */
-		$registeredHooks = $setup->getHooksToRegister( $myConfig );
-
-		$this->assertArrayHasKey(
-			'SetupAfterCache',
-			$registeredHooks
+		$instance = new Setup( [] );
+		$instance->register(
+			$instance->buildHookCallbackListFor( Setup::AVAILABLE_HOOKS )
 		);
-
-		$this->assertTrue(
-			is_callable( $registeredHooks['SetupAfterCache'] )
-		);
-
-		$this->assertTrue(
-			$registeredHooks['SetupAfterCache']()
-		);
+		foreach ( Setup::AVAILABLE_HOOKS as $hook ) {
+			$this->assertTrue(
+				$instance->isRegistered( $hook ),
+				'Hook ' . $hook . ' is not registered!'
+			);
+		}
+		$instance->clear();
+		foreach ( [ 'GalleryGetModes', 'ImageBeforeProduceHTML' ] as $hook ) {
+			$this->assertTrue(
+				!$instance->isRegistered( $hook ),
+				'Hook ' . $hook . ' is still registered!'
+			);
+		}
 	}
 
 	/**
+	 * @param string[] $listOfConfigSettingsSet
+	 * @param string[] $expectedHookList
+	 *
 	 * @throws \ConfigException
 	 * @throws \MWException
+	 *
+	 * @dataProvider hookRegistryProvider
 	 */
-	public function testHookGalleryGetModes() {
-
+	public function testCanCompileRequestedHooksListFor( $listOfConfigSettingsSet, $expectedHookList ) {
 		$myConfig = $this->getMockBuilder( 'Config' )
 			->disableOriginalConstructor()
 			->getMock();
 		$myConfig->expects( $this->any() )
 			->method( 'has' )
-			->willReturn( true );
+			->will( $this->returnCallback(
+				function( $configSetting ) use ( $listOfConfigSettingsSet )
+				{
+					return in_array( $configSetting, $listOfConfigSettingsSet );
+				}
+			) );
 		$myConfig->expects( $this->any() )
 			->method( 'get' )
-			->willReturn( true );
+			->will( $this->returnCallback(
+				function( $configSetting ) use ( $listOfConfigSettingsSet )
+				{
+					return in_array( $configSetting, $listOfConfigSettingsSet );
+				}
+			) );
 
-		$setup = new Setup();
+		$instance = new Setup( [] );
+
 		/** @noinspection PhpParamsInspection */
-		$setup->registerHooks( $myConfig );
-		/** @noinspection PhpParamsInspection */
-		$registeredHooks = $setup->getHooksToRegister( $myConfig );
-
-		$this->assertArrayHasKey(
-			'GalleryGetModes',
-			$registeredHooks
-		);
-
-		$this->assertTrue(
-			is_callable( $registeredHooks['GalleryGetModes'] )
-		);
-
-		$galleryModes = [];
-		$this->assertTrue(
-			$registeredHooks['GalleryGetModes']( $galleryModes )
-		);
-
-		$this->assertArrayHasKey(
-			'carousel', $galleryModes
-		);
-
-		$this->assertTrue(
-			is_subclass_of( $galleryModes['carousel'], 'ImageGalleryBase' )
-		);
-	}
-
-	/**
-	 * @throws \ConfigException
-	 * @throws \MWException
-	 */
-	public function testHookImageBeforeProduceHTML() {
-
-		$myConfig = $this->getMockBuilder( 'Config' )
-			->disableOriginalConstructor()
-			->getMock();
-		$myConfig->expects( $this->any() )
-			->method( 'has' )
-			->willReturn( true );
-		$myConfig->expects( $this->any() )
-			->method( 'get' )
-			->willReturn( true );
-
-		$setup = new Setup();
-		/** @noinspection PhpParamsInspection */
-		$setup->registerHooks( $myConfig );
-		/** @noinspection PhpParamsInspection */
-		$registeredHooks = $setup->getHooksToRegister( $myConfig );
-
-		$this->assertArrayHasKey(
-			'ImageBeforeProduceHTML',
-			$registeredHooks
-		);
+		$compiledHookList = $instance->compileRequestedHooksListFor( $myConfig );
 
 		$this->assertEquals(
-			1,
-			count( $registeredHooks['ImageBeforeProduceHTML'] )
-		);
-
-		$this->assertTrue(
-			is_callable( $registeredHooks['ImageBeforeProduceHTML'] )
-		);
-
-		$linker = $title = $file = $frameParams = $handlerParams = $time = $res = false;
-
-		$this->assertTrue(
-			$registeredHooks['ImageBeforeProduceHTML']( $linker, $title, $file, $frameParams, $handlerParams, $time, $res )
+			$expectedHookList,
+			$compiledHookList
 		);
 	}
 
-	public function testCanRegisterMyConfiguration() {
-
-		$configFactory = $this->getMockBuilder( 'ConfigFactory' )
-			->disableOriginalConstructor()
-			->getMock();
-		$configFactory->expects( $this->once() )
-			->method( 'register' )
-			->willReturn( true );
-
-		$setup = new Setup();
-		/** @noinspection PhpParamsInspection */
-		$setup->registerMyConfiguration( $configFactory );
-	}
 
 	/**
-	 * @param array $configuration
+	 * @param array $listOfConfigSettingsSet
 	 * @param array $expectedRegisteredHooks
 	 * @param array $expectedNotRegisteredHooks
 	 *
@@ -323,106 +162,54 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @dataProvider hookRegistryProvider
 	 */
-	public function testRegisterHooks( $configuration, $expectedRegisteredHooks, $expectedNotRegisteredHooks ) {
+	public function testRegisterHooks( $listOfConfigSettingsSet, $expectedRegisteredHooks, $expectedNotRegisteredHooks ) {
 
-		$myConfig = $this->getMockBuilder( 'Config' )
-			->disableOriginalConstructor()
-			->getMock();
-		$returnMap = [];
-		foreach ( $configuration as $setting ) {
-			$returnMap[] = [ $setting, true ];
-		}
-		$myConfig->expects( $this->any() )
-			->method( 'has' )
-			->will( $this->returnValueMap( $returnMap ) );
-		$myConfig->expects( $this->any() )
-			->method( 'get' )
-			->will( $this->returnValueMap( $returnMap ) );
+		$instance = new Setup( [] );
 
-		$setup = new Setup();
-		/** @noinspection PhpParamsInspection */
-		$setup->registerHooks( $myConfig );
-		/** @noinspection PhpParamsInspection */
-		$registeredHooks = $setup->getHooksToRegister( $myConfig );
+		$hookCallbackList = $instance->buildHookCallbackListFor(
+			$expectedRegisteredHooks
+		);
+
+		$this->assertEquals(
+			count( $listOfConfigSettingsSet ) + 2,
+			$instance->register( $hookCallbackList )
+		);
 
 		foreach ( $expectedRegisteredHooks as $expectedHook ) {
-			$this->doTestHookIsRegistered( $setup, $registeredHooks, $expectedHook );
+			$this->doTestHookIsRegistered( $instance, $hookCallbackList, $expectedHook );
 		}
 
 		foreach ( $expectedNotRegisteredHooks as $notExpectedHook ) {
-			$this->doTestHookIsNotRegistered( $registeredHooks, $notExpectedHook );
+			$this->doTestHookIsNotRegistered( $hookCallbackList, $notExpectedHook );
 		}
 	}
 
 	/**
-	 * @param Setup  $setup
-	 * @param array  $registeredHooks
-	 * @param string $expectedHook
-	 */
-	private function doTestHookIsRegistered( Setup $setup, $registeredHooks, $expectedHook ) {
-		$this->assertTrue(
-			$setup->isRegistered( $expectedHook )
-		);
-		$this->assertArrayHasKey(
-			$expectedHook,
-			$registeredHooks
-		);
-		$this->assertTrue(
-			is_callable( $registeredHooks[$expectedHook] )
-		);
-	}
-
-	/**
-	 * @throws \ConfigException
+	 * @throws \ConfigException cascading {@see \Config::get}
 	 * @throws \MWException
 	 */
-	public function testCanInitializeApplications() {
-		$setup = new Setup();
-		$config = $this->getMockBuilder( 'Config' )
-			->disableOriginalConstructor()
-			->getMock();
-		$config->expects( $this->once() )
-			->method( 'get' )
-			->willReturn( true );
+	public function testCanRun() {
 
-		/** @noinspection PhpParamsInspection */
-		list( $cl, $nc ) = $setup->initializeApplications( $config );
+		$instance = new Setup( [] );
 
-		$this->assertInstanceOf(
-			'BootstrapComponents\\ComponentLibrary',
-			$cl
-		);
-		$this->assertInstanceOf(
-			'BootstrapComponents\\NestingController',
-			$nc
+		$this->assertInternalType(
+			'integer',
+			$instance->run()
 		);
 	}
 
 	/**
-	 * @param array  $registeredHooks
-	 * @param string $notExpectedHook
-	 */
-	private function doTestHookIsNotRegistered( $registeredHooks, $notExpectedHook ) {
-		$this->assertArrayNotHasKey(
-			$notExpectedHook,
-			$registeredHooks,
-			'Expected hook "' . $notExpectedHook . '" to not be registered! '
-		);
-	}
-
-	/**
-	 * @throws \ConfigException
-	 *
 	 * @return array
 	 */
-	public function CanCreateParserHookCallbackProvider() {
-		// this is lazy but efficient
-		$componentLibrary = new ComponentLibrary( true );
-		$data = [];
-		foreach ( $componentLibrary->getKnownComponents() as $component ) {
-			$data[$component] = [ $component ];
-		}
-		return $data;
+	public function buildHookCallbackListForProvider() {
+		return [
+			'empty'               => [ [] ],
+			'default'             => [ [ 'ParserFirstCallInit', 'SetupAfterCache' ] ],
+			'alsoImageModal'      => [ [ 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
+			'alsoCarouselGallery' => [ [ 'GalleryGetModes', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
+			'all'                 => [ [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
+			'invalid'             => [ [ 'nonExistingHook', 'PageContentSave' ] ],
+		];
 	}
 
 	/**
@@ -437,19 +224,51 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			],
 			'gallery activated' => [
 				[ 'BootstrapComponentsEnableCarouselGalleryMode' ],
-				[ 'GalleryGetModes', 'ParserFirstCallInit', 'SetupAfterCache' ],
+				[ 'ParserFirstCallInit', 'SetupAfterCache', 'GalleryGetModes' ],
 				[ 'ImageBeforeProduceHTML' ],
 			],
 			'image replacement activated' => [
 				[ 'BootstrapComponentsModalReplaceImageTag' ],
-				[ 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ],
+				[ 'ParserFirstCallInit', 'SetupAfterCache', 'ImageBeforeProduceHTML' ],
 				[ 'GalleryGetModes' ],
 			],
 			'both activated' => [
 				[ 'BootstrapComponentsEnableCarouselGalleryMode', 'BootstrapComponentsModalReplaceImageTag' ],
-				[ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ],
+				[ 'ParserFirstCallInit', 'SetupAfterCache', 'GalleryGetModes', 'ImageBeforeProduceHTML' ],
 				[],
 			],
 		];
 	}
+
+	/**
+	 * @param Setup  $instance
+	 * @param array  $registeredHooks
+	 * @param string $expectedHook
+	 */
+	private function doTestHookIsRegistered( Setup $instance, $registeredHooks, $expectedHook ) {
+		$this->assertTrue(
+			$instance->isRegistered( $expectedHook )
+		);
+		$this->assertArrayHasKey(
+			$expectedHook,
+			$registeredHooks,
+			'Expected hook "' . $expectedHook . '" to be registered but was not! '
+		);
+		$this->assertTrue(
+			is_callable( $registeredHooks[$expectedHook] )
+		);
+	}
+
+	/**
+	 * @param array  $registeredHooks
+	 * @param string $notExpectedHook
+	 */
+	private function doTestHookIsNotRegistered( $registeredHooks, $notExpectedHook ) {
+		$this->assertArrayNotHasKey(
+			$notExpectedHook,
+			$registeredHooks,
+			'Expected hook "' . $notExpectedHook . '" to not be registered but was! '
+		);
+	}
+
 }

@@ -5,7 +5,6 @@ namespace BootstrapComponents\Tests\Unit;
 use BootstrapComponents\AbstractComponent;
 use BootstrapComponents\ComponentLibrary;
 use BootstrapComponents\NestingController;
-use \MWException;
 use \PHPUnit_Framework_TestCase;
 
 /**
@@ -43,7 +42,7 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	public function testCanConstruct() {
 		$this->assertInstanceOf(
 			'BootstrapComponents\\NestingController',
-			new NestingController( false )
+			new NestingController()
 		);
 	}
 
@@ -55,7 +54,7 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	 * @throws
 	 */
 	public function testCanOpenAndClose( $componentName, $componentClass ) {
-		$instance = new NestingController( false );
+		$instance = new NestingController();
 		$this->assertEquals(
 			0,
 			$instance->getStackSize()
@@ -87,12 +86,12 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @throws MWException
+	 * @throws \MWException
 	 *
 	 * @expectedException \MWException
 	 */
 	public function testCloseFailOnEmptyStack() {
-		$instance = new NestingController( false );
+		$instance = new NestingController();
 
 		$this->setExpectedException( 'MWException' );
 
@@ -100,12 +99,12 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @throws MWException
+	 * @throws \MWException
 	 *
 	 * @expectedException \MWException
 	 */
 	public function testOpenFail() {
-		$instance = new NestingController( false );
+		$instance = new NestingController();
 
 		$this->setExpectedException( 'MWException' );
 
@@ -115,12 +114,12 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @throws MWException
+	 * @throws \MWException
 	 *
 	 * @expectedException \MWException
 	 */
 	public function testCloseFailOnInvalidId() {
-		$instance = new NestingController( false );
+		$instance = new NestingController();
 
 		$this->setExpectedException( 'MWException' );
 
@@ -132,21 +131,9 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testCanGenerateUniqueId() {
-		$instance = new NestingController( false );
+		$instance = new NestingController();
 		foreach ( $this->uniqueIdProvider() as $testParams ) {
 			$this->doTestCanGenerateUniqueId( $instance, $testParams );
-		}
-	}
-
-
-	public function testCanGenerateStaticIdForTests() {
-		$instance = new NestingController( true );
-		foreach ( $this->uniqueIdProvider() as $testParams ) {
-			list( $componentName,) = $testParams;
-			$this->assertEquals(
-				'bsc_' . $componentName . '_test',
-				$instance->generateUniqueId( $componentName )
-			);
 		}
 	}
 
@@ -164,7 +151,9 @@ class NestingControllerTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @return array[]
-	 * @throws MWException
+	 *
+	 * @throws \ConfigException
+	 * @throws \MWException
 	 */
 	public function componentNameAndClassProvider() {
 		$cl = new ComponentLibrary();

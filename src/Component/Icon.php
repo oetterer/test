@@ -51,7 +51,7 @@ class Icon extends AbstractComponent {
 
 		return Html::rawElement(
 			'span',
-			[ 'class' => 'glyphicon glyphicon-' . trim( $input ) ]
+			[ 'class' => 'glyphicon glyphicon-' . strtolower( trim( $input ) ) ]
 		);
 	}
 }

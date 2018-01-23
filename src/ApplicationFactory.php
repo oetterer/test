@@ -113,14 +113,12 @@ class ApplicationFactory {
 	}
 
 	/**
-	 * @param bool $disableUniqueIds    needed in parser tests
-	 *
 	 * @throws MWException  cascading {@see \BootstrapComponents\ApplicationFactory::getApplication}
 	 *
 	 * @return NestingController
 	 */
-	public function getNestingController( $disableUniqueIds = false ) {
-		return $this->getApplication( 'NestingController', $disableUniqueIds );
+	public function getNestingController() {
+		return $this->getApplication( 'NestingController' );
 	}
 
 	/**

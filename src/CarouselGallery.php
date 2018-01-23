@@ -112,6 +112,11 @@ class CarouselGallery extends ImageGalleryBase {
 			# @note: assuming here, that the correct link processing is done in image processing
 			$carouselImage .= '|link=' . $imageLink;
 		}
+		if ( empty( $imageParams['class'] ) ) {
+			$imageParams['class'] = 'img-responsive';
+		} else {
+			$imageParams['class'] .= ' img-responsive';
+		}
 		if ( $imageParams ) {
 			foreach ( $imageParams as $key => $val ) {
 				$carouselImage .= '|' . $key . '=' . $val;

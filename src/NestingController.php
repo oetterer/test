@@ -56,13 +56,6 @@ class NestingController {
 	private $componentStack;
 
 	/**
-	 * When in testing mode, unique ids tend to make things very difficult. So this knows, when not to generate them.
-	 *
-	 * @var bool $disableUniqueIds
-	 */
-	private $disableUniqueIds;
-
-	/**
 	 * NestingController constructor.
 	 *
 	 * Do not instantiate directly, but use {@see ApplicationFactory::getNestingController} instead.
@@ -71,10 +64,9 @@ class NestingController {
 	 *
 	 * @see ApplicationFactory::getNestingController
 	 */
-	public function __construct( $disableUniqueIds = false ) {
+	public function __construct() {
 		$this->autoincrementPerComponent = [];
 		$this->componentStack = [];
-		$this->disableUniqueIds =  $disableUniqueIds;
 	}
 
 	/**
@@ -103,9 +95,6 @@ class NestingController {
 	 * @return string
 	 */
 	public function generateUniqueId( $componentName ) {
-		if ( $this->disableUniqueIds ) {
-			return 'bsc_' . $componentName . '_test';
-		}
 		if ( !isset( $this->autoincrementPerComponent[$componentName] ) ) {
 			$this->autoincrementPerComponent[$componentName] = 0;
 		}

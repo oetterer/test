@@ -3,6 +3,8 @@
 namespace BootstrapComponents\Tests\Unit;
 
 use BootstrapComponents\Setup as Setup;
+use BootstrapComponents\ComponentLibrary;
+use \Parser;
 use \PHPUnit_Framework_TestCase;
 
 /**
@@ -69,19 +71,10 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		}
 
 		foreach ( $expectedHookList as $hook ) {
-			$this->assertArrayHasKey(
-				$hook,
-				$hookCallbackList
-			);
-			$this->assertTrue(
-				is_callable( $hookCallbackList[$hook] )
-			);
+			$this->doTestHookIsRegistered( $instance, $hookCallbackList, $hook, false );
 		}
 		foreach ( $invertedHookList as $hook ) {
-			$this->assertArrayNotHasKey(
-				$hook,
-				$hookCallbackList
-			);
+			$this->doTestHookIsNotRegistered( $hookCallbackList, $hook );
 		}
 	}
 
@@ -185,6 +178,130 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
+	public function testHookGalleryGetModes() {
+		$instance = new Setup( [] );
+		$hookCallbackList = $instance->buildHookCallbackListFor(
+			[ 'GalleryGetModes' ]
+		);
+		$this->assertArrayHasKey(
+			'GalleryGetModes',
+			$hookCallbackList
+		);
+		$this->assertTrue(
+			is_callable( $hookCallbackList['GalleryGetModes'] )
+		);
+		$modesForTest = [ 'default' => 'TestGallery' ];
+		$hookCallbackList['GalleryGetModes']( $modesForTest );
+		$this->assertEquals(
+			2,
+			count( $modesForTest )
+		);
+		$this->assertArrayHasKey(
+			'carousel',
+			$modesForTest
+		);
+		$this->assertEquals(
+			'BootstrapComponents\\CarouselGallery',
+			$modesForTest['carousel']
+		);
+	}
+
+	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
+	public function testHookImageBeforeProduceHTML() {
+		$instance = new Setup( [] );
+		$hookCallbackList = $instance->buildHookCallbackListFor(
+			[ 'ImageBeforeProduceHTML' ]
+		);
+		$this->assertArrayHasKey(
+			'ImageBeforeProduceHTML',
+			$hookCallbackList
+		);
+		$this->assertTrue(
+			is_callable( $hookCallbackList['ImageBeforeProduceHTML'] )
+		);
+		$linker = $title = $file = $frameParams = $handlerParams = $time = $res = false;
+
+		$this->assertTrue(
+			$hookCallbackList['ImageBeforeProduceHTML']( $linker, $title, $file, $frameParams, $handlerParams, $time, $res )
+		);
+	}
+
+	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
+	public function testHookParserFirstCallInit() {
+		$prefix = ComponentLibrary::PARSER_HOOK_PREFIX;
+		$observerParser = $this->getMockBuilder(Parser::class )
+			->disableOriginalConstructor()
+			->setMethods( [ 'setFunctionHook', 'setHook' ] )
+			->getMock();
+		$observerParser->expects( $this->exactly( 6 ) )
+			->method( 'setFunctionHook' )
+			->withConsecutive(
+				[ $this->equalTo( $prefix . 'badge' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'button' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'carousel' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'icon' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'label' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'tooltip' ), $this->callback( 'is_callable' ) ]
+			);
+		$observerParser->expects( $this->exactly( 8 ) )
+			->method( 'setHook' )
+			->withConsecutive(
+				[ $this->equalTo( $prefix . 'accordion' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'alert' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'collapse' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'jumbotron' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'modal' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'panel' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'popover' ), $this->callback( 'is_callable' ) ],
+				[ $this->equalTo( $prefix . 'well' ), $this->callback( 'is_callable' ) ]
+			);
+
+		$instance = new Setup( [] );
+		$hookCallbackList = $instance->buildHookCallbackListFor(
+			[ 'ParserFirstCallInit' ]
+		);
+		$this->assertArrayHasKey(
+			'ParserFirstCallInit',
+			$hookCallbackList
+		);
+		$this->assertTrue(
+			is_callable( $hookCallbackList['ParserFirstCallInit'] )
+		);
+
+		$hookCallbackList['ParserFirstCallInit']( $observerParser );
+	}
+
+	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
+	public function testHookSetupAfterCache() {
+		$instance = new Setup( [] );
+		$hookCallbackList = $instance->buildHookCallbackListFor(
+			[ 'SetupAfterCache' ]
+		);
+		$this->assertArrayHasKey(
+			'SetupAfterCache',
+			$hookCallbackList
+		);
+		$this->assertTrue(
+			is_callable( $hookCallbackList['SetupAfterCache'] )
+		);
+		$this->assertTrue(
+			$hookCallbackList['SetupAfterCache']()
+		);
+	}
+
+	/**
 	 * @throws \ConfigException cascading {@see \Config::get}
 	 * @throws \MWException
 	 */
@@ -244,11 +361,14 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	 * @param Setup  $instance
 	 * @param array  $registeredHooks
 	 * @param string $expectedHook
+	 * @param bool   $hardRegisterTest
 	 */
-	private function doTestHookIsRegistered( Setup $instance, $registeredHooks, $expectedHook ) {
-		$this->assertTrue(
-			$instance->isRegistered( $expectedHook )
-		);
+	private function doTestHookIsRegistered( Setup $instance, $registeredHooks, $expectedHook, $hardRegisterTest = true ) {
+		if ( $hardRegisterTest ) {
+			$this->assertTrue(
+				$instance->isRegistered( $expectedHook )
+			);
+		}
 		$this->assertArrayHasKey(
 			$expectedHook,
 			$registeredHooks,

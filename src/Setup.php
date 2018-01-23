@@ -135,7 +135,7 @@ class Setup {
 	 *
 	 * @throws \ConfigException cascading {@see \Config::get}
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function compileRequestedHooksListFor( $myConfig ) {
 		$requestedHookList = [ 'ParserFirstCallInit', 'SetupAfterCache' ];
@@ -316,7 +316,7 @@ class Setup {
 	public function initializeApplications( $myConfig ) {
 		$applicationFactory = ApplicationFactory::getInstance();
 		$componentLibrary = $applicationFactory->getComponentLibrary(
-			$this->myConfig->get( 'BootstrapComponentsWhitelist' )
+			$myConfig->get( 'BootstrapComponentsWhitelist' )
 		);
 		$nestingController = $applicationFactory->getNestingController();
 		return [ $componentLibrary, $nestingController ];
@@ -332,10 +332,12 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
-	#@fixme tests/parser/parserTests.txt (after previous todo)
+	#@fixme remove tests/parser/parserTests.txt
 	# remove most of the image tags
 	# add two or three examples for gallery and the other components
 	#@fixme vertical alignment in image modal has no effect. see https://www.mediawiki.org/wiki/Help:Images#Vertical_alignment
+	#@todo add integration tests for Collapse, Jumbotron, Label, Modal, Panel (w/o accordion), Popover, Tooltip, CarouselGallery
+	#@todo after integration json files are done, finish README in Integration/JSONScript/TestCases
 
 	### last steps
 	#@todo change release date in docs/release-notes.md
@@ -346,16 +348,6 @@ class Setup {
 
 	# code improvement
 	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5); if, add to docs/credits.md
-	# or use parser tests instead. see https://www.mediawiki.org/wiki/Parser_tests
-	# 1. adjust composer.json, integration script, create tests/parser/parserTests.txt 2. copy all image related stuff from mw/tests/parser/parserTests.txt
-	# still thinking about integration tests, using smw. increases code coverage report data
-	/*
-	 * 	"parser":[
-			"echo '$wgBootstrapComponentsDisableIdsForTestEnvironment = true;' >> ../../LocalSettings.php",
-			"php ../../tests/parserTests.php --quiet --file tests/parser/parserTests.txt --quiet"
-		],
-	in composer does not work, because mw >= 1.29 has parserTests.php moved to tests/parser/parserTests.php; need test script...
-	 */
 	#@todo you can increase code coverage by testing private and protected methods directly
 	# see https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
 	# when starting to use this, revert some previously exposed methods to protected/private again.

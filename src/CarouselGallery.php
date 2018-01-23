@@ -98,27 +98,24 @@ class CarouselGallery extends ImageGalleryBase {
 
 		/** @var \Title $imageTitle */
 		list( $imageTitle, $imageCaption, $imageAlt, $imageLink, $imageParams ) = $imageData;
+		$imageParams['alt'] = $imageAlt;
+		# @note: this is a local link. has to be an article name :(
+		# @note: assuming here, that the correct link processing is done in image processing
+		$imageParams['link'] = $imageLink;
+
 		// note that imageCaption, imageAlt and imageLink are strings. the latter is a local link or empty
 		// imageParams is an associative array param => value
 		$carouselImage = '[[' . $imageTitle->getPrefixedText();
-		if ( $imageCaption ) {
+		if ( !empty( $imageCaption ) ) {
 			$carouselImage .= '|' . $imageCaption;
-		}
-		if ( $imageAlt ) {
-			$carouselImage .= '|alt=' . $imageAlt;
-		}
-		if ( $imageLink ) {
-			# @note: this is a local link. has to be an article name :(
-			# @note: assuming here, that the correct link processing is done in image processing
-			$carouselImage .= '|link=' . $imageLink;
 		}
 		if ( empty( $imageParams['class'] ) ) {
 			$imageParams['class'] = 'img-responsive';
 		} else {
 			$imageParams['class'] .= ' img-responsive';
 		}
-		if ( $imageParams ) {
-			foreach ( $imageParams as $key => $val ) {
+		foreach ( $imageParams as $key => $val ) {
+			if ( !empty( $val ) ) {
 				$carouselImage .= '|' . $key . '=' . $val;
 			}
 		}

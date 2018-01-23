@@ -60,8 +60,6 @@ class NestingController {
 	 *
 	 * Do not instantiate directly, but use {@see ApplicationFactory::getNestingController} instead.
 	 *
-	 * @param bool $disableUniqueIds defaults to false
-	 *
 	 * @see ApplicationFactory::getNestingController
 	 */
 	public function __construct() {

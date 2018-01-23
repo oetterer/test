@@ -76,6 +76,7 @@ function installSourceFromPull {
  echo "Installing Extension"
  cd ${baseDir}/${mwDir}
 
+ composer require 'mediawiki/semantic-media-wiki=~2.5' --update-with-dependencies
  composer require 'mediawiki/bootstrap=*' --update-with-dependencies
 
  cd extensions
@@ -112,7 +113,7 @@ function injectResources {
  echo "Uploading test images"
 
  cd ${baseDir}/${mwDir}
- php maintenance/importImages.php ${baseDir}/${mwDir}/extensions/BootstrapComponents/tests/travis/resources/ png
+ php maintenance/importImages.php ${baseDir}/${mwDir}/extensions/BootstrapComponents/tests/resources/ png
  php maintenance/runJobs.php -s
 }
 

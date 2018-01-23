@@ -11,6 +11,10 @@ used here.
 Code snippets used for CI on [Travis] and [Scrutinizer] were taken from
 the [SemanticScribunto] software repository.
 
+Integration tests use the JsonTestCaseScriptRunner class created by
+mwjames for [SemanticMediaWiki] and both json test classes are adaption
+of his work, also.
+
 ### Dependencies
 
 The BootstrapComponents extension uses the Bootstrap extension by
@@ -33,3 +37,4 @@ If I forgot somebody, sorry. Please drop me a note, so I can add them here.
 [Travis]: https://travis-ci.org
 [Scrutinizer]: https://scrutinizer-ci.com
 [SemanticScribunto]: https://github.com/SemanticMediaWiki/SemanticScribunto
+[SemanticMediaWiki]: https://github.com/SemanticMediaWiki/SemanticMediaWiki

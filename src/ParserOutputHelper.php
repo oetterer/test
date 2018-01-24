@@ -100,7 +100,7 @@ class ParserOutputHelper {
 	public function addModules( $modulesToAdd ) {
 		$parserOutput = $this->parser->getOutput();
 		if ( is_a( $parserOutput, ParserOutput::class ) ) {
-			// Q: why this if? A:otherwise certain classes are untestable
+			// Q: when do we expect \Parser->getOutput() no to be a \ParserOutput? A:During tests.
 			$parserOutput->addModules( $modulesToAdd );
 		}
 	}
@@ -129,7 +129,7 @@ class ParserOutputHelper {
 	public function loadBootstrapModules() {
 		$parserOutput = $this->parser->getOutput();
 		if ( is_a( $parserOutput, ParserOutput::class ) ) {
-			// Q: why this if? A:otherwise certain classes are untestable
+			// Q: when do we expect \Parser->getOutput() no to be a \ParserOutput? A:During tests.
 			$parserOutput->addModuleStyles( 'ext.bootstrap.styles' );
 			$parserOutput->addModuleScripts( 'ext.bootstrap.scripts' );
 			if ( $this->vectorSkinInUse() ) {
@@ -181,13 +181,14 @@ class ParserOutputHelper {
 	 */
 	private function placeTrackingCategory( $trackingCategoryMessageName ) {
 		$categoryMessage = wfMessage( $trackingCategoryMessageName )->inContentLanguage();
-		if ( !$categoryMessage->isDisabled() ) {
-			$parserOutput = $this->parser->getOutput();
+		$parserOutput = $this->parser->getOutput();
+		if ( !$categoryMessage->isDisabled() && is_a( $parserOutput, ParserOutput::class ) ) {
+			// Q: when do we expect \Parser->getOutput() no to be a \ParserOutput? A:During tests.
 			$cat = Title::makeTitleSafe( NS_CATEGORY, $categoryMessage->text() );
-			if ( $cat && is_a( $parserOutput, ParserOutput::class ) ) {
+			if ( $cat ) {
 				$sort = (string) $parserOutput->getProperty( 'defaultsort' );
 				$parserOutput->addCategory( $cat->getDBkey(), $sort );
-			} elseif ( !$cat ) {
+			} else {
 				wfDebug( __METHOD__ . ": [[MediaWiki:{$trackingCategoryMessageName}]] is not a valid title!\n" );
 			}
 		}

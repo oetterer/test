@@ -298,8 +298,9 @@ class Setup {
 					$parser->setHook( $parserHookString, $callback );
 				} else {
 					wfDebugLog(
-						'BootstrapComponents', 'Unknown handler type ('
-						                     . $componentLibrary->getHandlerTypeFor( $componentName ) . ') detected for component ' . $parserHookString
+						'BootstrapComponents',
+						'Unknown handler type (' . $componentLibrary->getHandlerTypeFor( $componentName )
+							. ') detected for component ' . $parserHookString
 					);
 				}
 			}

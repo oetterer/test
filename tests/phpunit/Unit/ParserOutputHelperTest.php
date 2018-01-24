@@ -87,6 +87,7 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$instance->addErrorTrackingCategory();
+		$instance->addErrorTrackingCategory();
 	}
 
 	/**
@@ -130,6 +131,7 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 		/** @noinspection PhpParamsInspection */
 		$instance = new ParserOutputHelper( $parser );
 
+		$instance->addTrackingCategory();
 		$instance->addTrackingCategory();
 	}
 

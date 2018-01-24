@@ -2,6 +2,7 @@
 
 namespace BootstrapComponents\Tests\Integration;
 
+use \MediaWiki\MediaWikiServices;
 use SMW\Tests\Utils\UtilityFactory;
 
 /**
@@ -37,12 +38,16 @@ class I18nJsonFileIntegrityTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @throws \ConfigException
+	 *
 	 * @return array
 	 */
 	public function i18nFileProvider() {
 
 		$provider = [];
-		$location = $GLOBALS['wgMessagesDirs']['BootstrapComponents'];
+		$configFactory = MediaWikiServices::getInstance()->getMainConfig();
+		$wgMessageDirs = $configFactory->get( 'MessagesDirs' );
+		$location = $wgMessageDirs['BootstrapComponents'];
 
 		if ( is_array( $location ) ) {
 			$location = reset( $location );

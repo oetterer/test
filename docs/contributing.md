@@ -72,7 +72,7 @@ A few points to ease the process:
   * `ComponentLibraryTest::compileParserHookStringProvider`
   * `ComponentLibraryTest::componentNameAndClassProvider`
   * `ComponentLibraryTest::modulesForComponentsProvider`
-  * `SetupTest::testCanCreateParserFirstCallInitCallback`
+  * `SetupTest::testHookParserFirstCallInit`
 
 #### Format of data array in ComponentLibrary::rawComponentsDefinition
 ```

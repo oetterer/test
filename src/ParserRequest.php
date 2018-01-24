@@ -74,6 +74,9 @@ class ParserRequest {
 			$this->processArguments( $argumentsPassedByParser, $isParserFunction, $componentName );
 		$this->attributes = (array)$attributes;
 		if ( !$this->parser || !is_a( $this->parser, 'Parser' ) ) {
+			if ( gettype( $this->parser ) == 'array' ) {
+				var_dump( $this->parser );
+			}
 			throw new MWException( 'Invalid parser object passed to component ' . $componentName . '!' );
 		}
 	}

@@ -27,6 +27,7 @@
 namespace BootstrapComponents;
 
 use \Html;
+use \ParserOutput;
 use \RequestContext;
 use \Title;
 
@@ -97,7 +98,11 @@ class ParserOutputHelper {
 	 * @param array $modulesToAdd
 	 */
 	public function addModules( $modulesToAdd ) {
-		$this->parser->getOutput()->addModules( $modulesToAdd );
+		$parserOutput = $this->parser->getOutput();
+		if ( is_a( $parserOutput, ParserOutput::class ) ) {
+			// Q: why this if? A:otherwise certain classes are untestable
+			$parserOutput->addModules( $modulesToAdd );
+		}
 	}
 
 	/**
@@ -122,10 +127,14 @@ class ParserOutputHelper {
 	 * Adds the bootstrap modules and styles to the page, if not done already
 	 */
 	public function loadBootstrapModules() {
-		$this->parser->getOutput()->addModuleStyles( 'ext.bootstrap.styles' );
-		$this->parser->getOutput()->addModuleScripts( 'ext.bootstrap.scripts' );
-		if ( $this->vectorSkinInUse() ) {
-			$this->parser->getOutput()->addModules( 'ext.bootstrapComponents.vector-fix' );
+		$parserOutput = $this->parser->getOutput();
+		if ( is_a( $parserOutput, ParserOutput::class ) ) {
+			// Q: why this if? A:otherwise certain classes are untestable
+			$parserOutput->addModuleStyles( 'ext.bootstrap.styles' );
+			$parserOutput->addModuleScripts( 'ext.bootstrap.scripts' );
+			if ( $this->vectorSkinInUse() ) {
+				$parserOutput->addModules( 'ext.bootstrapComponents.vector-fix' );
+			}
 		}
 	}
 
@@ -173,12 +182,12 @@ class ParserOutputHelper {
 	private function placeTrackingCategory( $trackingCategoryMessageName ) {
 		$categoryMessage = wfMessage( $trackingCategoryMessageName )->inContentLanguage();
 		if ( !$categoryMessage->isDisabled() ) {
-			$output = $this->parser->getOutput();
+			$parserOutput = $this->parser->getOutput();
 			$cat = Title::makeTitleSafe( NS_CATEGORY, $categoryMessage->text() );
-			if ( $cat ) {
-				$sort = (string) $output->getProperty( 'defaultsort' );
-				$output->addCategory( $cat->getDBkey(), $sort );
-			} else {
+			if ( $cat && is_a( $parserOutput, ParserOutput::class ) ) {
+				$sort = (string) $parserOutput->getProperty( 'defaultsort' );
+				$parserOutput->addCategory( $cat->getDBkey(), $sort );
+			} elseif ( !$cat ) {
 				wfDebug( __METHOD__ . ": [[MediaWiki:{$trackingCategoryMessageName}]] is not a valid title!\n" );
 			}
 		}

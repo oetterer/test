@@ -35,7 +35,15 @@ use \ReflectionClass;
 /**
  * Class Setup
  *
- * Registers all hooks and components for Extension BootstrapComponents
+ * Registers all hooks and components for Extension BootstrapComponents.
+ *
+ * Information on how to add an additional hook
+ *  1. add it to {@see Setup::AVAILABLE_HOOKS}.
+ *  2. add an appropriate entry in the array inside {@see Setup::getCompleteHookDefinitionList}
+ *     with the hook as array key and the callback as value.
+ *  3. have {@see Setup::compileRequestedHooksListFor} add the hook to its result array. Based on
+ *     a certain condition, if necessary.
+ *  4. add appropriate tests to {@see \BootstrapComponents\Tests\Unit\SetupTest}.
  *
  * @since 1.0
  */
@@ -111,14 +119,16 @@ class Setup {
 	 * @return array
 	 */
 	public function buildHookCallbackListFor( $hooksToRegister ) {
-		$hookList = [];
-		$allHookList = $this->getHookList( $this->myConfig, $this->componentLibrary, $this->nestingController );
-		foreach ( self::AVAILABLE_HOOKS as $hook ) {
-			if ( in_array( $hook, $hooksToRegister ) && isset( $allHookList[$hook] ) ) {
-				$hookList[$hook] = $allHookList[$hook];
+		$hookCallbackList = [];
+		$completeHookDefinitionList = $this->getCompleteHookDefinitionList(
+			$this->myConfig, $this->componentLibrary, $this->nestingController
+		);
+		foreach ( $hooksToRegister as $requestedHook ) {
+			if ( isset( $completeHookDefinitionList[$requestedHook] ) ) {
+				$hookCallbackList[$requestedHook] = $completeHookDefinitionList[$requestedHook];
 			}
 		}
-		return $hookList;
+		return $hookCallbackList;
 	}
 
 	/**
@@ -150,6 +160,57 @@ class Setup {
 			$requestedHookList[] = 'ImageBeforeProduceHTML';
 		}
 		return $requestedHookList;
+	}
+
+	/**
+	 * @param \Config           $myConfig
+	 * @param ComponentLibrary  $componentLibrary
+	 * @param NestingController $nestingController
+	 *
+	 * @return \Closure[]
+	 */
+	public function getCompleteHookDefinitionList( $myConfig, $componentLibrary, $nestingController ) {
+		return [
+			'GalleryGetModes' => function( &$modeArray ) {
+				$modeArray['carousel'] = 'BootstrapComponents\\CarouselGallery';
+				return true;
+			},
+			'ImageBeforeProduceHTML' => function( &$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
+			) use ( $nestingController, $myConfig ) {
+
+				$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
+
+				if ( $myConfig->has( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+					&& $myConfig->get( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+				) {
+					$imageModal->disableSourceLink();
+				}
+
+				return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
+			},
+			'ParserFirstCallInit' => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
+			'SetupAfterCache' => function() {
+				BootstrapManager::getInstance()->addAllBootstrapModules();
+				return true;
+			},
+		];
+	}
+
+	/**
+	 * @param \Config $myConfig
+	 *
+	 * @throws \MWException cascading {@see \BootstrapComponents\ApplicationFactory} calls
+	 * @throws \ConfigException cascading {@see \Config::get}
+	 *
+	 * @return array
+	 */
+	public function initializeApplications( $myConfig ) {
+		$applicationFactory = ApplicationFactory::getInstance();
+		$componentLibrary = $applicationFactory->getComponentLibrary(
+			$myConfig->get( 'BootstrapComponentsWhitelist' )
+		);
+		$nestingController = $applicationFactory->getNestingController();
+		return [ $componentLibrary, $nestingController ];
 	}
 
 	/**
@@ -272,57 +333,6 @@ class Setup {
 	}
 
 	/**
-	 * @param \Config           $myConfig
-	 * @param ComponentLibrary  $componentLibrary
-	 * @param NestingController $nestingController
-	 *
-	 * @return \Closure[]
-	 */
-	private function getHookList( $myConfig, $componentLibrary, $nestingController ) {
-		return [
-			'GalleryGetModes' => function( &$modeArray ) {
-				$modeArray['carousel'] = 'BootstrapComponents\\CarouselGallery';
-				return true;
-			},
-			'ImageBeforeProduceHTML' => function( &$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
-			) use ( $nestingController, $myConfig ) {
-
-				$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
-
-				if ( $myConfig->has( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
-					&& $myConfig->get( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
-				) {
-					$imageModal->disableSourceLink();
-				}
-
-				return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
-			},
-			'ParserFirstCallInit' => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
-			'SetupAfterCache' => function() {
-				BootstrapManager::getInstance()->addAllBootstrapModules();
-				return true;
-			},
-		];
-	}
-
-	/**
-     * @param \Config $myConfig
-     *
-     * @throws \MWException cascading {@see \BootstrapComponents\ApplicationFactory} calls
-     * @throws \ConfigException cascading {@see \Config::get}
-	 *
-	 * @return array
-     */
-	public function initializeApplications( $myConfig ) {
-		$applicationFactory = ApplicationFactory::getInstance();
-		$componentLibrary = $applicationFactory->getComponentLibrary(
-			$myConfig->get( 'BootstrapComponentsWhitelist' )
-		);
-		$nestingController = $applicationFactory->getNestingController();
-		return [ $componentLibrary, $nestingController ];
-	}
-
-	/**
 	 * Version number retrieved from extension info array.
 	 *
 	 * @param string $version
@@ -332,11 +342,14 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
+	#@todo use / test getCompleteHookDefinitionList
+
 	#@fixme remove tests/parser/parserTests.txt
 	# remove most of the image tags
 	# add two or three examples for gallery and the other components
 	#@fixme vertical alignment in image modal has no effect. see https://www.mediawiki.org/wiki/Help:Images#Vertical_alignment
 	#@todo add integration tests for Collapse, Jumbotron, Label, Modal, Panel (w/o accordion), Popover, Tooltip, CarouselGallery
+	#@todo add integration tests for placeTrackingCategory and invalid tracking category
 	#@todo after integration json files are done, finish README in Integration/JSONScript/TestCases
 
 	### last steps

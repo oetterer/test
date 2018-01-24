@@ -5,6 +5,7 @@ namespace BootstrapComponents\Tests\Unit;
 use BootstrapComponents\Setup as Setup;
 use BootstrapComponents\ComponentLibrary;
 use \Parser;
+use \ParserOutput;
 use \PHPUnit_Framework_TestCase;
 
 /**
@@ -144,6 +145,62 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
+	public function testCanGetCompleteHookDefinitionList() {
+
+		$myConfig = $this->getMockBuilder( 'Config' )
+			->disableOriginalConstructor()
+			->getMock();
+		$componentLibrary = $this->getMockBuilder( 'BootstrapComponents\\ComponentLibrary' )
+			->disableOriginalConstructor()
+			->getMock();
+		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$instance = new Setup( [] );
+
+		/** @noinspection PhpParamsInspection */
+		$completeHookDefinitionList = $instance->getCompleteHookDefinitionList( $myConfig, $componentLibrary, $nestingController );
+		$this->assertEquals(
+			Setup::AVAILABLE_HOOKS,
+			array_keys( $completeHookDefinitionList )
+		);
+
+		foreach ( $completeHookDefinitionList as $callback ) {
+			$this->assertTrue(
+				is_callable( $callback )
+			);
+		}
+	}
+
+	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
+	public function testCanInitializeApplications() {
+
+		$myConfig = $this->getMockBuilder( 'Config' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$instance = new Setup( [] );
+
+		/** @noinspection PhpParamsInspection */
+		list( $componentLibrary, $nestingController ) = $instance->initializeApplications( $myConfig );
+
+		$this->assertInstanceOf(
+			'BootstrapComponents\\ComponentLibrary',
+			$componentLibrary
+		);
+		$this->assertInstanceOf(
+			'BootstrapComponents\\NestingController',
+			$nestingController
+		);
+	}
 
 	/**
 	 * @param array $listOfConfigSettingsSet
@@ -155,7 +212,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @dataProvider hookRegistryProvider
 	 */
-	public function testRegisterHooks( $listOfConfigSettingsSet, $expectedRegisteredHooks, $expectedNotRegisteredHooks ) {
+	public function testHookRegistrationProcess( $listOfConfigSettingsSet, $expectedRegisteredHooks, $expectedNotRegisteredHooks ) {
 
 		$instance = new Setup( [] );
 
@@ -176,6 +233,25 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			$this->doTestHookIsNotRegistered( $hookCallbackList, $notExpectedHook );
 		}
 	}
+
+	/**
+	 * @throws \ConfigException cascading {@see \Config::get}
+	 * @throws \MWException
+	 */
+	public function testCanRun() {
+
+		$instance = new Setup( [] );
+
+		$this->assertInternalType(
+			'integer',
+			$instance->run()
+		);
+	}
+
+	/*
+	 * Here end the tests for all the public methods.
+	 * Following one test per hook function and one test for all the parser hook registrations.
+	 */
 
 	/**
 	 * @throws \ConfigException
@@ -302,17 +378,49 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @throws \ConfigException cascading {@see \Config::get}
+	 * @throws \ConfigException
 	 * @throws \MWException
 	 */
-	public function testCanRun() {
+	public function testCanCreateParserHooks() {
+		$registeredParserHooks = [];
+		$extractionParser = $this->getMockBuilder(Parser::class )
+			->disableOriginalConstructor()
+			->setMethods( [ 'setFunctionHook', 'setHook' ] )
+			->getMock();
+		$extractionParser->expects( $this->exactly( 6 ) )
+			->method( 'setFunctionHook' )
+			->will( $this->returnCallback( function( $parserHookString, $callBack ) use ( &$registeredParserHooks ) {
+				$registeredParserHooks[$parserHookString] = [ $callBack, ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ];
+			} ) );
+		$extractionParser->expects( $this->exactly( 8 ) )
+			->method( 'setHook' )
+			->will( $this->returnCallback( function( $parserHookString, $callBack ) use ( &$registeredParserHooks ) {
+				$registeredParserHooks[$parserHookString] = [ $callBack, ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ];
+			} ) );
 
 		$instance = new Setup( [] );
 
-		$this->assertInternalType(
-			'integer',
-			$instance->run()
+		$hookCallbackList = $instance->buildHookCallbackListFor(
+			[ 'ParserFirstCallInit' ]
 		);
+		$this->assertArrayHasKey(
+			'ParserFirstCallInit',
+			$hookCallbackList
+		);
+		$this->assertTrue(
+			is_callable( $hookCallbackList['ParserFirstCallInit'] )
+		);
+
+		$hookCallbackList['ParserFirstCallInit']( $extractionParser );
+
+		$this->assertEquals(
+			14,
+			count( $registeredParserHooks )
+		);
+
+		foreach ( $registeredParserHooks as $registeredParserHook => $data ) {
+			$this->doTestParserHook( $registeredParserHook, $data[0], $data[1] );
+		}
 	}
 
 	/**
@@ -391,4 +499,27 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @param string   $registeredParserHook
+	 * @param \Closure $callback
+	 * @param string   $handlerType
+	 */
+	private function doTestParserHook( $registeredParserHook, $callback, $handlerType ) {
+		$parser = $this->getMockBuilder( 'Parser' )
+			->disableOriginalConstructor()
+			->getMock();
+		$input = 'test';
+		if ( $handlerType == ComponentLibrary::HANDLER_TYPE_TAG_EXTENSION ) {
+			$ret = $callback( $input, [], $parser, null );
+		} elseif ( $handlerType == ComponentLibrary::HANDLER_TYPE_PARSER_FUNCTION ) {
+			$ret = $callback( $parser, $input );
+		} else {
+			$ret = false;
+		}
+		$this->assertInternalType(
+			'string',
+			$ret,
+			'Failed testing parser hook for parser hook string ' . $registeredParserHook
+		);
+	}
 }

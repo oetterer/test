@@ -1,5 +1,5 @@
 {
-	"description": "Test image modal",
+	"description": "Test replacing default image tags with modals",
 	"setup": [
 		{
 			"namespace": "NS_FILE",

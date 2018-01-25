@@ -72,7 +72,7 @@ $wgBootstrapComponentsWhitelist = [ 'icon', 'panel', 'tooltip', 'modal' ];
 ```
 
 When using modals, you might want to disable popovers. See
-[known issues][KnownIssues] for more.
+[known issues][known-issues] for more.
 
 To disable all components simply set this to `false`.
 
@@ -85,6 +85,9 @@ parameter will be converted into a modal. So when you click on the image,
 instead of being referred to the corresponding page in the file namespace,
 a modal opens up showing the image with a possible caption (if you
 provided one) and a link to the source page of the file.
+
+Most regular options that can be used with images are recognized and
+processed accordingly. Please see the help page on [mediawiki.org][ImageHelp].
 
 Please see [known issues][known-issues] for additional information.
 
@@ -113,4 +116,5 @@ galleries, please visit [mediawiki.org][Gallery].
 [BootstrapExtension]: https://www.mediawiki.org/wiki/Extension:Bootstrap
 [Components]: components.md
 [known-issues]: known-issues.md
+[ImageHelp]: https://www.mediawiki.org/wiki/Help:Images
 [Gallery]: https://www.mediawiki.org/wiki/Help:Images#Rendering_a_gallery_of_images

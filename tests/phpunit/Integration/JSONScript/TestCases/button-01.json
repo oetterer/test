@@ -2,6 +2,16 @@
 	"description": "Test button component",
 	"setup": [
 		{
+			"namespace": "NS_FILE",
+			"page": "Button-01-Serenity.png",
+			"contents": {
+				"upload": {
+					"file" : "/../../../../resources/Serenity.png",
+					"text" : "Serenity for Button Test 01"
+				}
+			}
+		},
+		{
 			"namespace": "NS_MAIN",
 			"page": "Target",
 			"contents": "This is a target for the button"
@@ -21,6 +31,14 @@
 		{
 			"page": "Button/01/4",
 			"contents": "{{#bootstrap_button:}}"
+		},
+		{
+			"page": "Button/01/5",
+			"contents": "{{#bootstrap_button: Target | text=\"[[File:Button-01-Serenity.png|23px]]\"}}"
+		},
+		{
+			"page": "Button/01/6",
+			"contents": "{{#bootstrap_button: Target | text=\"[[File:Invalid.png]]\"}}"
 		}
 	],
 	"tests": [
@@ -67,7 +85,8 @@
 					"/Button_text\">Button text</a>"
 				],
 				"not-contain": [
-					"foo=\"bar\"",
+					"foo",
+					"bar",
 					"big",
 					"nope"
 				]
@@ -80,6 +99,35 @@
 			"assert-output": {
 				"to-contain": [
 					"<span class=\"error\">You must specify a target for this button.</span>"
+				]
+			}
+		},
+		{
+			"type": "parser",
+			"about": "#4 verify output for component button with image as text",
+			"subject": "Button/01/5",
+			"assert-output": {
+				"to-contain": [
+					"<a class=\"btn btn-default\" role=\"button\" id=\"bsc_button_",
+					"href=\"/Target\">",
+					"<img alt=\"Button-01-Serenity.png\" src=",
+					"/images/thumb/5/52/Button-01-Serenity.png/23px-Button-01-Serenity.png\" width=\"23\" height=\"8\" srcset=",
+					"/images/thumb/5/52/Button-01-Serenity.png/35px-Button-01-Serenity.png 1.5x,",
+					"/images/thumb/5/52/Button-01-Serenity.png/46px-Button-01-Serenity.png 2x\" />\"</a>"
+				],
+				"not-contain": [
+					"modal"
+				]
+			}
+		},
+		{
+			"type": "parser",
+			"about": "#5 verify output for component button with invalid image as text",
+			"subject": "Button/01/6",
+			"assert-output": {
+				"to-contain": [
+					"<a class=\"btn btn-default\" role=\"button\" id=\"bsc_button_",
+					"/index.php?title=Special:Upload&amp;wpDestFile=Invalid.png\">File:Invalid.png</a>"
 				]
 			}
 		}

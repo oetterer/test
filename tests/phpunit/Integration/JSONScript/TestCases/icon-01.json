@@ -34,7 +34,8 @@
 					"<span class=\"glyphicon glyphicon-cloud\"></span>"
 				],
 				"not-contain": [
-					"foo=\"bar\"",
+					"foo",
+					"bar",
 					"id=",
 					"unused",
 					"style"

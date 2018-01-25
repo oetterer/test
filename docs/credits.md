@@ -11,9 +11,9 @@ used here.
 Code snippets used for CI on [Travis] and [Scrutinizer] were taken from
 the [SemanticScribunto] software repository.
 
-Integration tests use the JsonTestCaseScriptRunner class created by
-mwjames for [SemanticMediaWiki] and both json test classes are adaption
-of his work, also.
+Integration tests use the `JsonTestCaseScriptRunner` class created by
+mwjames for [SemanticMediaWiki] and both json test classes and the
+`ReadmeContentsBuilder` are adaptions of his work, also.
 
 ### Dependencies
 
@@ -22,6 +22,10 @@ Stephan Gambke which is installed automatically during installation via
 Composer. This extension utilizes several other libraries and modules.
 See its documentation on [mediawiki.org][ExtensionBootstrap] and
 [GitHub][GitHub].
+
+For integration tests, this extension relies on classes from the extension
+[SemanticMediaWiki]. It is only installed, when conduction CI tests on
+[Travis].
 
 ### Thanks!
 

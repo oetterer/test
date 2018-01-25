@@ -43,7 +43,7 @@ class ImageModal implements NestableInterface {
 	 * The components listed here prevent the generation of an image modal.
 	 * @var array
 	 */
-	const PARENTS_PREVENTING_MODAL = [ 'button', 'collapse ', 'image_modal', 'modal', 'popover' ];
+	const PARENTS_PREVENTING_MODAL = [ 'button', 'collapse ', 'image_modal', 'modal', 'popover', 'tooltip' ];
 
 	/**
 	 * @var \DummyLinker $dummyLinker

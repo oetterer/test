@@ -135,16 +135,23 @@ class Button extends AbstractComponent {
 			$targetTitle = Title::newFromText( $target );
 			$target = $targetTitle ? $targetTitle->getLocalURL() : null;
 		}
-		$text = $this->stripLinksFrom( $text );
+		list( $text, $target ) = $this->stripLinksFrom( $text, $target );
 		return [ $target, $text ];
 	}
 
 	/**
 	 * @param string $text
+	 * @param string $target
 	 *
-	 * @return string
+	 * @return string[]
 	 */
-	private function stripLinksFrom( $text ) {
-		return preg_replace( '~^(.*)(<a.+href=[^>]+>)(.+)(</a>)(.*)$~ms', '\1\3\5', $text );
+	private function stripLinksFrom( $text, $target ) {
+		if ( preg_match( '~<a.+href=.([^>]+Special:Upload[^"]+)[^>]*>(.+)</a>~', $text, $matches ) ) {
+			// we have an non existing image as text, return image name as text and upload url as target
+			// since $text was already parsed and html_encoded and Html::rawElement will do this again,
+			// we need to decode the html special characters in target aka $matches[1]
+			return [ $matches[2], htmlspecialchars_decode( $matches[1] ) ];
+		}
+		return [ preg_replace( '~^(.*)(<a.+href=[^>]+>)(.+)(</a>)(.*)$~ms', '\1\3\5', $text ), $target ];
 	}
 }

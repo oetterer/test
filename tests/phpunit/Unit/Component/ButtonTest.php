@@ -23,6 +23,9 @@ class ButtonTest extends ComponentsTestBase {
 
 	private $input = 'Button test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

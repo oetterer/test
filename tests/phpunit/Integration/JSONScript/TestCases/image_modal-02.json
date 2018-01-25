@@ -1,5 +1,5 @@
 {
-	"description": "Test image modal",
+	"description": "Test image modals with invalid thumb image",
 	"setup": [
 		{
 			"namespace": "NS_FILE",

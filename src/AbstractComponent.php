@@ -154,9 +154,9 @@ abstract class AbstractComponent implements NestableInterface {
 		if ( !is_a( $parserRequest, 'BootstrapComponents\ParserRequest' )  ) {
 			throw new MWException( 'Invalid ParserRequest supplied to component ' . $this->getComponentName() . '!' );
 		}
-		$this->initComponentData( $parserRequest );
-
 		$this->getNestingController()->open( $this );
+
+		$this->initComponentData( $parserRequest );
 
 		$input = $parserRequest->getParser()->recursiveTagParse(
 			$parserRequest->getInput(),

@@ -106,6 +106,8 @@ class ApplicationFactory {
 	 * @param string $trigger must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 * @param string $content must be safe raw html (best run through {@see Parser::recursiveTagParse})
 	 *
+	 * @see ModalBuilder::__construct
+	 *
 	 * @return ModalBuilder
 	 */
 	public function getModalBuilder( $id, $trigger, $content ) {
@@ -126,7 +128,9 @@ class ApplicationFactory {
 	 * @param bool   $isParserFunction
 	 * @param string $componentName
 	 *
-	 * @throws \MWException cascading {@see \BootstrapComponents\ParserRequest::__construct}
+	 * @throws \MWException cascading {@see ParserRequest::__construct}
+	 *
+	 * @see ParserRequest::__construct
 	 *
 	 * @return ParserRequest
 	 */

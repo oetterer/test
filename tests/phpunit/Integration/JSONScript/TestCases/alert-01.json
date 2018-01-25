@@ -16,6 +16,10 @@
 		{
 			"page": "Alert/01/4",
 			"contents": "<bootstrap_alert dismissible=\"fade\">Alert text</bootstrap_alert>"
+		},
+		{
+			"page": "Alert/01/5",
+			"contents": "<bootstrap_alert></bootstrap_alert>"
 		}
 	],
 	"tests": [
@@ -25,9 +29,8 @@
 			"subject": "Alert/01/1",
 			"assert-output": {
 				"to-contain": [
-					"class=\"alert alert-info\"",
-					"role=\"alert\"",
-					">Alert text</div>"
+					"<div class=\"alert alert-info\"",
+					"role=\"alert\">Alert text</div>"
 				]
 			}
 		},
@@ -37,7 +40,7 @@
 			"subject": "Alert/01/2",
 			"assert-output": {
 				"to-contain": [
-					"class=\"alert alert-danger alert-dismissible klaxon\"",
+					"<div class=\"alert alert-danger alert-dismissible klaxon\"",
 					"id=\"red\"",
 					"style=\"margin-top:50px\"",
 					"role=\"alert\"",
@@ -52,12 +55,12 @@
 			"subject": "Alert/01/3",
 			"assert-output": {
 				"to-contain": [
-					"class=\"alert alert-info\"",
-					"role=\"alert\"",
-					">Alert text</div>"
+					"<div class=\"alert alert-info\"",
+					"role=\"alert\">Alert text</div>"
 				],
 				"not-contain": [
-					"foo=\"bar\""
+					"foo",
+					"bar"
 				]
 			}
 		},
@@ -67,10 +70,21 @@
 			"subject": "Alert/01/4",
 			"assert-output": {
 				"to-contain": [
-					"class=\"alert alert-info fade in\"",
+					"<div class=\"alert alert-info fade in\"",
 					"role=\"alert\"",
 					"<div type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&#215;</span></div>",
 					">Alert text</div>"
+				]
+			}
+		},
+		{
+			"type": "parser",
+			"about": "#4 verify output for component alert with no content",
+			"subject": "Alert/01/5",
+			"assert-output": {
+				"to-contain": [
+					"<div class=\"alert alert-info\"",
+					"role=\"alert\"></div>"
 				]
 			}
 		}

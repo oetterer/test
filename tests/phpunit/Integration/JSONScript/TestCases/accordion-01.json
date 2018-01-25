@@ -53,7 +53,8 @@
 					"></div>"
 				],
 				"not-contain": [
-					"foo=\"bar\""
+					"foo",
+					"bar"
 				]
 			}
 		},

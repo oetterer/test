@@ -1,0 +1,36 @@
+## TestCases
+Contains these files:
+
+* [accordion-01.json](TestCases/accordion-01.json) Test accordion component
+* [alert-01.json](TestCases/accordion-01.json) Test alert component
+* [badge-01.json](TestCases/accordion-01.json) Test badge component
+* [button-01.json](TestCases/accordion-01.json) Test button component
+* [carousel-01.json](TestCases/accordion-01.json) Test carousel component
+* [icon-01.json](TestCases/icon-01.json) Test icon component
+* [jumbotron-01.json](TestCases/jumbotron-01.json) Test jumbotron component
+* [label-01.json](TestCases/label-01.json) Test label component
+** [modal-01.json](TestCases/modal-01.json) Test modal component
+** [panel-01.json](TestCases/panel-01.json) Test panel component
+** [popover-01.json](TestCases/popover-01.json) Test popover component
+** [tooltip-01.json](TestCases/tooltip-01.json) Test tooltip component
+* [well-01.json](TestCases/well-01.json) Test well component
+* [image_modal-01.json](TestCases/image_modal-01.json) Test placing modals instead of image tags
+* [image_modal-02.json](TestCases/image_modal-02.json) Test image modals with invalid thumb image
+** [carousel_gallery-01.json](TestCases/carousel_gallery-01.json) Adding carousel mode for gallery
+
+## Writing a test case
+
+### Assertions
+
+Integration tests aim to prove that the "integration" between MediaWiki
+and the extension works at a sufficient level therefore assertion
+may only check or verify a specific part of an output to avoid that
+system information (DB ID, article url etc.) distort to overall test results.
+
+### Add a new test case
+
+- Follow the `alert-01.json` example on how to structure the JSON file (setup,
+  test etc.)
+- You can find an example for image upload in `carousel-01.json`.
+- You can add templates the same way as the Target page in `button-01.json`.
+  Just provide an appropriate content.

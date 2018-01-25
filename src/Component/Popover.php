@@ -55,22 +55,52 @@ class Popover extends AbstractComponent {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-popover-text-missing' );
 		}
 
-		list ( $class, $style ) = $this->processCss( $this->calculatePopoverClassAttribute(), [] );
+		list( $tag, $text, $attributes ) = $this->buildHtmlElements( $input, $text, $heading );
 
+		// I cannot use the button class here, because it needs a target and also does not accept pre-processed attributes.
 		return Html::rawElement(
-			'button',
-			[
-				'class'          => $this->arrayToString( $class, ' ' ),
-				'style'          => $this->arrayToString( $style, ';' ),
-				'id'             => $this->getId(),
-				'data-toggle'    => 'popover',
-				'title'          => $heading,
-				'data-content'   => $input,
-				'data-placement' => $this->getValueFor( 'placement' ),
-				'data-trigger'   => $this->getValueFor( 'trigger' ),
-			],
+			$tag,
+			$attributes,
 			$text
 		);
+	}
+
+	/**
+	 * @param string $input
+	 * @param string $text
+	 * @param string $heading
+	 *
+	 * @return array $tag, $text, $attributes
+	 */
+	private function buildHtmlElements( $input, $text, $heading ) {
+		list ( $class, $style ) = $this->processCss( $this->calculatePopoverClassAttribute(), [] );
+
+		list ( $text, $target ) = $this->stripLinksFrom( $text, '' );
+
+		$attributes = [
+			'class'          => $this->arrayToString( $class, ' ' ),
+			'style'          => $this->arrayToString( $style, ';' ),
+			'id'             => $this->getId(),
+		];
+		if ( empty( $target ) ) {
+			// this is the normal popover process
+			$attributes = array_merge(
+				$attributes,
+				[
+					'data-toggle'    => 'popover',
+					'title'          => $heading,
+					'data-content'   => $input,
+					'data-placement' => $this->getValueFor( 'placement' ),
+					'data-trigger'   => $this->getValueFor( 'trigger' ),
+				]
+			);
+			$tag = "button";
+		} else {
+			$attributes['href'] = $target;
+			$attributes['role'] = 'button';
+			$tag = "a";
+		}
+		return [ $tag, $text, $attributes ];
 	}
 
 	/**
@@ -84,5 +114,21 @@ class Popover extends AbstractComponent {
 			$class[] = 'btn-' . $size;
 		}
 		return $class;
+	}
+
+	/**
+	 * @param string $text
+	 * @param string $target
+	 *
+	 * @return string[]
+	 */
+	private function stripLinksFrom( $text, $target ) {
+		if ( preg_match( '~<a.+href=.([^>]+Special:Upload[^"]+)[^>]*>(.+)</a>~', $text, $matches ) ) {
+			// we have an non existing image as text, return image name as text and upload url as target
+			// since $text was already parsed and html_encoded and Html::rawElement will do this again,
+			// we need to decode the html special characters in target aka $matches[1]
+			return [ $matches[2], htmlspecialchars_decode( $matches[1] ) ];
+		}
+		return [ preg_replace( '~^(.*)(<a.+href=[^>]+>)(.+)(</a>)(.*)$~ms', '\1\3\5', $text ), $target ];
 	}
 }

@@ -55,6 +55,10 @@ class TooltipTest extends ComponentsTestBase {
 		/** @noinspection PhpParamsInspection */
 		$generatedOutput = $instance->parseComponent( $parserRequest );
 
+		if ( is_array( $generatedOutput ) ) {
+			$generatedOutput = $generatedOutput[0];
+		}
+
 		$this->assertEquals( $expectedOutput, $generatedOutput );
 	}
 
@@ -71,12 +75,12 @@ class TooltipTest extends ComponentsTestBase {
 			'empty'               => [
 				'',
 				[],
-				'bootstrap-components-tooltip-content-missing',
+				'bootstrap-components-tooltip-target-missing',
 			],
 			'text missing'        => [
 				$this->input,
 				[],
-				'bootstrap-components-tooltip-text-missing',
+				'bootstrap-components-tooltip-content-missing',
 			],
 			'id, style and class' => [
 				$this->input,

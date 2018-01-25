@@ -90,7 +90,8 @@
 					"img-responsive"
 				],
 				"not-contain": [
-					"foo=\"bar\""
+					"foo=",
+					"bar"
 				]
 			}
 		},

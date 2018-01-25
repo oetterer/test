@@ -50,9 +50,14 @@ class Modal extends AbstractComponent {
 	public function placeMe( $input ) {
 		list ( $outerClass, $style ) = $this->processCss( [], [] );
 
+		list ( $code, $text ) = $this->generateTrigger();
+		if ( !$code ) {
+			return $text;
+		}
+
 		$modal = ApplicationFactory::getInstance()->getModalBuilder(
 			$this->getId(),
-			$this->generateTrigger(),
+			$text,
 			$input
 		);
 		return $modal->setOuterClass(
@@ -106,19 +111,22 @@ class Modal extends AbstractComponent {
 	/**
 	 * Generate the trigger element (button or image).
 	 *
-	 * @return string
+	 * @return array    (bool)return code, (string) message/trigger,
 	 */
 	private function generateTrigger() {
 		$text = (string)$this->getValueFor( 'text' );
 		if ( empty( $text ) ) {
-			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-modal-text-missing' );
+			return [ false, $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-modal-text-missing' ) ];
+		}
+		if ( preg_match( '~Special:Upload~', $text ) ) {
+			return [ false, $text ];
 		}
 		if ( !preg_match( '~^(.*)<a.+href=[^>]+>(.+)</a>(.*)$~', $text, $matches )
 			&& !preg_match( '~(^.*<img.*src=.+>.*)$~', $text, $matches )
 		) {
-			return $this->generateButton( $text );
+			return [ true, $this->generateButton( $text ) ];
 		}
 		array_shift( $matches );
-		return ModalBuilder::wrapTriggerElement( implode( '', $matches ), $this->getId() );
+		return [ true, ModalBuilder::wrapTriggerElement( implode( '', $matches ), $this->getId() ) ];
 	}
 }

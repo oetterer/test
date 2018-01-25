@@ -51,7 +51,8 @@
 					">Well text</div>"
 				],
 				"not-contain": [
-					"foo=\"bar\"",
+					"foo",
+					"bar",
 					"well-invalid"
 				]
 			}

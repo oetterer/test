@@ -81,10 +81,15 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 
 	public function testCanAddErrorTrackingCategory() {
 
+		$parser = $this->getMockBuilder( 'Parser' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parser->expects( $this->once() )
+			->method( 'getOutput' )
+			->willReturn( false );
+
 		/** @noinspection PhpParamsInspection */
-		$instance = new ParserOutputHelper(
-			$this->buildFullyEquippedParser()
-		);
+		$instance = new ParserOutputHelper( $parser );
 
 		$instance->addErrorTrackingCategory();
 		$instance->addErrorTrackingCategory();
@@ -124,7 +129,7 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 		$parser = $this->getMockBuilder( 'Parser' )
 			->disableOriginalConstructor()
 			->getMock();
-		$parser->expects( $this->never() )
+		$parser->expects( $this->once() )
 			->method( 'getOutput' )
 			->willReturn( false );
 

@@ -343,8 +343,6 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
-	#@todo use / test getCompleteHookDefinitionList
-
 	#@fixme remove tests/parser/parserTests.txt
 	# remove most of the image tags
 	# add two or three examples for gallery and the other components

@@ -343,10 +343,8 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
-	#@fixme setup does not register ImageBeforeProduceHTML anymore
-	# remove most of the image tags
-	# add two or three examples for gallery and the other components
 	#@fixme vertical alignment in image modal has no effect. see https://www.mediawiki.org/wiki/Help:Images#Vertical_alignment
+	#@fixme image modals do not flow in text
 	#@todo add integration tests for placeTrackingCategory and invalid tracking category
 	#@todo introduce header alternative for heading
 

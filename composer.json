@@ -38,6 +38,9 @@
 			"BootstrapComponents.php"
 		]
 	},
+	"config": {
+		"process-timeout": 0
+	},
 	"scripts": {
 		"phpunit": "php ../../tests/phpunit/phpunit.php -c phpunit.xml.dist",
 		"unit": "composer phpunit -- --testsuite bootstrap-components-unit",

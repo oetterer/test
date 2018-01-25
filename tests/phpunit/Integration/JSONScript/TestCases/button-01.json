@@ -66,6 +66,7 @@
 					"role=\"button\"",
 					"id=\"out_of_gas_item\"",
 					"style=\"margin-top:50px\"",
+					"href=\"",
 					"/Target\">",
 					">Big red Callback Button</a>"
 				],
@@ -109,7 +110,8 @@
 			"assert-output": {
 				"to-contain": [
 					"<a class=\"btn btn-default\" role=\"button\" id=\"bsc_button_",
-					"href=\"/Target\">",
+					"href=\"",
+					"/Target\">",
 					"<img alt=\"Button-01-Serenity.png\" src=",
 					"/images/thumb/5/52/Button-01-Serenity.png/23px-Button-01-Serenity.png\" width=\"23\" height=\"8\" srcset=",
 					"/images/thumb/5/52/Button-01-Serenity.png/35px-Button-01-Serenity.png 1.5x,",

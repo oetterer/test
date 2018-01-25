@@ -155,7 +155,6 @@
 				"not-contain": [
 					"\"modal",
 					"modal-",
-					"div",
 					"<button",
 					"btn",
 					"toggle"
@@ -174,7 +173,6 @@
 				"not-contain": [
 					"\"modal",
 					"modal-",
-					"div",
 					"<button",
 					"btn",
 					"toggle"

@@ -22,6 +22,6 @@
 	"bootstrap-components-modal-text-missing" : "You must specify a text for this modal button.",
 	"bootstrap-components-popover-heading-missing" : "You must specify a heading for this popover.",
 	"bootstrap-components-popover-text-missing" : "You must specify a text for this popover.",
-	"bootstrap-components-tooltip-content-missing" : "You must specify a text or an image, the tooltip should be added to.",
-	"bootstrap-components-tooltip-text-missing" : "This tooltip is missing its text."
+	"bootstrap-components-tooltip-content-missing" : "This tooltip is missing its text attribute and therefore the actual tooltip.",
+	"bootstrap-components-tooltip-target-missing" : "You must specify text or an image, the tooltip should be added to."
 }

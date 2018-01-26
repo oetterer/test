@@ -46,25 +46,72 @@ class Tooltip extends AbstractComponent {
 	 */
 	public function placeMe( $input ) {
 		if ( empty( $input ) ) {
-			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-content-missing' );
+			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-target-missing' );
 		}
 		$tooltip = $this->getValueFor( 'text' );
 		if ( empty( $tooltip ) ) {
-			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-text-missing' );
+			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-content-missing' );
 		}
+		list( $tag, $input, $attributes ) = $this->buildHtmlElements( $input, $tooltip );
+
+		return [
+				Html::rawElement(
+				$tag,
+				$attributes,
+				$input
+			),
+			'isHTML'  => true,
+			'noparse' => true,
+		];
+	}
+
+	/**
+	 * @param string $input
+	 * @param string $tooltip
+	 *
+	 * @return array $tag, $text, $attributes
+	 */
+	private function buildHtmlElements( $input, $tooltip ) {
 		list ( $class, $style ) = $this->processCss( [], [] );
 
-		return Html::rawElement(
-			'span',
-			[
-				'class'          => $this->arrayToString( $class, ' ' ),
-				'style'          => $this->arrayToString( $style, ';' ),
-				'id'             => $this->getId(),
-				'data-toggle'    => 'tooltip',
-				'title'          => $tooltip,
-				'data-placement' => $this->getValueFor( 'placement' ),
-			],
-			$input
-		);
+		list ( $input, $target ) = $this->stripLinksFrom( $input, '' );
+
+		$attributes = [
+			'class'          => $this->arrayToString( $class, ' ' ),
+			'style'          => $this->arrayToString( $style, ';' ),
+			'id'             => $this->getId(),
+		];
+		if ( empty( $target ) ) {
+			// this is the normal tooltip process
+			$attributes = array_merge(
+				$attributes,
+				[
+					'data-toggle'    => 'tooltip',
+					'title'          => $tooltip,
+					'data-placement' => $this->getValueFor( 'placement' ),
+				]
+			);
+			$tag = "span";
+		} else {
+			$attributes['href'] = $target;
+			$tag = "a";
+		}
+		return [ $tag, $input, $attributes ];
+	}
+
+	/**
+	 * @param string $text
+	 * @param string $target
+	 *
+	 * @return string[]
+	 */
+	private function stripLinksFrom( $text, $target ) {
+		if ( preg_match( '~<a.+href=.([^>]+Special:Upload[^"]+)[^>]*>(.+)</a>~', $text, $matches ) ) {
+			// we have an non existing image as text, return image name as text and upload url as target
+			// since $text was already parsed and html_encoded and Html::rawElement will do this again,
+			// we need to decode the html special characters in target aka $matches[1]
+			return [ $matches[2], htmlspecialchars_decode( $matches[1] ) ];
+		}
+		return [ preg_replace( '~^(.*)(<a.+href=[^>]+>)(.+)(</a>)(.*)$~ms', '\1\3\5', $text ), $target ];
 	}
 }

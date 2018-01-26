@@ -343,15 +343,13 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
-	#@fixme remove tests/parser/parserTests.txt
-	# remove most of the image tags
-	# add two or three examples for gallery and the other components
 	#@fixme vertical alignment in image modal has no effect. see https://www.mediawiki.org/wiki/Help:Images#Vertical_alignment
-	#@todo add integration tests for Collapse, Jumbotron, Label, Modal, Panel (w/o accordion), Popover, Tooltip, CarouselGallery
+	#@fixme image modals do not flow in text
 	#@todo add integration tests for placeTrackingCategory and invalid tracking category
-	#@todo after integration json files are done, finish README in Integration/JSONScript/TestCases
+	#@todo introduce header alternative for heading
 
 	### last steps
+	#@todo test in-wiki every component with every attribute, don't forget image options for components, image modal and carousel
 	#@todo change release date in docs/release-notes.md
 	#@todo remove the rest of the comments here. put ### this remains somewhere to keep track of things
 	#@todo create composer package. see https://packagist.org/ and https://packagist.org/about#how-to-update-packages; packet name "bootstrap-components"

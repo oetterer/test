@@ -97,7 +97,7 @@ class AbstractComponentTest extends ComponentsTestBase {
 	public function testSimpleOutput( $component ) {
 		$parserRequest = $this->buildParserRequest(
 			'test input',
-			[ 'class' => 'test-class', 'style' => 'color:black' ]
+			[ 'class' => 'test-class', 'style' => 'color:black', 'text' => 'test text', 'heading' => 'test heading' ]
 		);
 		$class = $this->getComponentLibrary()->getClassFor( $component );
 		/** @var AbstractComponent $instance */
@@ -110,6 +110,9 @@ class AbstractComponentTest extends ComponentsTestBase {
 		$parsedString = $instance->parseComponent(
 			$parserRequest
 		);
+		if ( is_array( $parsedString ) ) {
+			$parsedString = reset( $parsedString );
+		}
 		$this->assertInternalType( 'string', $parsedString );
 		$this->assertRegExp(
 			'/class="[^"]*test-class"/',
@@ -152,11 +155,14 @@ class AbstractComponentTest extends ComponentsTestBase {
 			'accordion' => [ 'accordion' ],
 			'alert'     => [ 'alert' ],
 			'badge'     => [ 'badge' ],
+			'button'    => [ 'button' ],
 			'collapse'  => [ 'collapse' ],
 			'jumbotron' => [ 'jumbotron' ],
 			'label'     => [ 'label' ],
 			'modal'     => [ 'modal' ],
 			'panel'     => [ 'panel' ],
+			'popover'   => [ 'popover' ],
+			'tooltip'   => [ 'tooltip' ],
 			'well'      => [ 'well' ],
 		];
 	}

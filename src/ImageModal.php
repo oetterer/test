@@ -201,7 +201,7 @@ class ImageModal implements NestableInterface {
 		foreach ( [ 'thumbnail', 'framed', 'frameless', 'border' ] as $boolField ) {
 			$frameParams[$boolField] = isset( $frameParams[$boolField] );
 		}
-		foreach ( [ 'align', 'alt', 'caption', 'class', 'title' ] as $stringField ) {
+		foreach ( [ 'align', 'alt', 'caption', 'class', 'title', 'valign' ] as $stringField ) {
 			$frameParams[$stringField] = !empty( $frameParams[$stringField] ) ? $frameParams[$stringField] : false;
 		}
 		$frameParams['caption'] = $this->preventModalInception( $frameParams['caption'] );
@@ -348,7 +348,8 @@ class ImageModal implements NestableInterface {
 		$modal = ApplicationFactory::getInstance()->getModalBuilder(
 			$this->getId(),
 			$triggerString,
-			$content
+			$content,
+			$this->getParserOutputHelper()
 		);
 		$modal->setHeader(
 			$this->getTitle()->getBaseText()

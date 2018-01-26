@@ -90,6 +90,11 @@ class ModalBuilder {
 	private $outerStyle;
 
 	/**
+	 * @var ParserOutputHelper $parserOutputHelper
+	 */
+	private $parserOutputHelper;
+
+	/**
 	 * @var string $trigger
 	 */
 	private $trigger;
@@ -130,15 +135,17 @@ class ModalBuilder {
 	 * @see ApplicationFactory::getModalBuilder
 	 * @see \BootstrapComponents\Component\Modal::generateButton
 	 *
-	 * @param string $id
-	 * @param string $trigger must be safe raw html (best run through {@see Parser::recursiveTagParse})
-	 * @param string $content must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param string             $id
+	 * @param string             $trigger must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param string             $content must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param ParserOutputHelper $parserOutputHelper
 	 */
 
-	public function __construct( $id, $trigger, $content ) {
+	public function __construct( $id, $trigger, $content, $parserOutputHelper ) {
 		$this->id = $id;
 		$this->trigger = $trigger;
 		$this->content = $content;
+		$this->parserOutputHelper = $parserOutputHelper;
 	}
 
 	/**
@@ -147,43 +154,10 @@ class ModalBuilder {
 	 * @return string
 	 */
 	public function parse() {
-		return $this->getTrigger()
-			. Html::rawElement(
-				'div',
-				[
-					'class'       => $this->compileClass(
-						'modal fade',
-						$this->getOuterClass()
-					),
-					'style'       => $this->getOuterStyle(),
-					'role'        => 'dialog',
-					'id'          => $this->getId(),
-					'aria-hidden' => 'true',
-				],
-				Html::rawElement(
-					'div',
-					[
-						'class' => $this->compileClass(
-							'modal-dialog',
-							$this->getDialogClass()
-						),
-						'style' => $this->getDialogStyle(),
-					],
-					Html::rawElement(
-						'div',
-						[ 'class' => 'modal-content' ],
-						$this->generateHeader(
-							$this->getHeader()
-						)
-						. $this->generateBody(
-							$this->getContent()
-						)
-						. $this->generateFooter(
-							$this->getFooter()
-						)
-					)
-				)
-			);
+		$this->parserOutputHelper->injectLater(
+			$this->buildDialog()
+		);
+		return $this->buildTrigger();
 	}
 
 	/**
@@ -285,9 +259,69 @@ class ModalBuilder {
 	}
 
 	/**
+	 * From all the data passed by caller, this builds the dialog part (the one, that pops up when engaging the trigger).
+	 *
+	 * @return string
+	 */
+	protected function buildDialog() {
+		return Html::rawElement(
+			'div',
+			[
+				'class'       => $this->compileClass(
+					'modal fade',
+					$this->getOuterClass()
+				),
+				'style'       => $this->getOuterStyle(),
+				'role'        => 'dialog',
+				'id'          => $this->getId(),
+				'aria-hidden' => 'true',
+			],
+			Html::rawElement(
+				'div',
+				[
+					'class' => $this->compileClass(
+						'modal-dialog',
+						$this->getDialogClass()
+					),
+					'style' => $this->getDialogStyle(),
+				],
+				Html::rawElement(
+					'div',
+					[ 'class' => 'modal-content' ],
+					$this->generateHeader(
+						$this->getHeader()
+					)
+					. $this->generateBody(
+						$this->getContent()
+					)
+					. $this->generateFooter(
+						$this->getFooter()
+					)
+				)
+			)
+		) . "\n";
+	}
+
+	/**
+	 * Performs the necessary steps to convert the string passed by caller into a working trigger for the modal.
+	 *
+	 * @return string
+	 */
+	protected function buildTrigger() {
+		$trigger = $this->getTrigger();
+		if ( preg_match( '/data-toggle[^"]+"modal/', $trigger )
+			&& preg_match( '/data-target[^"]+"#' . $this->getId() . '"/', $trigger )
+			&& preg_match( '/class[^"]+"[^"]*modal-trigger' . '/', $trigger )
+		) {
+			return $trigger;
+		}
+		return self::wrapTriggerElement( $trigger, $this->getId() );
+	}
+
+	/**
 	 * Used to merge different class attributes.
 	 *
-	 * @param string $baseClass
+	 * @param string       $baseClass
 	 * @param string|false $additionalClass
 	 *
 	 * @return string
@@ -300,6 +334,8 @@ class ModalBuilder {
 	}
 
 	/**
+	 * Build the modal, with all sections, requested content and necessary control elements.
+	 *
 	 * @return string
 	 */
 	protected function getContent() {
@@ -375,13 +411,7 @@ class ModalBuilder {
 	 * @return string
 	 */
 	protected function getTrigger() {
-		if ( preg_match( '/data-toggle[^"]+"modal/', $this->trigger )
-			&& preg_match( '/data-target[^"]+"#' . $this->getId() . '"/', $this->trigger )
-			&& preg_match( '/class[^"]+"[^"]*modal-trigger' . '/', $this->trigger )
-		) {
-			return $this->trigger;
-		}
-		return self::wrapTriggerElement( $this->trigger, $this->getId() );
+		return $this->trigger;
 	}
 
 	/**
@@ -399,7 +429,7 @@ class ModalBuilder {
 					'style' => $this->getBodyStyle(),
 				],
 				$content
-			) . "\n";
+			);
 	}
 
 	/**
@@ -427,7 +457,7 @@ class ModalBuilder {
 					],
 					$close
 				)
-			) . "\n";
+			);
 	}
 
 	/**
@@ -466,6 +496,6 @@ class ModalBuilder {
 					)
 					: ''
 				)
-			) . "\n";
+			);
 	}
 }

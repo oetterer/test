@@ -52,7 +52,7 @@ class Setup {
 	/**
 	 * @var array
 	 */
-	const AVAILABLE_HOOKS = [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ];
+	const AVAILABLE_HOOKS = [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserBeforeTidy', 'ParserFirstCallInit', 'SetupAfterCache' ];
 
 	/**
 	 * @var ComponentLibrary
@@ -158,6 +158,7 @@ class Setup {
 			&& $myConfig->get( 'BootstrapComponentsModalReplaceImageTag' )
 		) {
 			$requestedHookList[] = 'ImageBeforeProduceHTML';
+			$requestedHookList[] = 'ParserBeforeTidy';
 		}
 		return $requestedHookList;
 	}
@@ -187,6 +188,12 @@ class Setup {
 				}
 
 				return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
+			},
+			'ParserBeforeTidy' => function( &$parser, &$text ) {
+				// injects right before the tidy marker report (e.g. <!-- Tidy found no errors -->), at the very end of the wiki text content
+				$parserOutputHelper = ApplicationFactory::getInstance()->getParserOutputHelper( $parser );
+				$text .= $parserOutputHelper->getContentForLaterInjection();
+				return true;
 			},
 			'ParserFirstCallInit' => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
 			'SetupAfterCache' => function() {
@@ -343,10 +350,7 @@ class Setup {
 	}
 	### attend before deployment
 	# mandatory
-	#@fixme vertical alignment in image modal has no effect. see https://www.mediawiki.org/wiki/Help:Images#Vertical_alignment
-	#@fixme image modals do not flow in text
 	#@todo add integration tests for placeTrackingCategory and invalid tracking category
-	#@todo introduce header alternative for heading
 
 	### last steps
 	#@todo test in-wiki every component with every attribute, don't forget image options for components, image modal and carousel
@@ -357,7 +361,7 @@ class Setup {
 
 
 	# code improvement
-	#@todo introduce integration test; require-dev smw seems the easiest way to do this. decide, if working with 3.0.0 or 2.5.(4|5); if, add to docs/credits.md
+	#@todo introduce header alternative for heading
 	#@todo you can increase code coverage by testing private and protected methods directly
 	# see https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
 	# when starting to use this, revert some previously exposed methods to protected/private again.

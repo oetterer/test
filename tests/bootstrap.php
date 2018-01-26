@@ -22,7 +22,7 @@ $dateTimeUtc = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
 print sprintf( "\n%-24s%s\n", "MediaWiki: ", $GLOBALS['wgVersion'] );
 print sprintf( "%-24s%s\n", "Bootstrap: ", BS_VERSION );
 print sprintf( "%-24s%s\n", "BootstrapComponents: ", $version );
-print sprintf( "\n%-24s%s\n", "Execution time:", $dateTimeUtc->format( 'Y-m-d h:i' ) );
+print sprintf( "\n%-24s%s\n", "Execution time:", $dateTimeUtc->format( 'Y-m-d H:i' ) );
 print sprintf( "%-24s%s\n", "Debug logs:", $GLOBALS['wgDebugLogGroups'] !== array() || $GLOBALS['wgDebugLogFile'] !== '' ? 'Enabled' : 'Disabled' );
 
 # @fixme obsolete with psr-4?

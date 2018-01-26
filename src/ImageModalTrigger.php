@@ -116,8 +116,9 @@ class ImageModalTrigger {
 		}
 		$options = [
 			'alt'       => $sanitizedFrameParams['alt'],
+			'img-class' => $sanitizedFrameParams['class'],  // removed: . ' img-responsive'; keeping it in, causes line breaks around the trigger.
 			'title'     => $sanitizedFrameParams['title'],
-			'img-class' => $sanitizedFrameParams['class'] . ' img-responsive',
+			'valign'    => $sanitizedFrameParams['valign'],
 		];
 		if ( $sanitizedFrameParams['thumbnail'] || isset( $sanitizedFrameParams['manualthumb'] ) || $sanitizedFrameParams['framed'] ) {
 			$options['img-class'] .= ' thumbimage';
@@ -129,7 +130,6 @@ class ImageModalTrigger {
 		// in Linker.php, options also run through {@see \Linker::getImageLinkMTOParams} to calculate the link value.
 		// Since we abort at the beginning, if any link related frameParam is set, we can skip this.
 		// also, obviously, we don't want to have ANY link around the img present.
-
 		return $options;
 	}
 

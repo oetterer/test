@@ -52,7 +52,7 @@ class Tooltip extends AbstractComponent {
 		if ( empty( $tooltip ) ) {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-tooltip-content-missing' );
 		}
-		list( $tag, $input, $attributes ) = $this->buildHtmlElements( $input, $tooltip );
+		list( $tag, $input, $attributes ) = $this->buildHtmlElements( $input, (string)$tooltip );
 
 		return [
 				Html::rawElement(

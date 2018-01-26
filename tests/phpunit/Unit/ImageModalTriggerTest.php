@@ -168,7 +168,7 @@ class ImageModalTriggerTest extends PHPUnit_Framework_TestCase {
 				[
 					'page' => false,
 				],
-				'<span class="modal-trigger" data-toggle="modal" data-target="#id"><img src="thumbnail::toHtml()/return/value.png" class="img-responsive"></span>',
+				'<span class="modal-trigger" data-toggle="modal" data-target="#id"><img src="thumbnail::toHtml()/return/value.png" ></span>',
 			],
 			'frame params w/o thumbnail'     => [
 				[
@@ -186,7 +186,7 @@ class ImageModalTriggerTest extends PHPUnit_Framework_TestCase {
 				[
 					'page' => false,
 				],
-				'<div class="floatleft"><span class="modal-trigger" data-toggle="modal" data-target="#id"><img src="thumbnail::toHtml()/return/value.png" alt="test_alt" title="test_title" class="test_class img-responsive"></span></div>',
+				'<div class="floatleft"><span class="modal-trigger" data-toggle="modal" data-target="#id"><img src="thumbnail::toHtml()/return/value.png" alt="test_alt" title="test_title" class="test_class"></span></div>',
 			],
 			'manual width, frameless'        => [
 				[
@@ -205,7 +205,7 @@ class ImageModalTriggerTest extends PHPUnit_Framework_TestCase {
 					'width' => 200,
 					'page'  => 7,
 				],
-				'<div class="floatleft"><span class="modal-trigger" data-toggle="modal" data-target="#id"><img src="thumbnail::toHtml()/return/value.png" class="img-responsive"></span></div>',
+				'<div class="floatleft"><span class="modal-trigger" data-toggle="modal" data-target="#id"><img src="thumbnail::toHtml()/return/value.png" ></span></div>',
 			],
 			'thumbnail, manual width'        => [
 				[
@@ -224,7 +224,7 @@ class ImageModalTriggerTest extends PHPUnit_Framework_TestCase {
 					'width' => 200,
 					'page'  => 7,
 				],
-				'<div class="thumb tmiddle"><span class="modal-trigger" data-toggle="modal" data-target="#id"><div class="thumbinner" style="width:642px;"><img src="thumbnail::toHtml()/return/value.png" class="img-responsive thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></span></div>',
+				'<div class="thumb tmiddle"><span class="modal-trigger" data-toggle="modal" data-target="#id"><div class="thumbinner" style="width:642px;"><img src="thumbnail::toHtml()/return/value.png" class="thumbimage">  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></span></div>',
 			],
 			'manual thumbnail, NOT centered' => [
 				[
@@ -244,7 +244,7 @@ class ImageModalTriggerTest extends PHPUnit_Framework_TestCase {
 				[
 					'page' => false,
 				],
-				'<div class="thumb tnone"><span class="modal-trigger" data-toggle="modal" data-target="#id"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="img-responsive thumbimage" />  <div class="thumbcaption"></div></div></span></div>',
+				'<div class="thumb tnone"><span class="modal-trigger" data-toggle="modal" data-target="#id"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"></div></div></span></div>',
 			],
 			'framed'                         => [
 				[
@@ -262,7 +262,7 @@ class ImageModalTriggerTest extends PHPUnit_Framework_TestCase {
 				[
 					'page' => false,
 				],
-				'<div class="thumb tnone"><span class="modal-trigger" data-toggle="modal" data-target="#id"><div class="thumbinner" style="width:642px;"><img src="thumbnail::toHtml()/return/value.png" class="img-responsive thumbimage">  <div class="thumbcaption"></div></div></span></div>',
+				'<div class="thumb tnone"><span class="modal-trigger" data-toggle="modal" data-target="#id"><div class="thumbinner" style="width:642px;"><img src="thumbnail::toHtml()/return/value.png" class="thumbimage">  <div class="thumbcaption"></div></div></span></div>',
 			],
 			'centered'                       => [
 				[
@@ -281,7 +281,7 @@ class ImageModalTriggerTest extends PHPUnit_Framework_TestCase {
 					'width' => 200,
 					'page'  => false,
 				],
-				'<div class="center"><span class="modal-trigger" data-toggle="modal" data-target="#id"><img src="thumbnail::toHtml()/return/value.png" class="img-responsive"></span></div>',
+				'<div class="center"><span class="modal-trigger" data-toggle="modal" data-target="#id"><img src="thumbnail::toHtml()/return/value.png" ></span></div>',
 			],
 			'manual thumbnail, upright'      => [
 				[
@@ -301,7 +301,7 @@ class ImageModalTriggerTest extends PHPUnit_Framework_TestCase {
 				[
 					'page' => false,
 				],
-				'<div class="thumb tleft"><span class="modal-trigger" data-toggle="modal" data-target="#id"><div class="thumbinner" style="width:70px;"><img alt="" src="'  . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="img-responsive thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></span></div>',
+				'<div class="thumb tleft"><span class="modal-trigger" data-toggle="modal" data-target="#id"><div class="thumbinner" style="width:70px;"><img alt="" src="' . $scriptPath . '/images/a/aa/Shuttle.png" width="68" height="18" class="thumbimage" />  <div class="thumbcaption"><div class="magnify"><a class="internal" title="Enlarge"></a></div></div></div></span></div>',
 			],
 		];
 	}

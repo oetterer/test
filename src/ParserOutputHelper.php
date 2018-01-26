@@ -39,6 +39,17 @@ use \Title;
  * @since 1.0
  */
 class ParserOutputHelper {
+
+	/**
+	 * @var string
+	 */
+	const INJECTION_PREFIX = '<!-- injected by Extension:BootstrapComponents -->';
+
+	/**
+	 * @var string
+	 */
+	const INJECTION_SUFFIX = '<!-- /injected by Extension:BootstrapComponents -->';
+
 	/**
 	 * To make sure, we only add the tracking category once.
 	 *
@@ -52,6 +63,13 @@ class ParserOutputHelper {
 	 * @var bool $articleTrackedOnError
 	 */
 	private $articleTrackedOnError;
+
+	/**
+	 * Here, components can store html to be added to the page at a later time.
+	 *
+	 * @var string $contentForLaterInjection
+	 */
+	private $contentForLaterInjection;
 
 	/**
 	 * Holds the name of the skin we use (or false, if there is no skin).
@@ -79,6 +97,7 @@ class ParserOutputHelper {
 		$this->articleTrackedOnError = false;
 		$this->parser = $parser;
 		$this->nameOfActiveSkin = $this->detectSkinInUse();
+		$this->contentForLaterInjection = '';
 	}
 
 	/**
@@ -121,6 +140,35 @@ class ParserOutputHelper {
 	 */
 	public function getNameOfActiveSkin() {
 		return $this->nameOfActiveSkin;
+	}
+
+	/**
+	 * Returns the raw html that is be inserted at the end of the page.
+	 *
+	 * @return string
+	 */
+	public function getContentForLaterInjection() {
+		if ( $this->contentForLaterInjection == '' ) {
+			return '';
+		}
+		$ret = self::INJECTION_PREFIX . $this->contentForLaterInjection . self::INJECTION_SUFFIX;
+		// clear the stored injection content, so that integration tests run smoothly
+		$this->contentForLaterInjection = '';
+		return $ret;
+	}
+
+	/**
+	 * Allows to store html that will be added to the page at a later time.
+	 *
+	 * @param string $rawHtml
+	 *
+	 * @return $this (fluid)
+	 */
+	public function injectLater( $rawHtml ) {
+		if ( !empty( $rawHtml ) ) {
+			$this->contentForLaterInjection .= $rawHtml;
+		}
+		return $this;
 	}
 
 	/**

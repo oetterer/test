@@ -55,7 +55,7 @@ class Popover extends AbstractComponent {
 			return $this->getParserOutputHelper()->renderErrorMessage( 'bootstrap-components-popover-text-missing' );
 		}
 
-		list( $tag, $text, $attributes ) = $this->buildHtmlElements( $input, $text, $heading );
+		list( $tag, $text, $attributes ) = $this->buildHtmlElements( $input, (string)$text, (string)$heading );
 
 		// I cannot use the button class here, because it needs a target and also does not accept pre-processed attributes.
 		return Html::rawElement(
@@ -106,7 +106,7 @@ class Popover extends AbstractComponent {
 	/**
 	 * Calculates the class attribute value from the passed attributes
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	private function calculatePopoverClassAttribute() {
 		$class = [ 'btn', 'btn-' . $this->getValueFor( 'color', 'info' ) ];

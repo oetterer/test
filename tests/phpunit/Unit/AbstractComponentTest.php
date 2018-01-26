@@ -159,7 +159,6 @@ class AbstractComponentTest extends ComponentsTestBase {
 			'collapse'  => [ 'collapse' ],
 			'jumbotron' => [ 'jumbotron' ],
 			'label'     => [ 'label' ],
-			'modal'     => [ 'modal' ],
 			'panel'     => [ 'panel' ],
 			'popover'   => [ 'popover' ],
 			'tooltip'   => [ 'tooltip' ],

@@ -45,12 +45,14 @@ class ApplicationFactory {
 
 	/**
 	 * Holds the application singletons
+	 *
 	 * @var array $applicationStore
 	 */
 	private $applicationStore;
 
 	/**
 	 * Library, that tells the ApplicationFactory, which class to use to instantiate which application
+	 *
 	 * @var array $applicationClassRegister
 	 */
 	private $applicationClassRegister;
@@ -102,16 +104,17 @@ class ApplicationFactory {
 	}
 
 	/**
-	 * @param string $id
-	 * @param string $trigger must be safe raw html (best run through {@see Parser::recursiveTagParse})
-	 * @param string $content must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param string             $id
+	 * @param string             $trigger must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param string             $content must be safe raw html (best run through {@see Parser::recursiveTagParse})
+	 * @param ParserOutputHelper $parserOutputHelper
 	 *
 	 * @see ModalBuilder::__construct
 	 *
 	 * @return ModalBuilder
 	 */
-	public function getModalBuilder( $id, $trigger, $content ) {
-		return new ModalBuilder( $id, $trigger, $content );
+	public function getModalBuilder( $id, $trigger, $content, $parserOutputHelper ) {
+		return new ModalBuilder( $id, $trigger, $content, $parserOutputHelper );
 	}
 
 	/**
@@ -154,6 +157,7 @@ class ApplicationFactory {
 
 	/**
 	 * Registers an application with the ApplicationFactory.
+	 *
 	 * @param string $name
 	 * @param string $class
 	 *
@@ -167,8 +171,8 @@ class ApplicationFactory {
 		if ( $application != '' && class_exists( $applicationClass ) ) {
 			$this->applicationClassRegister[$application] = $applicationClass;
 			return true;
-		} elseif( $application != '' ) {
-			throw new MWException( 'ApplicationFactory was requested to register non existing class "' . $applicationClass . '"!');
+		} elseif ( $application != '' ) {
+			throw new MWException( 'ApplicationFactory was requested to register non existing class "' . $applicationClass . '"!' );
 		}
 		wfDebugLog(
 			'BootstrapComponents',
@@ -192,15 +196,14 @@ class ApplicationFactory {
 			return $this->applicationStore[$name];
 		}
 		if ( !isset( $this->applicationClassRegister[$name] ) ) {
-			throw new MWException( 'ApplicationFactory was requested to return application "' . $name . '". No appropriate class registered!');
+			throw new MWException( 'ApplicationFactory was requested to return application "' . $name . '". No appropriate class registered!' );
 		}
 		$args = func_get_args();
 		array_shift( $args ); # because, we already used the first argument $name
 
 		try {
 			$objectReflection = new ReflectionClass( $this->applicationClassRegister[$name] );
-		}
-		catch ( \ReflectionException $e ) {
+		} catch ( \ReflectionException $e ) {
 			throw new MWException( 'Error while trying to build application with class ' . $this->applicationClassRegister[$name] );
 		}
 		return $this->applicationStore[$name] = $objectReflection->newInstanceArgs( $args );
@@ -218,7 +221,7 @@ class ApplicationFactory {
 		if ( is_null( $application ) ) {
 			$this->applicationStore = [];
 			return true;
-		} elseif( isset( $this->applicationStore[$application] ) ) {
+		} elseif ( isset( $this->applicationStore[$application] ) ) {
 			unset( $this->applicationStore[$application] );
 			return true;
 		}
@@ -230,9 +233,9 @@ class ApplicationFactory {
 	 */
 	private function getApplicationClassRegister() {
 		return [
-			'AttributeManager' => 'BootstrapComponents\\AttributeManager',
-			'ComponentLibrary' => 'BootstrapComponents\\ComponentLibrary',
-			'NestingController' => 'BootstrapComponents\\NestingController',
+			'AttributeManager'   => 'BootstrapComponents\\AttributeManager',
+			'ComponentLibrary'   => 'BootstrapComponents\\ComponentLibrary',
+			'NestingController'  => 'BootstrapComponents\\NestingController',
 			'ParserOutputHelper' => 'BootstrapComponents\\ParserOutputHelper',
 		];
 	}

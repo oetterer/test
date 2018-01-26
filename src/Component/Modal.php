@@ -58,7 +58,8 @@ class Modal extends AbstractComponent {
 		$modal = ApplicationFactory::getInstance()->getModalBuilder(
 			$this->getId(),
 			$text,
-			$input
+			$input,
+			$this->getParserOutputHelper()
 		);
 		return $modal->setOuterClass(
 			$this->arrayToString( $outerClass, ' ' )

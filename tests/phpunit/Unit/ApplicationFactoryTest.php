@@ -11,8 +11,8 @@ use \PHPUnit_Framework_TestCase;
  *
  * @ingroup Test
  *
- * @group extension-bootstrap-components
- * @group mediawiki-databaseless
+ * @group   extension-bootstrap-components
+ * @group   mediawiki-databaseless
  *
  * @license GNU GPL v3+
  *
@@ -56,17 +56,26 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetModalBuilder() {
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+
 		$instance = new ApplicationFactory();
+
+		/** @noinspection PhpParamsInspection */
+		$modalBuilder = $instance->getModalBuilder( '', '', '', $parserOutputHelper );
 
 		$this->assertInstanceOf(
 			'BootstrapComponents\\ModalBuilder',
-			$instance->getModalBuilder( '', '', '' )
+			$modalBuilder
 		);
 	}
 
 	/**
 	 * @param array $arguments
 	 * @param bool  $isParserFunction
+	 *
+	 * @throws \MWException
 	 *
 	 * @dataProvider parserRequestProvider
 	 */
@@ -156,10 +165,10 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function applicationNameProvider() {
 		return [
-			'AttributeManager'         => [ 'AttributeManager' ],
-			'ComponentLibrary'         => [ 'ComponentLibrary' ],
-			'NestingController'        => [ 'NestingController' ],
-			'ParserOutputHelper'       => [ 'ParserOutputHelper' ],
+			'AttributeManager'   => [ 'AttributeManager' ],
+			'ComponentLibrary'   => [ 'ComponentLibrary' ],
+			'NestingController'  => [ 'NestingController' ],
+			'ParserOutputHelper' => [ 'ParserOutputHelper' ],
 		];
 	}
 

@@ -220,8 +220,12 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			$expectedRegisteredHooks
 		);
 
+		$this->assertTrue(
+			is_array( $listOfConfigSettingsSet )
+		);
+
 		$this->assertEquals(
-			count( $listOfConfigSettingsSet ) + 2,
+			count( $expectedRegisteredHooks ),
 			$instance->register( $hookCallbackList )
 		);
 
@@ -377,6 +381,10 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testHookSkinAfterContent() {
+		#@todo implement
+	}
+
 	/**
 	 * @throws \ConfigException
 	 * @throws \MWException
@@ -430,9 +438,9 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		return [
 			'empty'               => [ [] ],
 			'default'             => [ [ 'ParserFirstCallInit', 'SetupAfterCache' ] ],
-			'alsoImageModal'      => [ [ 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
+			'alsoImageModal'      => [ [ 'ImageBeforeProduceHTML', 'ParserBeforeTidy', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
 			'alsoCarouselGallery' => [ [ 'GalleryGetModes', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
-			'all'                 => [ [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
+			'all'                 => [ [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserBeforeTidy', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
 			'invalid'             => [ [ 'nonExistingHook', 'PageContentSave' ] ],
 		];
 	}
@@ -454,12 +462,12 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			],
 			'image replacement activated' => [
 				[ 'BootstrapComponentsModalReplaceImageTag' ],
-				[ 'ParserFirstCallInit', 'SetupAfterCache', 'ImageBeforeProduceHTML' ],
+				[ 'ParserFirstCallInit', 'SetupAfterCache', 'ImageBeforeProduceHTML', 'ParserBeforeTidy' ],
 				[ 'GalleryGetModes' ],
 			],
 			'both activated' => [
 				[ 'BootstrapComponentsEnableCarouselGalleryMode', 'BootstrapComponentsModalReplaceImageTag' ],
-				[ 'ParserFirstCallInit', 'SetupAfterCache', 'GalleryGetModes', 'ImageBeforeProduceHTML' ],
+				[ 'ParserFirstCallInit', 'SetupAfterCache', 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserBeforeTidy' ],
 				[],
 			],
 		];

@@ -408,6 +408,7 @@ class Setup {
 					);
 				}
 			}
+			return true;
 		};
 	}
 
@@ -443,8 +444,10 @@ class Setup {
 	 * Version number retrieved from extension info array.
 	 *
 	 * @param string $version
+	 *
+	 * @return bool
 	 */
 	private function prepareEnvironment( $version ) {
-		@define( 'BOOTSTRAP_COMPONENTS_VERSION', (string) $version );
+		return @define( 'BOOTSTRAP_COMPONENTS_VERSION', (string) $version );
 	}
 }

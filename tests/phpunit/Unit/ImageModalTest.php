@@ -72,39 +72,6 @@ class ImageModalTest extends PHPUnit_Framework_TestCase {
 	 * @throws \MWException
 	 * @throws \ConfigException
 	 */
-	public function testCanParseOnFileInvalid() {
-		$dummyLinker = $this->getMockBuilder( 'DummyLinker' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$title = $this->getMockBuilder( 'Title' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$nestingController = $this->getMockBuilder( 'BootstrapComponents\\NestingController' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
-			->disableOriginalConstructor()
-			->getMock();
-
-		/** @noinspection PhpParamsInspection */
-		$instance = new ImageModal( $dummyLinker, $title, /** @scrutinizer ignore-type */ false, $nestingController, $parserOutputHelper );
-		$time = false;
-		$res = '';
-
-		$resultOfParseCall = $instance->parse( $fp, $hp, $time, $res );
-
-		$this->assertTrue(
-			$resultOfParseCall
-		);
-	}
-
-	/**
-	 * @throws \MWException
-	 * @throws \ConfigException
-	 */
 	public function testCanParseOnFileNonExistent() {
 		$dummyLinker = $this->getMockBuilder( 'DummyLinker' )
 			->disableOriginalConstructor()

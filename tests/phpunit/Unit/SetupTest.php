@@ -58,18 +58,7 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 
 		/** @noinspection PhpParamsInspection */
 		$hookCallbackList = $instance->buildHookCallbackListFor( $hookList );
-		$invertedHookList = [];
-		$expectedHookList = [];
-		foreach ( Setup::AVAILABLE_HOOKS as $availableHook ) {
-			if ( !in_array( $availableHook, $hookList ) ) {
-				$invertedHookList[] = $availableHook;
-			}
-		}
-		foreach ( $hookList as $hook ) {
-			if ( in_array( $hook, Setup::AVAILABLE_HOOKS ) ) {
-				$expectedHookList[] = $hook;
-			}
-		}
+		list ( $expectedHookList, $invertedHookList ) = $this->buildHookListsForCanBuildHookListCheck( $hookList );
 
 		foreach ( $expectedHookList as $hook ) {
 			$this->doTestHookIsRegistered( $instance, $hookCallbackList, $hook, false );
@@ -342,12 +331,11 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			'InternalParseBeforeLinks',
 			$hookCallbackList
 		);
-		$this->assertTrue(
-			is_callable( $hookCallbackList['InternalParseBeforeLinks'] )
-		);
 		$text = '';
 		$this->assertTrue(
-			$hookCallbackList['InternalParseBeforeLinks']( $parser, $text )
+			isset( $hookCallbackList['InternalParseBeforeLinks'] )
+			&& is_callable( $hookCallbackList['InternalParseBeforeLinks'] )
+			&& $hookCallbackList['InternalParseBeforeLinks']( $parser, $text )
 		);
 		$this->assertEquals(
 			'',
@@ -383,25 +371,18 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		$hookCallbackList = $instance->buildHookCallbackListFor(
 			[ 'ParserBeforeTidy' ]
 		);
-		$this->assertArrayHasKey(
-			'ParserBeforeTidy',
-			$hookCallbackList
-		);
-		$this->assertTrue(
-			is_callable( $hookCallbackList['ParserBeforeTidy'] )
-		);
-		$text = '';
 
+		$text = '';
 		$this->assertTrue(
-			$hookCallbackList['ParserBeforeTidy']( $parser, $text, $parserOutputHelper )
+			isset( $hookCallbackList['ParserBeforeTidy'] )
+			&& is_callable( $hookCallbackList['ParserBeforeTidy'] )
+			&& $hookCallbackList['ParserBeforeTidy']( $parser, $text, $parserOutputHelper )
 		);
 		$this->assertEquals(
 			'',
 			$text
 		);
-		$this->assertTrue(
-			$hookCallbackList['ParserBeforeTidy']( $parser, $text, $parserOutputHelper )
-		);
+		$hookCallbackList['ParserBeforeTidy']( $parser, $text, $parserOutputHelper );
 		$this->assertEquals(
 			'call2',
 			$text
@@ -445,15 +426,11 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		$hookCallbackList = $instance->buildHookCallbackListFor(
 			[ 'ParserFirstCallInit' ]
 		);
-		$this->assertArrayHasKey(
-			'ParserFirstCallInit',
-			$hookCallbackList
-		);
 		$this->assertTrue(
-			is_callable( $hookCallbackList['ParserFirstCallInit'] )
+			isset( $hookCallbackList['ParserFirstCallInit'] )
+			&& is_callable( $hookCallbackList['ParserFirstCallInit'] )
+			&& $hookCallbackList['ParserFirstCallInit']( $observerParser )
 		);
-
-		$hookCallbackList['ParserFirstCallInit']( $observerParser );
 	}
 
 	/**
@@ -503,15 +480,12 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		$hookCallbackList = $instance->buildHookCallbackListFor(
 			[ 'ParserFirstCallInit' ]
 		);
-		$this->assertArrayHasKey(
-			'ParserFirstCallInit',
-			$hookCallbackList
-		);
-		$this->assertTrue(
-			is_callable( $hookCallbackList['ParserFirstCallInit'] )
-		);
 
-		$hookCallbackList['ParserFirstCallInit']( $extractionParser );
+		$this->assertTrue(
+			isset( $hookCallbackList['ParserFirstCallInit'] )
+			&& is_callable( $hookCallbackList['ParserFirstCallInit'] )
+			&& $hookCallbackList['ParserFirstCallInit']( $extractionParser )
+		);
 
 		$this->assertEquals(
 			14,
@@ -563,6 +537,27 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 				[],
 			],
 		];
+	}
+
+	/**
+	 * @param $hookList
+	 *
+	 * @return array $expectedHookList, $invertedHookList
+	 */
+	private function buildHookListsForCanBuildHookListCheck( $hookList ) {
+		$expectedHookList = [];
+		$invertedHookList = [];
+		foreach ( $hookList as $hook ) {
+			if ( in_array( $hook, Setup::AVAILABLE_HOOKS ) ) {
+				$expectedHookList[] = $hook;
+			}
+		}
+		foreach ( Setup::AVAILABLE_HOOKS as $availableHook ) {
+			if ( !in_array( $availableHook, $hookList ) ) {
+				$invertedHookList[] = $availableHook;
+			}
+		}
+		return [ $expectedHookList, $invertedHookList ];
 	}
 
 	/**

@@ -140,9 +140,6 @@ class ParserRequest {
 		if ( empty( $options ) ) {
 			return [];
 		}
-		if ( !is_array( $options ) ) {
-			$options = [ $options ];
-		}
 		$results = [];
 		foreach ( $options as $option ) {
 			if ( !is_string( $option ) ) {
@@ -190,6 +187,7 @@ class ParserRequest {
 	 * @return array array consisting of (string) $input, (array) $options, (Parser) $parser, and optional (PPFrame) $frame
 	 */
 	private function processArguments( $argumentsPassedByParser, $isParserFunction, $componentName ) {
+		$argumentsPassedByParser = (array)$argumentsPassedByParser;
 		if ( $isParserFunction ) {
 			$parser = array_shift( $argumentsPassedByParser );
 			$input = isset( $argumentsPassedByParser[0] ) ? $argumentsPassedByParser[0] : '';

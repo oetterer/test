@@ -34,10 +34,10 @@ Please also see the [known issues][known-issues] section.
 ## Contact
 For bug reports and feature requests please see, if it is already reported on
 the list of [open bugs][open bugs]. If not, [report it][report bugs]. Also see the
-[Contribute](contribute.md) section for instructions on bug reporting and
+[contribute](contribute.md) section for instructions on bug reporting and
 the list of [known issues][known-issues].
 
-For general questions, comments or suggestions you might use the [talk page
+For general questions, comments, or suggestions you might use the [talk page
 on MediaWiki.org][mw-talk]. For direct contact with the author
 please use the [Email functionality on MediaWiki.org.][mw-mail]
 
@@ -46,8 +46,8 @@ please use the [Email functionality on MediaWiki.org.][mw-mail]
 [Bootstrap]: http://getbootstrap.com/
 [Gallery]: https://www.mediawiki.org/wiki/Help:Images#Rendering_a_gallery_of_images
 [Image]: https://www.mediawiki.org/wiki/Help:Images#Rendering_a_single_image
+[known-issues]: docs/known-issues.md
 [open bugs]: https://github.com/oetterer/BootstrapComponents/issues
 [report bugs]: https://github.com/oetterer/BootstrapComponents/issues/new
 [mw-talk]: https://www.mediawiki.org/wiki/Extension_talk:BootstrapComponents
 [mw-mail]: https://www.mediawiki.org/wiki/Special:EmailUser/oetterer
-[known-issues]: docs/known-issues.md

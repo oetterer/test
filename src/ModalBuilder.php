@@ -479,6 +479,12 @@ class ModalBuilder {
 	private function generateHeader( $header = '' ) {
 		if ( empty( $header ) ) {
 			$header = '';
+		} else {
+			$header = Html::rawElement(
+				'span',
+				[ 'class' => 'modal-title' ],
+				$header
+			);
 		}
 		$button = Html::rawElement(
 			'button',
@@ -497,14 +503,7 @@ class ModalBuilder {
 		return Html::rawElement(
 				'div',
 				[ 'class' => 'modal-header' ],
-				$button . ($header !== ''
-					? Html::rawElement(
-						'span',
-						[ 'class' => 'modal-title' ],
-						$header
-					)
-					: ''
-				)
+				$button 	. $header
 			);
 	}
 }

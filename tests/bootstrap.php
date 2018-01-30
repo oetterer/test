@@ -16,6 +16,9 @@ if ( !is_readable( $autoloaderClassPath = __DIR__ . '/../../SemanticMediaWiki/te
 	die( "\nThe Semantic MediaWiki test autoloader is not available. Needed for integration tests!" );
 }
 
+// increase execution time for php scripts, or else coverage report might fail
+set_time_limit( 600 );
+
 $version = print_r( ExtensionRegistry::getInstance()->getAllThings()['BootstrapComponents']['version'], true );
 
 $dateTimeUtc = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );

@@ -23,6 +23,9 @@ class BadgeTest extends ComponentsTestBase {
 
 	private $input = 'Badge test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

@@ -36,41 +36,6 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 			->getMock();
 	}
 
-	/**
-	 * @param bool $expectError
-	 *
-	 * @return PHPUnit_Framework_MockObject_MockObject
-	 */
-	private function buildFullyEquippedParser( $expectError = true ) {
-		$outputPropertyReturnString = 'rnd_string';
-		$parser = $this->getMockBuilder( 'Parser' )
-			->disableOriginalConstructor()
-			->getMock();
-		if ( $expectError ) {
-			$parserOutput = $this->getMockBuilder( 'ParserOutput' )
-				->disableOriginalConstructor()
-				->getMock();
-			$parserOutput->expects( $this->once() )
-				->method( 'getProperty' )
-				->with(
-					$this->equalTo( 'defaultsort' )
-				)
-				->willReturn( $outputPropertyReturnString );
-			$parserOutput->expects( $this->once() )
-				->method( 'addCategory' )
-				->with(
-					$this->equalTo( 'Pages_with_bootstrap_component_errors' ),
-					$this->equalTo( $outputPropertyReturnString )
-				)
-				->willReturn( $parserOutput );
-			$parser->expects( $this->once() )
-				->method( 'getOutput' )
-				->willReturn( $parserOutput );
-		}
-
-		return $parser;
-	}
-
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(
@@ -98,7 +63,7 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * This is so lame to test. Only reason to do this to up test coverage.
 	 */
-	public function testAddModules() {
+	public function testCanAddModules() {
 		$parserOutput = $this->getMockBuilder( 'ParserOutput' )
 			->disableOriginalConstructor()
 			->getMock();
@@ -140,7 +105,24 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 		$instance->addTrackingCategory();
 	}
 
-	public function testGetNameOfActiveSkin() {
+	/**
+	 * @param mixed $storedText
+	 * @param string $expectedReturn
+	 *
+	 * @dataProvider contentForLaterInjectionProvider
+	 */
+	public function testCanGetContentForLaterInjection( $storedText, $expectedReturn ) {
+		$instance = new ParserOutputHelper( $this->parser );
+
+		$instance->injectLater( $storedText );
+
+		$this->assertEquals(
+			$expectedReturn,
+			$instance->getContentForLaterInjection()
+		);
+	}
+
+	public function testCanGetNameOfActiveSkin() {
 		$instance = new ParserOutputHelper( $this->parser );
 
 		$this->assertEquals(
@@ -149,7 +131,7 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function testLoadBootstrapModules() {
+	public function testCanLoadBootstrapModules() {
 		$parserOutput = $this->getMockBuilder( 'ParserOutput' )
 			->disableOriginalConstructor()
 			->getMock();
@@ -181,7 +163,7 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 	 *
 	 * @dataProvider errorMessageProvider
 	 */
-	public function testRenderErrorMessage( $messageText, $renderedMessage ) {
+	public function testCanRenderErrorMessage( $messageText, $renderedMessage ) {
 		/** @noinspection PhpParamsInspection */
 		$instance = new ParserOutputHelper(
 			$this->buildFullyEquippedParser( ( $renderedMessage != '~^$~' ) )
@@ -190,6 +172,29 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 		$this->assertRegExp(
 			$renderedMessage,
 			$instance->renderErrorMessage( $messageText )
+		);
+	}
+
+	public function testCanSuppressImageModals() {
+		$parser = $this->getMockBuilder( 'Parser' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parserOutput = $this->getMockBuilder( 'ParserOutput' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parserOutput->expects( $this->once() )
+			->method( 'getExtensionData' )
+			->will( $this->returnArgument( 0 ) );
+		$parser->expects( $this->once() )
+			->method( 'getOutput' )
+			->willReturn( $parserOutput );
+
+		/** @noinspection PhpParamsInspection */
+		$instance = new ParserOutputHelper( $parser );
+
+		$this->assertEquals(
+			'bsc_no_image_modal',
+			$instance->areImageModalsSuppressed()
 		);
 	}
 
@@ -203,6 +208,8 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @return array[]
+	 *
+	 * @throws \ConfigException
 	 * @throws MWException
 	 */
 	public function componentNameAndClassProvider() {
@@ -226,5 +233,52 @@ class ParserOutputHelperTest extends PHPUnit_Framework_TestCase {
 			'word'       => [ '__rndErrorMessageTextNotInMessageFiles', '~^<span class="error">[^_]+__rndErrorMessageTextNotInMessageFiles[^<]+</span>$~' ],
 			'word space' => [ '  __rndErrorMessageTextNotInMessageFiles  ', '~^<span class="error">[^_]+__rndErrorMessageTextNotInMessageFiles[^<]+</span>$~' ],
 		];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function contentForLaterInjectionProvider() {
+		return [
+			'none' => [ '', '' ],
+			'false' => [ false, '' ],
+			'null' => [ false, '' ],
+			'string' => [ 'text', '<!-- injected by Extension:BootstrapComponents -->text<!-- /injected by Extension:BootstrapComponents -->' ],
+		];
+	}
+
+	/**
+	 * @param bool $expectError
+	 *
+	 * @return PHPUnit_Framework_MockObject_MockObject
+	 */
+	private function buildFullyEquippedParser( $expectError = true ) {
+		$outputPropertyReturnString = 'rnd_string';
+		$parser = $this->getMockBuilder( 'Parser' )
+			->disableOriginalConstructor()
+			->getMock();
+		if ( $expectError ) {
+			$parserOutput = $this->getMockBuilder( 'ParserOutput' )
+				->disableOriginalConstructor()
+				->getMock();
+			$parserOutput->expects( $this->once() )
+				->method( 'getProperty' )
+				->with(
+					$this->equalTo( 'defaultsort' )
+				)
+				->willReturn( $outputPropertyReturnString );
+			$parserOutput->expects( $this->once() )
+				->method( 'addCategory' )
+				->with(
+					$this->equalTo( 'Pages_with_bootstrap_component_errors' ),
+					$this->equalTo( $outputPropertyReturnString )
+				)
+				->willReturn( $parserOutput );
+			$parser->expects( $this->once() )
+				->method( 'getOutput' )
+				->willReturn( $parserOutput );
+		}
+
+		return $parser;
 	}
 }

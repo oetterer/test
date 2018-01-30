@@ -23,6 +23,9 @@ class CarouselTest extends ComponentsTestBase {
 
 	private $input = 'Well test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

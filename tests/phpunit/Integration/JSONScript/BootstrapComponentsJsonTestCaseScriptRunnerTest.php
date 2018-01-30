@@ -3,6 +3,7 @@
 namespace BootstrapComponents\Tests\Integration;
 
 use BootstrapComponents\Setup;
+use BootstrapComponents\ApplicationFactory;
 use SMW\DIWikiPage;
 use SMW\Tests\JsonTestCaseFileHandler;
 use SMW\Tests\JsonTestCaseScriptRunner;
@@ -48,11 +49,17 @@ class BootstrapComponentsJsonTestCaseScriptRunnerTest extends JsonTestCaseScript
 	 * @throws \MWException
 	 */
 	protected function setUp() {
+		wfDebugLog( 'BootstrapComponents', 'Running the JsonTestCaseScriptRunnerTest setup.' );
 		parent::setUp();
 
 		$validatorFactory = $this->testEnvironment->getUtilityFactory()->newValidatorFactory();
 
 		$this->stringValidator = $validatorFactory->newStringValidator();
+
+		// at this point, I normally would need to reset the lookup in the ApplicationFactory.
+		// only this causes problems with the re-registering of the parser function hooks and
+		// passing them the correct new NestingController
+		// here's to hoping, this is only botched in testing environment.
 
 		$this->setup = new Setup( [] );
 		$this->setup->clear();

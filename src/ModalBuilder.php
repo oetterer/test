@@ -155,7 +155,7 @@ class ModalBuilder {
 	 */
 	public function parse() {
 		$this->parserOutputHelper->injectLater(
-			$this->buildDialog()
+			$this->buildModal()
 		);
 		return $this->buildTrigger();
 	}
@@ -259,11 +259,42 @@ class ModalBuilder {
 	}
 
 	/**
-	 * From all the data passed by caller, this builds the dialog part (the one, that pops up when engaging the trigger).
+	 * From all the data passed by caller, this builds the dialog part (the one inside the modal holding the actual content).
 	 *
 	 * @return string
 	 */
 	protected function buildDialog() {
+		return Html::rawElement(
+			'div',
+			[
+				'class' => $this->compileClass(
+					'modal-dialog',
+					$this->getDialogClass()
+				),
+				'style' => $this->getDialogStyle(),
+			],
+			Html::rawElement(
+				'div',
+				[ 'class' => 'modal-content' ],
+				$this->generateHeader(
+					$this->getHeader()
+				)
+				. $this->generateBody(
+					$this->getContent()
+				)
+				. $this->generateFooter(
+					$this->getFooter()
+				)
+			)
+		);
+	}
+
+	/**
+	 * From all the data passed by caller, this builds the dialog part (the one that pops up when engaging the trigger).
+	 *
+	 * @return string
+	 */
+	protected function buildModal() {
 		return Html::rawElement(
 			'div',
 			[
@@ -276,29 +307,7 @@ class ModalBuilder {
 				'id'          => $this->getId(),
 				'aria-hidden' => 'true',
 			],
-			Html::rawElement(
-				'div',
-				[
-					'class' => $this->compileClass(
-						'modal-dialog',
-						$this->getDialogClass()
-					),
-					'style' => $this->getDialogStyle(),
-				],
-				Html::rawElement(
-					'div',
-					[ 'class' => 'modal-content' ],
-					$this->generateHeader(
-						$this->getHeader()
-					)
-					. $this->generateBody(
-						$this->getContent()
-					)
-					. $this->generateFooter(
-						$this->getFooter()
-					)
-				)
-			)
+			$this->buildDialog()
 		) . "\n";
 	}
 

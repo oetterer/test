@@ -23,6 +23,9 @@ class TooltipTest extends ComponentsTestBase {
 
 	private $input = 'Tooltip test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

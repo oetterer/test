@@ -2,7 +2,7 @@
 
 ### Bootstrap 1.0
 
-Released on 31-Jan-2018
+Released on 30-Jan-2018
 
 First working version
 

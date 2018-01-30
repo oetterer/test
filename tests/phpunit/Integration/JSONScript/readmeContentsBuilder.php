@@ -10,6 +10,7 @@ namespace BootstrapComponents\Tests\Integration\JSONScript;
  * @since 2.4
  *
  * @author mwjames
+ * @author Tobias Oetterer
  */
 class ReadmeContentsBuilder {
 
@@ -50,6 +51,12 @@ class ReadmeContentsBuilder {
 		);
 	}
 
+	/**
+	 * @param $title
+	 * @param $path
+	 *
+	 * @return string
+	 */
 	private function doGenerateContentFor( $title, $path ) {
 
 		$output = '';
@@ -57,13 +64,8 @@ class ReadmeContentsBuilder {
 
 		$counter = 0;
 		$tests = 0;
-		$previousFirstKey = '';
 
 		foreach ( $this->findFilesFor( $path, 'json' ) as $key => $location ) {
-
-			if ( false && $previousFirstKey !== $key{0} ) {
-				$output .= "\n" . '### ' . ucfirst( $key{0} ). "\n";
-			}
 
 			$output .= '* [' . $key .'](' . $urlLocation . '/' . $key . ')';
 
@@ -83,12 +85,17 @@ class ReadmeContentsBuilder {
 
 			$output .= "\n";
 			$counter++;
-			$previousFirstKey = $key{0};
 		}
 
 		return "## $title\n\n" . "Contains $counter files with a total of $tests tests:\n" . $output;
 	}
 
+	/**
+	 * @param $path
+	 * @param $extension
+	 *
+	 * @return array
+	 */
 	private function findFilesFor( $path, $extension ) {
 
 		$files = array();

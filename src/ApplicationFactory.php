@@ -84,12 +84,14 @@ class ApplicationFactory {
 	}
 
 	/**
-	 * @throws MWException  cascading {@see \BootstrapComponents\ApplicationFactory::getApplication}
+	 * @param string[] $validAttributes
+	 *
+	 * @see AttributeManager::__construct
 	 *
 	 * @return AttributeManager
 	 */
-	public function getAttributeManager() {
-		return $this->getApplication( 'AttributeManager' );
+	public function getAttributeManager( $validAttributes ) {
+		return new AttributeManager( $validAttributes );
 	}
 
 	/**
@@ -131,9 +133,9 @@ class ApplicationFactory {
 	 * @param bool   $isParserFunction
 	 * @param string $componentName
 	 *
-	 * @throws \MWException cascading {@see ParserRequest::__construct}
-	 *
 	 * @see ParserRequest::__construct
+	 *
+	 * @throws \MWException cascading {@see ParserRequest::__construct}
 	 *
 	 * @return ParserRequest
 	 */
@@ -143,6 +145,8 @@ class ApplicationFactory {
 
 	/**
 	 * @param \Parser $parser
+	 *
+	 * @see ParserOutputHelper
 	 *
 	 * @throws MWException  cascading {@see \BootstrapComponents\ApplicationFactory::getApplication}
 	 *
@@ -176,8 +180,27 @@ class ApplicationFactory {
 		}
 		wfDebugLog(
 			'BootstrapComponents',
-			'BootstrapComponents\\ApplicationFactory: Trying to register invalid application for class ' . $applicationClass . '!'
+			'ApplicationFactory was requested to register invalid application for class ' . $applicationClass . '!'
 		);
+		return false;
+	}
+
+	/**
+	 * Resets the application $application (or all, if $application is null), so that the next call to
+	 * {@see ApplicationFactory::getApplication} will create a new object.
+	 *
+	 * @param null|string $application
+	 *
+	 * @return bool
+	 */
+	public function resetLookup( $application = null ) {
+		if ( is_null( $application ) ) {
+			$this->applicationStore = [];
+			return true;
+		} elseif ( isset( $this->applicationStore[$application] ) ) {
+			unset( $this->applicationStore[$application] );
+			return true;
+		}
 		return false;
 	}
 
@@ -204,28 +227,10 @@ class ApplicationFactory {
 		try {
 			$objectReflection = new ReflectionClass( $this->applicationClassRegister[$name] );
 		} catch ( \ReflectionException $e ) {
-			throw new MWException( 'Error while trying to build application with class ' . $this->applicationClassRegister[$name] );
+			throw new MWException( 'Error while trying to build application "' . $name . '" with class ' . $this->applicationClassRegister[$name] );
 		}
+		wfDebugLog( 'BootstrapComponents', 'ApplicationFactory successfully build application ' . $name );
 		return $this->applicationStore[$name] = $objectReflection->newInstanceArgs( $args );
-	}
-
-	/**
-	 * Resets the application $application (or all, if $application is null), so that the next call to
-	 * {@see \BootstrapComponents\ApplicationFactory::getApplication} will create a new object.
-	 *
-	 * @param null|string $application
-	 *
-	 * @return bool
-	 */
-	public function resetLookup( $application = null ) {
-		if ( is_null( $application ) ) {
-			$this->applicationStore = [];
-			return true;
-		} elseif ( isset( $this->applicationStore[$application] ) ) {
-			unset( $this->applicationStore[$application] );
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -233,7 +238,6 @@ class ApplicationFactory {
 	 */
 	private function getApplicationClassRegister() {
 		return [
-			'AttributeManager'   => 'BootstrapComponents\\AttributeManager',
 			'ComponentLibrary'   => 'BootstrapComponents\\ComponentLibrary',
 			'NestingController'  => 'BootstrapComponents\\NestingController',
 			'ParserOutputHelper' => 'BootstrapComponents\\ParserOutputHelper',

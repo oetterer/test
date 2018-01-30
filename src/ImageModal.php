@@ -39,6 +39,8 @@ use \Title;
  */
 class ImageModal implements NestableInterface {
 
+	const CSS_CLASS_PREVENTING_MODAL = 'no-modal';
+
 	/**
 	 * The components listed here prevent the generation of an image modal.
 	 * @var array
@@ -161,7 +163,7 @@ class ImageModal implements NestableInterface {
 	 * @return bool
 	 */
 	public function parse( &$frameParams, &$handlerParams, &$time, &$res ) {
-		if ( !$this->assessResponsibility( $this->getFile(), $frameParams ) ) {
+		if ( !$this->assertResponsibility( $this->getFile(), $frameParams ) ) {
 			wfDebugLog( 'BootstrapComponents', 'Image modal relegating image rendering back to Linker.php.' );
 			return true;
 		}
@@ -175,15 +177,14 @@ class ImageModal implements NestableInterface {
 
 		$res = $this->turnParamsIntoModal( $sanitizedFrameParams, $handlerParams );
 
-		if ( $res === '' ) {
-			// ImageModal::turnParamsIntoModal returns the empty string, when something went wrong
-			return true;
-		}
-
 		$this->getNestingController()->close(
 			$this->getId()
 		);
 
+		if ( $res === '' ) {
+			// ImageModal::turnParamsIntoModal returns the empty string, when something went wrong
+			return true;
+		}
 		return false;
 	}
 
@@ -221,31 +222,21 @@ class ImageModal implements NestableInterface {
 	 * After this, we can assume:
 	 * * file is a {@see \File} and exists
 	 * * there is no link param set (link-url, link-title, link-target, no-link)
-	 * * we are not inside an image modal (thanks to {@see \BootstrapComponents\ImageModal::getNestingController})
 	 * * file allows inline display (ref {@see \File::allowInlineDisplay})
+	 * * we are not inside an image modal or an otherwise compromising component  (thanks to {@see ImageModal::getNestingController})
+	 * * no magic word suppressing image modals is on the page
+	 * * image does not have the "no-modal" class {@see ImageModal::CSS_CLASS_PREVENTING_MODAL}
 	 *
 	 * @param \File $file
 	 * @param array $frameParams
 	 *
 	 * @return bool true, if all assertions hold, false if one fails (see above)
 	 */
-	protected function assessResponsibility( $file, $frameParams ) {
-		if ( !$file || !$file->exists() ) {
+	protected function assertResponsibility( $file, $frameParams ) {
+		if ( !$this->assertImageTagValid( $file, $frameParams ) ) {
 			return false;
 		}
-		if ( isset( $frameParams['link-url'] ) || isset( $frameParams['link-title'] )
-			|| isset( $frameParams['link-target'] ) || isset( $frameParams['no-link'] )
-		) {
-			return false;
-		}
-		if ( $this->getParentComponent() && in_array( $this->getParentComponent()->getComponentName(), self::PARENTS_PREVENTING_MODAL ) ) {
-			return false;
-		}
-		if ( !$file->allowInlineDisplay() ) {
-			// let Linker.php handle these cases as well
-			return false;
-		}
-		return true;
+		return $this->assertImageModalNotSuppressed( $frameParams );
 	}
 
 	/**
@@ -369,6 +360,43 @@ class ImageModal implements NestableInterface {
 		}
 
 		return $modal->parse();
+	}
+
+	/**
+	 * @param \File $file
+	 * @param array $frameParams
+	 *
+	 * @return bool
+	 */
+	private function assertImageTagValid( $file, $frameParams ) {
+		if ( !$file || !$file->exists() ) {
+			return false;
+		}
+		if ( isset( $frameParams['link-url'] ) || isset( $frameParams['link-title'] )
+			|| isset( $frameParams['link-target'] ) || isset( $frameParams['no-link'] )
+		) {
+			return false;
+		}
+		if ( !$file->allowInlineDisplay() ) {
+			// let Linker.php handle these cases as well
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @param array $frameParams
+	 *
+	 * @return bool
+	 */
+	private function assertImageModalNotSuppressed( $frameParams ) {
+		if ( $this->getParentComponent() && in_array( $this->getParentComponent()->getComponentName(), self::PARENTS_PREVENTING_MODAL ) ) {
+			return false;
+		}
+		if ( isset( $frameParams['class'] ) && in_array( self::CSS_CLASS_PREVENTING_MODAL, explode( ' ', $frameParams['class'] ) ) ) {
+			return false;
+		}
+		return !$this->getParserOutputHelper()->areImageModalsSuppressed();
 	}
 
 	/**

@@ -316,6 +316,102 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 	 * @throws \ConfigException
 	 * @throws \MWException
 	 */
+	public function testHookInternalParseBeforeLinks() {
+		$parserOutput = $this->getMockBuilder( 'ParserOutput' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parserOutput->expects( $this->once() )
+			->method( 'setExtensionData' )
+			->with(
+				$this->stringContains( 'bsc_no_image_modal' ),
+				$this->isTrue()
+			);
+		$parser = $this->getMockBuilder( 'Parser' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parser->expects( $this->any() )
+			->method( 'getOutput' )
+			->willReturn( $parserOutput );
+
+		$instance = new Setup( [] );
+
+		$hookCallbackList = $instance->buildHookCallbackListFor(
+			[ 'InternalParseBeforeLinks' ]
+		);
+		$this->assertArrayHasKey(
+			'InternalParseBeforeLinks',
+			$hookCallbackList
+		);
+		$this->assertTrue(
+			is_callable( $hookCallbackList['InternalParseBeforeLinks'] )
+		);
+		$text = '';
+		$this->assertTrue(
+			$hookCallbackList['InternalParseBeforeLinks']( $parser, $text )
+		);
+		$this->assertEquals(
+			'',
+			$text
+		);
+		$text = '__NOIMAGEMODAL__';
+		$this->assertTrue(
+			$hookCallbackList['InternalParseBeforeLinks']( $parser, $text )
+		);
+		$this->assertEquals(
+			'',
+			$text
+		);
+	}
+
+	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
+	public function testHookParserBeforeTidy() {
+		$parser = $this->getMockBuilder( 'Parser' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parserOutputHelper = $this->getMockBuilder( 'BootstrapComponents\\ParserOutputHelper' )
+			->disableOriginalConstructor()
+			->getMock();
+		$parserOutputHelper->expects( $this->exactly( 2 ) )
+			->method( 'getContentForLaterInjection' )
+			->willReturnOnConsecutiveCalls( '', 'call2' );
+
+
+		$instance = new Setup( [] );
+		$hookCallbackList = $instance->buildHookCallbackListFor(
+			[ 'ParserBeforeTidy' ]
+		);
+		$this->assertArrayHasKey(
+			'ParserBeforeTidy',
+			$hookCallbackList
+		);
+		$this->assertTrue(
+			is_callable( $hookCallbackList['ParserBeforeTidy'] )
+		);
+		$text = '';
+
+		$this->assertTrue(
+			$hookCallbackList['ParserBeforeTidy']( $parser, $text, $parserOutputHelper )
+		);
+		$this->assertEquals(
+			'',
+			$text
+		);
+		$this->assertTrue(
+			$hookCallbackList['ParserBeforeTidy']( $parser, $text, $parserOutputHelper )
+		);
+		$this->assertEquals(
+			'call2',
+			$text
+		);
+	}
+
+	/**
+	 * @throws \ConfigException
+	 * @throws \MWException
+	 */
 	public function testHookParserFirstCallInit() {
 		$prefix = ComponentLibrary::PARSER_HOOK_PREFIX;
 		$observerParser = $this->getMockBuilder(Parser::class )
@@ -381,10 +477,6 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
-	public function testHookSkinAfterContent() {
-		#@todo implement
-	}
-
 	/**
 	 * @throws \ConfigException
 	 * @throws \MWException
@@ -438,9 +530,9 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 		return [
 			'empty'               => [ [] ],
 			'default'             => [ [ 'ParserFirstCallInit', 'SetupAfterCache' ] ],
-			'alsoImageModal'      => [ [ 'ImageBeforeProduceHTML', 'ParserBeforeTidy', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
+			'alsoImageModal'      => [ [ 'ImageBeforeProduceHTML', 'InternalParseBeforeLinks', 'ParserBeforeTidy', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
 			'alsoCarouselGallery' => [ [ 'GalleryGetModes', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
-			'all'                 => [ [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserBeforeTidy', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
+			'all'                 => [ [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'InternalParseBeforeLinks', 'ParserBeforeTidy', 'ParserFirstCallInit', 'SetupAfterCache' ] ],
 			'invalid'             => [ [ 'nonExistingHook', 'PageContentSave' ] ],
 		];
 	}
@@ -458,16 +550,16 @@ class SetupTest extends PHPUnit_Framework_TestCase {
 			'gallery activated' => [
 				[ 'BootstrapComponentsEnableCarouselGalleryMode' ],
 				[ 'ParserFirstCallInit', 'SetupAfterCache', 'GalleryGetModes' ],
-				[ 'ImageBeforeProduceHTML' ],
+				[ 'ImageBeforeProduceHTML', 'InternalParseBeforeLinks', 'ParserBeforeTidy'  ],
 			],
 			'image replacement activated' => [
 				[ 'BootstrapComponentsModalReplaceImageTag' ],
-				[ 'ParserFirstCallInit', 'SetupAfterCache', 'ImageBeforeProduceHTML', 'ParserBeforeTidy' ],
+				[ 'ParserFirstCallInit', 'SetupAfterCache', 'ImageBeforeProduceHTML', 'InternalParseBeforeLinks', 'ParserBeforeTidy' ],
 				[ 'GalleryGetModes' ],
 			],
 			'both activated' => [
 				[ 'BootstrapComponentsEnableCarouselGalleryMode', 'BootstrapComponentsModalReplaceImageTag' ],
-				[ 'ParserFirstCallInit', 'SetupAfterCache', 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserBeforeTidy' ],
+				[ 'ParserFirstCallInit', 'SetupAfterCache', 'GalleryGetModes', 'ImageBeforeProduceHTML', 'InternalParseBeforeLinks', 'ParserBeforeTidy' ],
 				[],
 			],
 		];

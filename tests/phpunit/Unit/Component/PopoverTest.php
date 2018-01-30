@@ -23,6 +23,9 @@ class PopoverTest extends ComponentsTestBase {
 
 	private $input = 'Popover test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

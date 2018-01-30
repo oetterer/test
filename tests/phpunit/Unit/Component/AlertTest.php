@@ -23,6 +23,9 @@ class AlertTest extends ComponentsTestBase {
 
 	private $input = 'Alert test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

@@ -86,15 +86,25 @@ instead of being referred to the corresponding page in the file namespace,
 a modal opens up showing the image with a possible caption (if you
 provided one) and a link to the source page of the file.
 
-Most regular options that can be used with images are recognized and
-processed accordingly. Please see the help page on [mediawiki.org][ImageHelp].
-
-Please see [known issues][known-issues] for additional information.
-
 Example:
 ```
 $wgBootstrapComponentsModalReplaceImageTag = true;
 ```
+
+Most regular options that can be used with images are recognized and
+processed accordingly. Please see the help page on [mediawiki.org][ImageHelp].
+
+Even after enabling this option you can suppress image modals on a
+given page by adding the magic word `__NOIMAGEMODAL__` somewhere on
+the page. If you want to suppress modal conversion for an individual image,
+give it the css class `no-modal`.
+
+Example:
+```
+[[File:NormalImage.png|class=no-modal|alt=normal|This image is displayed normally]]
+```
+
+Please see [known issues][known-issues] for additional information.
 
 ### `$wgBootstrapComponentsDisableSourceLinkOnImageModal`
 Default setting is `false`.

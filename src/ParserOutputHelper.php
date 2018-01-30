@@ -83,6 +83,7 @@ class ParserOutputHelper {
 	 */
 	private $parser;
 
+
 	/**
 	 * ParserOutputHelper constructor.
 	 *
@@ -117,7 +118,7 @@ class ParserOutputHelper {
 	 * @param array $modulesToAdd
 	 */
 	public function addModules( $modulesToAdd ) {
-		$parserOutput = $this->parser->getOutput();
+		$parserOutput = $this->getParser()->getOutput();
 		if ( is_a( $parserOutput, ParserOutput::class ) ) {
 			// Q: when do we expect \Parser->getOutput() no to be a \ParserOutput? A:During tests.
 			$parserOutput->addModules( $modulesToAdd );
@@ -136,10 +137,10 @@ class ParserOutputHelper {
 	}
 
 	/**
-	 * @return string
+	 * @return bool|null
 	 */
-	public function getNameOfActiveSkin() {
-		return $this->nameOfActiveSkin;
+	public function areImageModalsSuppressed() {
+		return $this->getParser()->getOutput()->getExtensionData( 'bsc_no_image_modal' );
 	}
 
 	/**
@@ -152,9 +153,16 @@ class ParserOutputHelper {
 			return '';
 		}
 		$ret = self::INJECTION_PREFIX . $this->contentForLaterInjection . self::INJECTION_SUFFIX;
-		// clear the stored injection content, so that integration tests run smoothly
+		// clear the stored injection content, so that integration tests can run correctly
 		$this->contentForLaterInjection = '';
 		return $ret;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getNameOfActiveSkin() {
+		return $this->nameOfActiveSkin;
 	}
 
 	/**
@@ -162,7 +170,7 @@ class ParserOutputHelper {
 	 *
 	 * @param string $rawHtml
 	 *
-	 * @return $this (fluid)
+	 * @return ParserOutputHelper $this (fluid)
 	 */
 	public function injectLater( $rawHtml ) {
 		if ( !empty( $rawHtml ) ) {
@@ -175,7 +183,7 @@ class ParserOutputHelper {
 	 * Adds the bootstrap modules and styles to the page, if not done already
 	 */
 	public function loadBootstrapModules() {
-		$parserOutput = $this->parser->getOutput();
+		$parserOutput = $this->getParser()->getOutput();
 		if ( is_a( $parserOutput, ParserOutput::class ) ) {
 			// Q: when do we expect \Parser->getOutput() no to be a \ParserOutput? A:During tests.
 			$parserOutput->addModuleStyles( 'ext.bootstrap.styles' );
@@ -212,6 +220,13 @@ class ParserOutputHelper {
 	 */
 	public function vectorSkinInUse() {
 		return strtolower( $this->getNameOfActiveSkin() ) == 'vector';
+	}
+
+	/**
+	 * @return \Parser
+	 */
+	protected function getParser() {
+		return $this->parser;
 	}
 
 	/**

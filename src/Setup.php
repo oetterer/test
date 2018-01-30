@@ -28,10 +28,12 @@ namespace BootstrapComponents;
 
 use \Bootstrap\BootstrapManager;
 use \Hooks;
+use \MagicWord;
 use \MediaWiki\MediaWikiServices;
 use \MWException;
 use \Parser;
 use \ReflectionClass;
+
 /**
  * Class Setup
  *
@@ -52,7 +54,7 @@ class Setup {
 	/**
 	 * @var array
 	 */
-	const AVAILABLE_HOOKS = [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'ParserBeforeTidy', 'ParserFirstCallInit', 'SetupAfterCache' ];
+	const AVAILABLE_HOOKS = [ 'GalleryGetModes', 'ImageBeforeProduceHTML', 'InternalParseBeforeLinks', 'ParserBeforeTidy', 'ParserFirstCallInit', 'SetupAfterCache' ];
 
 	/**
 	 * @var ComponentLibrary
@@ -158,6 +160,7 @@ class Setup {
 			&& $myConfig->get( 'BootstrapComponentsModalReplaceImageTag' )
 		) {
 			$requestedHookList[] = 'ImageBeforeProduceHTML';
+			$requestedHookList[] = 'InternalParseBeforeLinks';
 			$requestedHookList[] = 'ParserBeforeTidy';
 		}
 		return $requestedHookList;
@@ -172,31 +175,69 @@ class Setup {
 	 */
 	public function getCompleteHookDefinitionList( $myConfig, $componentLibrary, $nestingController ) {
 		return [
-			'GalleryGetModes' => function( &$modeArray ) {
+			/**
+			 * Hook: GalleryGetModes
+			 *
+			 * Allows extensions to add classes that can render different modes of a gallery.
+			 *
+			 * @see https://www.mediawiki.org/wiki/Manual:Hooks/GalleryGetModes
+			 */
+			'GalleryGetModes'          => function( &$modeArray ) {
 				$modeArray['carousel'] = 'BootstrapComponents\\CarouselGallery';
 				return true;
 			},
-			'ImageBeforeProduceHTML' => function( &$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
-			) use ( $nestingController, $myConfig ) {
 
-				$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
+			/**
+			 * Hook: ImageBeforeProduceHTML
+			 *
+			 * Called before producing the HTML created by a wiki image insertion
+			 *
+			 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ImageBeforeProduceHTML
+			 */
+			'ImageBeforeProduceHTML'   => $this->createImageBeforeProduceHTMLCallback( $nestingController, $myConfig ),
 
-				if ( $myConfig->has( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
-					&& $myConfig->get( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
-				) {
-					$imageModal->disableSourceLink();
-				}
+			/**
+			 * Hook: InternalParseBeforeLinks
+			 *
+			 * Used to process the expanded wiki code after <nowiki>, HTML-comments, and templates have been treated.
+			 *
+			 * @see https://www.mediawiki.org/wiki/Manual:Hooks/InternalParseBeforeLinks
+			 */
+			'InternalParseBeforeLinks' => $this->createInternalParseBeforeLinksCallback(),
 
-				return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
-			},
-			'ParserBeforeTidy' => function( &$parser, &$text ) {
+			/**
+			 * Hook: ParserBeforeTidy
+			 *
+			 * Used to process the nearly-rendered html code for the page (but before any html tidying occurs).
+			 *
+			 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserBeforeTidy
+			 */
+			'ParserBeforeTidy'         => function( \Parser &$parser, &$text, $parserOutputHelper = null ) {
 				// injects right before the tidy marker report (e.g. <!-- Tidy found no errors -->), at the very end of the wiki text content
-				$parserOutputHelper = ApplicationFactory::getInstance()->getParserOutputHelper( $parser );
+				if ( is_null( $parserOutputHelper ) ) {
+					$parserOutputHelper = ApplicationFactory::getInstance()->getParserOutputHelper( $parser );
+				}
 				$text .= $parserOutputHelper->getContentForLaterInjection();
 				return true;
 			},
-			'ParserFirstCallInit' => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
-			'SetupAfterCache' => function() {
+
+			/**
+			 * Hook: ParserFirstCallInit
+			 *
+			 * Called when the parser initializes for the first time.
+			 *
+			 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
+			 */
+			'ParserFirstCallInit'      => $this->createParserFirstCallInitCallback( $componentLibrary, $nestingController ),
+
+			/**
+			 * Hook: SetupAfterCache
+			 *
+			 * Called in Setup.php, after cache objects are set
+			 *
+			 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SetupAfterCache
+			 */
+			'SetupAfterCache'          => function() {
 				BootstrapManager::getInstance()->addAllBootstrapModules();
 				return true;
 			},
@@ -281,8 +322,64 @@ class Setup {
 	}
 
 	/**
+	 * Callback for Hook: ImageBeforeProduceHTML
+	 *
+	 * Called before producing the HTML created by a wiki image insertion
+	 *
+	 * @param NestingController $nestingController
+	 * @param \Config           $myConfig
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ImageBeforeProduceHTML
+	 *
+	 * @return \Closure
+	 */
+	private function createImageBeforeProduceHTMLCallback( $nestingController, $myConfig ) {
+
+		return function( &$dummy, &$title, &$file, &$frameParams, &$handlerParams, &$time, &$res
+		) use ( $nestingController, $myConfig ) {
+
+			$imageModal = new ImageModal( $dummy, $title, $file, $nestingController );
+
+			if ( $myConfig->has( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+				&& $myConfig->get( 'BootstrapComponentsDisableSourceLinkOnImageModal' )
+			) {
+				$imageModal->disableSourceLink();
+			}
+
+			return $imageModal->parse( $frameParams, $handlerParams, $time, $res );
+		};
+	}
+
+	/**
+	 * Callback for Hook: InternalParseBeforeLinks
+	 *
+	 * Used to process the expanded wiki code after <nowiki>, HTML-comments, and templates have been treated.
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/InternalParseBeforeLinks
+	 *
+	 * @return \Closure
+	 */
+	private function createInternalParseBeforeLinksCallback() {
+		return function( Parser &$parser, &$text ) {
+			$mw = MagicWord::get( 'BSC_NO_IMAGE_MODAL' );
+			if ( $mw->matchAndRemove( $text ) ) {
+				// we do not use our ParserOutputHelper class here, for we would need to reset it in integration tests.
+				// resetting our factory build classes is unfortunately a little skittish
+				$parser->getOutput()->setExtensionData( 'bsc_no_image_modal', true );
+			}
+			return true;
+		};
+	}
+
+	/**
+	 * Callback for Hook: ParserFirstCallInit
+	 *
+	 * Called when the parser initializes for the first time.
+	 *
 	 * @param ComponentLibrary  $componentLibrary
 	 * @param NestingController $nestingController
+	 *
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
 	 *
 	 * @return \Closure
 	 */
@@ -307,7 +404,7 @@ class Setup {
 					wfDebugLog(
 						'BootstrapComponents',
 						'Unknown handler type (' . $componentLibrary->getHandlerTypeFor( $componentName )
-							. ') detected for component ' . $parserHookString
+						. ') detected for component ' . $parserHookString
 					);
 				}
 			}
@@ -315,6 +412,8 @@ class Setup {
 	}
 
 	/**
+	 * Creates the callback to be registered with {@see \Parser::setFunctionHook} or {@see \Parser::setHook}.
+	 *
 	 * @param string             $componentName
 	 * @param ComponentLibrary   $componentLibrary
 	 * @param NestingController  $nestingController
@@ -348,30 +447,4 @@ class Setup {
 	private function prepareEnvironment( $version ) {
 		@define( 'BOOTSTRAP_COMPONENTS_VERSION', (string) $version );
 	}
-	### attend before deployment
-	# mandatory
-	#@todo add integration tests for placeTrackingCategory and invalid tracking category
-
-	### last steps
-	#@todo test in-wiki every component with every attribute, don't forget image options for components, image modal and carousel
-	#@todo change release date in docs/release-notes.md
-	#@todo remove the rest of the comments here. put ### this remains somewhere to keep track of things
-	#@todo create composer package. see https://packagist.org/ and https://packagist.org/about#how-to-update-packages; packet name "bootstrap-components"
-	#@todo put on github with automatic testing and scrutinizing
-
-
-	# code improvement
-	#@todo introduce header alternative for heading
-	#@todo you can increase code coverage by testing private and protected methods directly
-	# see https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
-	# when starting to use this, revert some previously exposed methods to protected/private again.
-
-
-	### this remains
-	#@todo when dropping support for mw > 1.31, replace manual class autoloading in extension.json with psr-4 autoloading
-	#@todo add extensions requirement to extension.json for "Bootstrap": "~ 1.2" as soon as Bootstrap supports new Extension loading (leaving this in breaks 1.31.x)
-	#@todo remove \BootstrapComponents\Setup::registerMyConfiguration when dropping support for mw > 1.31 (assuming T184837 will be fixed)
-	#@todo components like popover, collapse, etc use #button to activate. You can supply an img tag and have an image inside the button. what if you want to have just the image?
-	#@todo in case there are translations from translate wiki, augment /docs/credits with
-	# Translations have been provided by the members of the [Translatewiki.net project](https://translatewiki.net).
 }

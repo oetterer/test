@@ -23,6 +23,9 @@ class CollapseTest extends ComponentsTestBase {
 
 	private $input = 'Collapse test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

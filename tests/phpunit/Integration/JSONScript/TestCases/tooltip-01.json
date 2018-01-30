@@ -12,12 +12,22 @@
 			}
 		},
 		{
+			"namespace": "NS_TEMPLATE",
+			"page": "((",
+			"contents": "{{"
+		},
+		{
+			"namespace": "NS_TEMPLATE",
+			"page": "))",
+			"contents": "}}"
+		},
+		{
 			"page": "Tooltip/01/1",
 			"contents": "{{#bootstrap_tooltip: Target | text=Tooltip text }}"
 		},
 		{
 			"page": "Tooltip/01/2",
-			"contents": "{{#bootstrap_tooltip: Target: {{#bootstrap_icon: asterisk}} | text=Tooltip text | class=nice | id=small-tip | style=font-size:0.8em | placement=left }}"
+			"contents": "{{#bootstrap_tooltip: Target | text=Tooltip text | class=nice | id=small-tip | style=font-size:0.8em | placement=left }}"
 		},
 		{
 			"page": "Tooltip/01/3",
@@ -38,6 +48,10 @@
 		{
 			"page": "Tooltip/01/7",
 			"contents": "{{#bootstrap_tooltip: [[File:Invalid.png]] | text=Tooltip text}}"
+		},
+		{
+			"page": "Tooltip/01/8",
+			"contents": "{{#bootstrap_tooltip: Target {{((}}#bootstrap_icon: asterisk{{))}} | text=Tooltip text {{((}}#bootstrap_icon: asterisk{{))}} }}"
 		}
 	],
 	"tests": [
@@ -54,11 +68,11 @@
 		},
 		{
 			"type": "parser",
-			"about": "#1 verify output for component tooltip with all attributes set; and a bootstrap_icon in input",
+			"about": "#1 verify output for component tooltip with all attributes set",
 			"subject": "Tooltip/01/2",
 			"assert-output": {
 				"to-contain": [
-					"<span class=\"nice\" style=\"font-size:0.8em\" id=\"small-tip\" data-toggle=\"tooltip\" title=\"Tooltip text\" data-placement=\"left\">Target: <span class=\"glyphicon glyphicon-asterisk\"></span></span>"
+					"<span class=\"nice\" style=\"font-size:0.8em\" id=\"small-tip\" data-toggle=\"tooltip\" title=\"Tooltip text\" data-placement=\"left\">Target</span>"
 				]
 			}
 		},
@@ -124,6 +138,17 @@
 				"to-contain": [
 					"<a id=\"bsc_tooltip_",
 					"/index.php?title=Special:Upload&amp;wpDestFile=Invalid.png\">File:Invalid.png</a>"
+				]
+			}
+		},
+		{
+			"type": "parser",
+			"about": "#7 verify output for component tooltip with bootstrap icon inception",
+			"subject": "Tooltip/01/8",
+			"assert-output": {
+				"to-contain": [
+					"<span id=\"bsc_tooltip_",
+					"data-toggle=\"tooltip\" title=\"Tooltip text &lt;span class=&quot;glyphicon glyphicon-asterisk&quot;&gt;&lt;/span&gt;\">Target <span class=\"glyphicon glyphicon-asterisk\"></span></span>"
 				]
 			}
 		}

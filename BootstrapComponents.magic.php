@@ -30,3 +30,5 @@ $componentLibrary = \BootstrapComponents\ApplicationFactory::getInstance()->getC
 
 // English
 $magicWords['en'] = $componentLibrary->compileMagicWordsArray();
+
+$magicWords['en']['BSC_NO_IMAGE_MODAL'] = array( 0, '__NOIMAGEMODAL__' );

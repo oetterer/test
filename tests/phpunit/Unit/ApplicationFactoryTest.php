@@ -71,6 +71,15 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function testGetAttributeManager() {
+		$instance = new ApplicationFactory();
+
+		$this->assertInstanceOf(
+			'BootstrapComponents\\AttributeManager',
+			$instance->getAttributeManager( [] )
+		);
+	}
+
 	/**
 	 * @param array $arguments
 	 * @param bool  $isParserFunction
@@ -165,7 +174,6 @@ class ApplicationFactoryTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function applicationNameProvider() {
 		return [
-			'AttributeManager'   => [ 'AttributeManager' ],
 			'ComponentLibrary'   => [ 'ComponentLibrary' ],
 			'NestingController'  => [ 'NestingController' ],
 			'ParserOutputHelper' => [ 'ParserOutputHelper' ],

@@ -23,6 +23,9 @@ class AccordionTest extends ComponentsTestBase {
 
 	private $input = 'Accordion test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

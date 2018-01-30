@@ -23,6 +23,9 @@ class IconTest extends ComponentsTestBase {
 
 	private $input = 'icon';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

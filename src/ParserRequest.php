@@ -29,10 +29,11 @@ namespace BootstrapComponents;
 use MWException;
 
 /**
- * @license GNU GPL v3+
- * @since   1.0
+ * Class ParserRequest
  *
- * @author  Tobias Oetterer < oetterer@uni-paderborn.de >
+ * Class to handle the data passed by the parser to a component.
+ *
+ * @since 1.0
  */
 class ParserRequest {
 	/**

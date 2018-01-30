@@ -23,6 +23,9 @@ class JumbotronTest extends ComponentsTestBase {
 
 	private $input = 'Jumbotron test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

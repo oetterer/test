@@ -23,6 +23,9 @@ class LabelTest extends ComponentsTestBase {
 
 	private $input = 'Label test text';
 
+	/**
+	 * @throws \MWException
+	 */
 	public function testCanConstruct() {
 
 		$this->assertInstanceOf(

@@ -2,7 +2,7 @@
 
 ## TestCases
 
-Contains 17 files with a total of 84 tests:
+Contains 18 files with a total of 87 tests:
 * [accordion-01.json](TestCases/accordion-01.json) Test accordion component
 * [alert-01.json](TestCases/alert-01.json) Test alert component
 * [badge-01.json](TestCases/badge-01.json) Test badge component
@@ -13,6 +13,7 @@ Contains 17 files with a total of 84 tests:
 * [icon-01.json](TestCases/icon-01.json) Test icon component
 * [image_modal-01.json](TestCases/image_modal-01.json) Test replacing default image tags with modals
 * [image_modal-02.json](TestCases/image_modal-02.json) Test image modals with invalid thumb image
+* [image_modal-03.json](TestCases/image_modal-03.json) Test image modals with suppression via magic word
 * [jumbotron-01.json](TestCases/jumbotron-01.json) Test jumbotron component
 * [label-01.json](TestCases/label-01.json) Test label component
 * [modal-01.json](TestCases/modal-01.json) Test modal component
@@ -21,7 +22,7 @@ Contains 17 files with a total of 84 tests:
 * [tooltip-01.json](TestCases/tooltip-01.json) Test tooltip component
 * [well-01.json](TestCases/well-01.json) Test well component
 
--- Last updated on 2018-01-25 by `readmeContentsBuilder.php`
+-- Last updated on 2018-01-29 by `readmeContentsBuilder.php`
 
 <!-- End of generated contents by readmeContentsBuilder.php -->
 

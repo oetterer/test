@@ -25,9 +25,6 @@ print sprintf( "%-24s%s\n", "BootstrapComponents: ", $version );
 print sprintf( "\n%-24s%s\n", "Execution time:", $dateTimeUtc->format( 'Y-m-d H:i' ) );
 print sprintf( "%-24s%s\n", "Debug logs:", $GLOBALS['wgDebugLogGroups'] !== array() || $GLOBALS['wgDebugLogFile'] !== '' ? 'Enabled' : 'Disabled' );
 
-# @fixme obsolete with psr-4?
-#require_once ( __DIR__. '/phpunit/Unit/ComponentsTestBase.php' );
-
 $autoLoader = require $autoloaderClassPath;
 $autoLoader->addPsr4( 'BootstrapComponents\\Tests\\Unit\\', __DIR__ . '/phpunit/Unit' );
 $autoLoader->addPsr4( 'BootstrapComponents\\Tests\\Integration\\', __DIR__ . '/phpunit/Integration' );

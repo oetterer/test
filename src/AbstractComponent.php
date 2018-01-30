@@ -29,7 +29,7 @@ namespace BootstrapComponents;
 use \MWException;
 
 /**
- * Class Component
+ * Class AbstractComponent
  *
  * Abstract class for all component classes
  *
@@ -37,12 +37,11 @@ use \MWException;
  */
 abstract class AbstractComponent implements NestableInterface {
 	/**
-	 * Holds a reference of the application's attribute manger.
-	 * Can be used to verify the provided attributes or attribute values.
+	 * Holds a reference of the component's attribute manger.
 	 *
 	 * @var AttributeManager $attributeManager
 	 */
-	private static $attributeManager = null;
+	private $attributeManager;
 
 	/**
 	 * @var ComponentLibrary $componentLibrary
@@ -114,11 +113,11 @@ abstract class AbstractComponent implements NestableInterface {
 		$this->componentLibrary = $componentLibrary;
 		$this->parserOutputHelper = $parserOutputHelper;
 		$this->nestingController = $nestingController;
-		if ( !self::$attributeManager ) {
-			self::$attributeManager = ApplicationFactory::getInstance()->getAttributeManager();
-		}
 		$this->name = $componentLibrary->getNameFor(
 			get_class( $this )
+		);
+		$this->attributeManager = ApplicationFactory::getInstance()->getAttributeManager(
+			$this->componentLibrary->getAttributesFor( $this->getComponentName() )
 		);
 		$this->storeParentComponent(
 			$this->getNestingController()->getCurrentElement()
@@ -155,7 +154,6 @@ abstract class AbstractComponent implements NestableInterface {
 			throw new MWException( 'Invalid ParserRequest supplied to component ' . $this->getComponentName() . '!' );
 		}
 		$this->getNestingController()->open( $this );
-
 		$this->initComponentData( $parserRequest );
 
 		$input = $parserRequest->getParser()->recursiveTagParse(
@@ -189,12 +187,10 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
-	 * Returns the class' reference to the component library.
-	 *
 	 * @return AttributeManager
 	 */
 	protected function getAttributeManager() {
-		return self::$attributeManager;
+		return $this->attributeManager;
 	}
 
 	/**
@@ -290,8 +286,6 @@ abstract class AbstractComponent implements NestableInterface {
 	 * Initializes the attributes, id and stores the original parser request.
 	 *
 	 * @param ParserRequest $parserRequest
-	 *
-	 * @throws \MWException cascading {@see ComponentLibrary::sanitizeAttributes}
 	 */
 	private function initComponentData( $parserRequest ) {
 		$this->parserRequest = $parserRequest;
@@ -306,47 +300,20 @@ abstract class AbstractComponent implements NestableInterface {
 	}
 
 	/**
-	 * Parses and verifies one value for a given attribute.
-	 *
-	 * @param \Parser $parser
-	 * @param string  $attribute
-	 * @param string  $value
-	 *
-	 * @return bool|string
-	 */
-	private function sanitizeAttribute( $parser, $attribute, $value ) {
-		if ( is_string( $value ) ) {
-			$value = $parser->recursiveTagParse( $value );
-		}
-		return $this->getAttributeManager()->verifyValueForAttribute( $attribute, $value );
-	}
-
-	/**
 	 * For every registered attribute, sanitizes (parses and verifies) the corresponding value in supplied attributes.
 	 *
 	 * @param \Parser  $parser
 	 * @param string[] $attributes
 	 *
-	 * @throws \MWException cascading {@see ComponentLibrary::getAttributesFor}
 	 * @return array
 	 */
 	private function sanitizeAttributes( $parser, $attributes ) {
-		$registeredAttributes = $this->getComponentLibrary()->getAttributesFor(
-			$this->getComponentName()
-		);
-		$sanitizedAttributes = [];
 
-		foreach ( $registeredAttributes as $registeredAttribute ) {
-			$sanitizedAttributes[$registeredAttribute] = false;
-			if ( isset( $attributes[$registeredAttribute] ) ) {
-				$sanitizedAttributes[$registeredAttribute] = $this->sanitizeAttribute(
-					$parser,
-					$registeredAttribute,
-					$attributes[$registeredAttribute]
-				);
-			}
+		$parsedAttributes = [];
+		foreach ( $attributes as $attribute => $unParsedValue ) {
+			$parsedAttributes[$attribute] = $parser->recursiveTagParse( $unParsedValue );
 		}
-		return $sanitizedAttributes;
+		return $this->getAttributeManager()->verifyAttributes( $parsedAttributes );
 	}
 
 	/**

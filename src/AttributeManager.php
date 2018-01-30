@@ -36,6 +36,23 @@ namespace BootstrapComponents;
 class AttributeManager {
 
 	/**
+	 * This introduces aliases for attributes.
+	 *
+	 * For instance, if someone adds "header" to its component, it is treated like "heading" if this is not present itself.
+	 */
+	const ALIASES = [
+		'heading' => 'header',
+		'footer'  => 'footing'
+	];
+
+	/**
+	 * For attributes that take any value.
+	 *
+	 * @var int
+	 */
+	const ANY_VALUE = 1;
+
+	/**
 	 * For attributes that can be set to false by supplying one of certain values.
 	 * Usually uses for flag-attributes like "active", "collapsible", etc.
 	 *
@@ -44,13 +61,6 @@ class AttributeManager {
 	 * @var int
 	 */
 	const NO_FALSE_VALUE = 0;
-
-	/**
-	 * For attributes that take any value.
-	 *
-	 * @var int
-	 */
-	const ANY_VALUE = 1;
 
 	/**
 	 * Holds the register for allowed attributes per component
@@ -67,17 +77,26 @@ class AttributeManager {
 	private $noValues;
 
 	/**
+	 * The list of attributes that are considered valid
+	 *
+	 * @var string[] $validAttributes
+	 */
+	private $validAttributes;
+
+	/**
 	 * AttributeManager constructor.
 	 *
 	 * Do not instantiate directly, but use {@see ApplicationFactory::getAttributeManager}
 	 * instead.
 	 *
+	 * @param string[] $validAttributes the list of attributes, this manager deems valid.
+	 *
 	 * @see ApplicationFactory::getAttributeManager
 	 */
-	public function __construct() {
-		$this->allowedValuesForAttribute = $this->getInitialAttributeRegister();
+	public function __construct( $validAttributes ) {
 		$this->noValues = [ false, 0, '0', 'no', 'false', 'off', 'disabled', 'ignored' ];
 		$this->noValues[] = strtolower( wfMessage( 'confirmable-no' )->text() );
+		list ( $this->validAttributes, $this->allowedValuesForAttribute ) = $this->registerValidAttributes( $validAttributes );
 	}
 
 	/**
@@ -85,8 +104,8 @@ class AttributeManager {
 	 *
 	 * @return string[]
 	 */
-	public function getAllAttributes() {
-		return array_keys( $this->allowedValuesForAttribute );
+	public function getAllKnownAttributes() {
+		return array_keys( $this->getInitialAttributeRegister() );
 	}
 
 	/**
@@ -104,6 +123,13 @@ class AttributeManager {
 			return null;
 		}
 		return $this->allowedValuesForAttribute[$attribute];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getValidAttributes() {
+		return $this->validAttributes;
 	}
 
 	/**
@@ -147,6 +173,59 @@ class AttributeManager {
 	}
 
 	/**
+	 * Takes the attributes/options supplied by parser, removes the ones not registered for this component and
+	 * verifies the rest. Note that the result array has an entry for every valid attribute, false if not supplied via parser.
+	 *
+	 * Valid here means: the attribute is registered with the manager and with the component
+	 * Verified: The attributes value has been checked and deemed ok.
+	 *
+	 * Note that attributes not registered with the manager return with a false value.
+	 *
+	 * @param string[] $attributes
+	 *
+	 * @see AttributeManager::verifyValueForAttribute
+	 *
+	 * @return array
+	 */
+	public function verifyAttributes( $attributes ) {
+		$verifiedAttributes = [];
+		foreach ( $this->getValidAttributes() as $validAttribute ) {
+			$value = $this->getValueForAttribute( $validAttribute, $attributes );
+			if ( is_null( $value ) ) {
+				$verifiedAttributes[$validAttribute] = false;
+			} else {
+				$verifiedAttributes[$validAttribute] = $this->verifyValueForAttribute( $validAttribute, $value );
+			}
+		}
+		return $verifiedAttributes;
+	}
+
+	/**
+	 * For each supplied valid attribute this registers the attribute together with its valid values.
+	 *
+	 * Note: Registers only known attributes.
+	 *
+	 * @param string[] $validAttributes
+	 *
+	 * @see AttributeManager::getInitialAttributeRegister
+	 *
+	 * @return array ($filteredValidAttributes, $attributesRegister)
+	 */
+	protected function registerValidAttributes( $validAttributes ) {
+		$allAttributes = $this->getInitialAttributeRegister();
+		$filteredValidAttributes = [];
+		$attributesRegister = [];
+		foreach ( $validAttributes as $validAttribute ) {
+			$validAttribute = strtolower( trim( $validAttribute ) );
+			if ( isset( $allAttributes[$validAttribute] ) ) {
+				$filteredValidAttributes[] = $validAttribute;
+				$attributesRegister[$validAttribute] = $allAttributes[$validAttribute];
+			}
+		}
+		return [ $filteredValidAttributes, $attributesRegister ];
+	}
+
+	/**
 	 * For a given attribute, this verifies, if value is allowed. If verification succeeds, the value will be returned, false otherwise.
 	 * If an attribute is registered as NO_FALSE_VALUE and value is the empty string, it gets converted to true.
 	 *
@@ -158,12 +237,12 @@ class AttributeManager {
 	 *
 	 * @return bool|string
 	 */
-	public function verifyValueForAttribute( $attribute, $value ) {
+	protected function verifyValueForAttribute( $attribute, $value ) {
 		$allowedValues = $this->getAllowedValuesFor( $attribute );
 		if ( $allowedValues === self::NO_FALSE_VALUE ) {
 			return $this->verifyValueForNoValueAttribute( $value );
 		} elseif ( $allowedValues === self::ANY_VALUE ) {
-			// here, the component deals the empty strings its way
+			// here, the component deals with empty strings its own way and we return blindly what we got
 			return $value;
 		} elseif ( is_array( $allowedValues ) && in_array( strtolower( $value ), $allowedValues, true ) ) {
 			return $value;
@@ -193,6 +272,33 @@ class AttributeManager {
 			'trigger'     => [ 'default', 'focus', 'hover' ],
 		];
 
+	}
+
+	/**
+	 * Extracts the value for attribute from passed attributes. If attribute itself
+	 * is not set, it also looks for aliases.
+	 *
+	 * @param $attribute
+	 * @param $passedAttributes
+	 *
+	 * @see AttributeManager::ALIASES
+	 *
+	 * @return null|string
+	 */
+	private function getValueForAttribute( $attribute, $passedAttributes ) {
+		if ( isset ( $passedAttributes[$attribute] ) ) {
+			return $passedAttributes[$attribute];
+		}
+		$definedAliases = self::ALIASES;
+		if ( isset( $definedAliases[$attribute] ) ) {
+			$aliases = (array)$definedAliases[$attribute];
+			foreach ( $aliases as $alias ) {
+				if ( isset( $passedAttributes[$alias] ) ) {
+					return $passedAttributes[$alias];
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

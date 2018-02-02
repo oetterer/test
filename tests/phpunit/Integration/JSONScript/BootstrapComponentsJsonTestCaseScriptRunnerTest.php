@@ -187,6 +187,7 @@ class BootstrapComponentsJsonTestCaseScriptRunnerTest extends JsonTestCaseScript
 
 		/** @var \ParserOutput $parserOutput */
 		$parserOutput = $this->testEnvironment->getUtilityFactory()->newPageReader()->getEditInfo( $subject->getTitle() )->output;
+		echo "Running integration test for page " . $subject->getTitle()->getText() . PHP_EOL;
 
 		if ( isset( $case['assert-output']['to-contain'] ) ) {
 			$this->stringValidator->assertThatStringContains(

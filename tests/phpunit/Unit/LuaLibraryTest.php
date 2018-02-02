@@ -50,7 +50,6 @@ class LuaLibraryTest extends LuaLibraryTestBase {
 		);
 	}
 
-
 	/**
 	 * Data provider for {@see testMethodsExist}
 	 *
@@ -65,5 +64,4 @@ class LuaLibraryTest extends LuaLibraryTestBase {
 			[ 'getSkin' ],
 		];
 	}
-
 }

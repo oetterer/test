@@ -17,16 +17,19 @@ if ( !is_readable( $autoloaderClassPath = __DIR__ . '/../../SemanticMediaWiki/te
 }
 
 // increase execution time for php scripts, or else coverage report might fail
-set_time_limit( 600 );
+if ( !set_time_limit( 600 ) ) {
+	echo "warning: could not increase max execution time for your scripts!" . PHP_EOL . PHP_EOL;
+}
 
 $version = print_r( ExtensionRegistry::getInstance()->getAllThings()['BootstrapComponents']['version'], true );
 
 $dateTimeUtc = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
-print sprintf( "\n%-24s%s\n", "MediaWiki: ", $GLOBALS['wgVersion'] );
-print sprintf( "%-24s%s\n", "Bootstrap: ", BS_VERSION );
-print sprintf( "%-24s%s\n", "BootstrapComponents: ", $version );
-print sprintf( "\n%-24s%s\n", "Execution time:", $dateTimeUtc->format( 'Y-m-d H:i' ) );
-print sprintf( "%-24s%s\n", "Debug logs:", $GLOBALS['wgDebugLogGroups'] !== array() || $GLOBALS['wgDebugLogFile'] !== '' ? 'Enabled' : 'Disabled' );
+print sprintf( "\n%-28s%s\n", "MediaWiki: ", $GLOBALS['wgVersion'] );
+print sprintf( "%-28s%s\n", "Bootstrap: ", BS_VERSION );
+print sprintf( "%-28s%s\n", "BootstrapComponents: ", $version );
+print sprintf( "\n%-28s%s\n", "Execution time:", $dateTimeUtc->format( 'Y-m-d H:i' ) );
+print sprintf( "%-28s%s\n", "Debug logs:", $GLOBALS['wgDebugLogGroups'] !== [] || $GLOBALS['wgDebugLogFile'] !== '' ? 'Enabled' : 'Disabled' );
+print sprintf( "%-28s%s\n", "Script max execution time:", ini_get('max_execution_time') );
 
 $autoLoader = require $autoloaderClassPath;
 $autoLoader->addPsr4( 'BootstrapComponents\\Tests\\Unit\\', __DIR__ . '/phpunit/Unit' );

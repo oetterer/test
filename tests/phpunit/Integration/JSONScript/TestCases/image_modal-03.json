@@ -17,7 +17,7 @@
 		},
 		{
 			"page": "Image_modal/03/2",
-			"contents": "[[File:Image_modal-03-Serenity.png|Caption text|alt=normal|class=no-modals]]"
+			"contents": "[[File:Image_modal-03-Serenity.png|Caption text|alt=normal|class=no-modal test]]"
 		}
 	],
 	"tests": [
@@ -39,11 +39,11 @@
 		{
 			"type": "parser",
 			"about": "#1 verify output for image modal suppressed by css class",
-			"subject": "Image_modal/03/1",
+			"subject": "Image_modal/03/2",
 			"assert-output": {
 				"to-contain": [
 					"/File:Image_modal-03-Serenity.png\" class=\"image\" title=\"Caption text\"><img alt=\"normal\" src=",
-					"/images/e/ea/Image_modal-03-Serenity.png\" width=\"404\" height=\"132\" /></a>"
+					"/images/e/ea/Image_modal-03-Serenity.png\" width=\"404\" height=\"132\" class=\"no-modal test\" /></a>"
 				],
 				"not-contain": [
 					"\"modal",

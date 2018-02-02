@@ -40,21 +40,6 @@ use \Scribunto_LuaLibraryBase;
 class LuaLibrary extends Scribunto_LuaLibraryBase {
 
 	/**
-	 * @var ComponentLibrary $componentLibrary
-	 */
-	private $componentLibrary;
-
-	/**
-	 * @var NestingController $nestingController
-	 */
-	private $nestingController;
-
-	/**
-	 * @var ParserOutputHelper $parserOutputHelper
-	 */
-	private $parserOutputHelper;
-
-	/**
 	 * @var ApplicationFactory $applicationFactory;
 	 */
 	private $applicationFactory;
@@ -63,18 +48,10 @@ class LuaLibrary extends Scribunto_LuaLibraryBase {
 	 * LuaLibrary constructor.
 	 *
 	 * @param Scribunto_LuaEngine $engine
-	 *
-	 * @throws \MWException
 	 */
 	public function __construct( $engine ) {
 		parent::__construct( $engine );
-		$applicationFactory = ApplicationFactory::getInstance();
-		$this->componentLibrary = $applicationFactory->getComponentLibrary();
-		$this->nestingController = $applicationFactory->getNestingController();
-		$this->parserOutputHelper = $applicationFactory->getParserOutputHelper(
-			$this->getParser()
-		);
-		$this->applicationFactory = $applicationFactory;
+		$this->applicationFactory = ApplicationFactory::getInstance();
 	}
 
 	/**
@@ -105,10 +82,11 @@ class LuaLibrary extends Scribunto_LuaLibraryBase {
 		if ( empty( $componentName ) ) {
 			return [ wfMessage( 'bootstrap-components-lua-error-no-component' )->text() ];
 		}
-		if ( !in_array( $componentName, $this->getComponentLibrary()->getRegisteredComponents() ) ) {
+		$componentLibrary = $this->getApplicationFactory()->getComponentLibrary();
+		if ( !in_array( $componentName, $componentLibrary->getRegisteredComponents() ) ) {
 			return [ wfMessage( 'bootstrap-components-lua-error-invalid-component', $componentName )->text() ];
 		}
-		$componentClass = $this->getComponentLibrary()->getClassFor( $componentName );
+		$componentClass = $componentLibrary->getClassFor( $componentName );
 		$parserRequest = $this->buildParserRequest( $input, $arguments, $componentName );
 		$component = $this->getComponent( $componentClass );
 		return [
@@ -123,7 +101,6 @@ class LuaLibrary extends Scribunto_LuaLibraryBase {
 	 */
 	public function getSkin() {
 		return [ $this->getApplicationFactory()->getParserOutputHelper( $this->getParser() )->getNameOfActiveSkin() ];
-		#return [ $this->getParserOutputHelper()->getNameOfActiveSkin() ];
 	}
 
 	/**
@@ -162,9 +139,6 @@ class LuaLibrary extends Scribunto_LuaLibraryBase {
 				$this->getApplicationFactory()->getComponentLibrary(),
 				$this->getApplicationFactory()->getParserOutputHelper( $this->getParser() ),
 				$this->getApplicationFactory()->getNestingController(),
-#				$this->getComponentLibrary(),
-#				$this->getParserOutputHelper(),
-#				$this->getNestingController(),
 			]
 		);
 		return $component;
@@ -175,27 +149,6 @@ class LuaLibrary extends Scribunto_LuaLibraryBase {
 	 */
 	protected function getApplicationFactory() {
 		return $this->applicationFactory;
-	}
-
-	/**
-	 * @return ComponentLibrary
-	 */
-	protected function getComponentLibrary() {
-		return $this->componentLibrary;
-	}
-
-	/**
-	 * @return NestingController
-	 */
-	protected function getNestingController() {
-		return $this->nestingController;
-	}
-
-	/**
-	 * @return ParserOutputHelper
-	 */
-	protected function getParserOutputHelper() {
-		return $this->parserOutputHelper;
 	}
 
 	/**
